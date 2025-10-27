@@ -1,10 +1,16 @@
-
+import Header from "./components/Header"
+import Footer from "./components/Footer"
 
 function App() {
   return (
-    <h1 className="text-3xl font-bold underline bg-red-500 text-center">
-    artisticvicky
-  </h1>
+    <>
+  <Header />
+  <main>
+    <h1 className="h-screen">Artistic Vicky</h1>
+  </main>
+  <Footer />
+</>
+
   )
 }
 
