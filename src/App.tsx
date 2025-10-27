@@ -1,12 +1,13 @@
 import Header from "./components/Header"
 import Footer from "./components/Footer"
+import Home from "./Pages/Home"
 
 function App() {
   return (
     <>
   <Header />
   <main>
-    <h1 className="h-screen">Artistic Vicky</h1>
+   <Home />
   </main>
   <Footer />
 </>
