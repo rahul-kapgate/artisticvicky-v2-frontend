@@ -1,40 +1,41 @@
-import { Instagram, Youtube, Linkedin } from "lucide-react"; // install via: npm install lucide-react
+import { Instagram, Youtube, Linkedin } from "lucide-react";
 
 function Footer() {
   return (
-    <footer className="bg-[#F0F8FF]/80 backdrop-blur-sm border-t border-[#BFDFFF] shadow-inner py-10 mt-12">
+    <footer className="bg-gradient-to-b from-white via-purple-50 to-purple-100/50 backdrop-blur-md border-t border-purple-200/50 shadow-inner py-12 mt-16">
       <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
         
         {/* 1️⃣ Brand Info */}
         <div>
-          <h2 className="text-2xl font-bold text-[#1D4ED8] mb-3 tracking-tight">
-            artisticvicky
+          <h2 className="text-2xl font-extrabold bg-gradient-to-r from-purple-600 via-pink-500 to-purple-700 bg-clip-text text-transparent mb-3 tracking-tight">
+            ArtisticVicky
           </h2>
-          <p className="text-sm text-[#1E3A8A]/80">
-            Explore creativity and learning with ArtisticVicky — where art meets technology.
+          <p className="text-sm text-gray-700 leading-relaxed">
+            Explore creativity and learning with <strong>ArtisticVicky</strong> — 
+            where imagination meets inspiration.
           </p>
         </div>
 
         {/* 2️⃣ Quick Links */}
         <div>
-          <h3 className="text-lg font-semibold text-[#1E3A8A] mb-3">Quick Links</h3>
-          <ul className="space-y-2 text-[#1E3A8A]/80 text-sm">
-            <li><a href="#privacy" className="hover:text-[#2563EB] transition">Privacy Policy</a></li>
-            <li><a href="#terms" className="hover:text-[#2563EB] transition">Terms of Use</a></li>
-            <li><a href="#contact" className="hover:text-[#2563EB] transition">Contact Us</a></li>
-            <li><a href="#refund" className="hover:text-[#2563EB] transition">Refund Policy</a></li>
+          <h3 className="text-lg font-semibold text-purple-800 mb-3">Quick Links</h3>
+          <ul className="space-y-2 text-gray-700 text-sm">
+            <li><a href="#privacy" className="hover:text-purple-600 transition">Privacy Policy</a></li>
+            <li><a href="#terms" className="hover:text-purple-600 transition">Terms of Use</a></li>
+            <li><a href="#contact" className="hover:text-purple-600 transition">Contact Us</a></li>
+            <li><a href="#refund" className="hover:text-purple-600 transition">Refund Policy</a></li>
           </ul>
         </div>
 
         {/* 3️⃣ Follow Us */}
         <div>
-          <h3 className="text-lg font-semibold text-[#1E3A8A] mb-3">Follow Us</h3>
-          <div className="flex justify-center md:justify-start space-x-4">
+          <h3 className="text-lg font-semibold text-purple-800 mb-3">Follow Us</h3>
+          <div className="flex justify-center md:justify-start space-x-5">
             <a
               href="https://www.instagram.com/"
               target="_blank"
               rel="noreferrer"
-              className="text-[#1E3A8A] hover:text-[#2563EB] transition"
+              className="text-purple-700 hover:text-pink-500 transition-transform transform hover:scale-110"
             >
               <Instagram size={22} />
             </a>
@@ -42,7 +43,7 @@ function Footer() {
               href="https://www.youtube.com/"
               target="_blank"
               rel="noreferrer"
-              className="text-[#1E3A8A] hover:text-[#2563EB] transition"
+              className="text-purple-700 hover:text-red-500 transition-transform transform hover:scale-110"
             >
               <Youtube size={22} />
             </a>
@@ -50,7 +51,7 @@ function Footer() {
               href="https://www.linkedin.com/"
               target="_blank"
               rel="noreferrer"
-              className="text-[#1E3A8A] hover:text-[#2563EB] transition"
+              className="text-purple-700 hover:text-blue-600 transition-transform transform hover:scale-110"
             >
               <Linkedin size={22} />
             </a>
@@ -59,8 +60,9 @@ function Footer() {
       </div>
 
       {/* Divider Line */}
-      <div className="border-t border-[#BFDFFF] mt-8 pt-4 text-center text-sm text-[#1E3A8A]/70">
-        &copy; {new Date().getFullYear()} <span className="font-semibold text-[#1D4ED8]">artisticvicky</span>. All rights reserved.
+      <div className="border-t border-purple-200 mt-10 pt-4 text-center text-sm text-gray-600">
+        &copy; {new Date().getFullYear()}{" "}
+        <span className="font-semibold text-purple-700">ArtisticVicky</span>. All rights reserved.
       </div>
     </footer>
   );

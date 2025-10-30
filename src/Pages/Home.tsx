@@ -73,32 +73,40 @@ function Home() {
             </section>
 
             {/* ---------------- Why Artistic Vicky Section ---------------- */}
-            <section className="py-16 bg-gray-50">
-                <div className="max-w-7xl mx-auto px-6 text-center">
+            <section className="py-20 px-6 bg-gradient-to-b from-white via-purple-50 to-white">
+                <div className="max-w-7xl mx-auto text-center">
                     <h2 className="text-4xl font-bold mb-6 text-gray-800">
-                        Why <span className="text-pink-600">Artistic Vicky?</span>
+                        Why <span className="text-purple-600">Artistic Vicky?</span>
                     </h2>
-                    <p className="text-lg text-gray-600 mb-12 max-w-2xl mx-auto">
+
+                    <p className="text-lg text-gray-600 mb-12 max-w-2xl mx-auto leading-relaxed">
                         Discover what makes Artistic Vicky a unique space for creativity, passion,
                         and meaningful artistic expression.
                     </p>
 
+                    {/* Reason Cards */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                         {reasons.map((item, index) => (
                             <div
                                 key={index}
-                                className="bg-white shadow-lg rounded-2xl p-6 hover:shadow-2xl transition duration-300"
+                                className="bg-white/80 backdrop-blur-md shadow-md rounded-2xl p-8 border border-purple-100 hover:shadow-2xl hover:scale-105 transition-all duration-300"
                             >
                                 <div className="flex justify-center mb-4">{item.icon}</div>
-                                <h3 className="text-xl font-semibold mb-2 text-gray-800">
+                                <h3 className="text-xl font-semibold mb-2 text-purple-800">
                                     {item.title}
                                 </h3>
-                                <p className="text-gray-600">{item.desc}</p>
+                                <p className="text-gray-700">{item.desc}</p>
                             </div>
                         ))}
                     </div>
+
+                    {/* Decorative Accent */}
+                    <div className="flex justify-center mt-12">
+                        <span className="inline-block w-24 h-1 bg-purple-500 rounded-full"></span>
+                    </div>
                 </div>
             </section>
+
 
             {/* ---------------- About Section ---------------- */}
             <section id="about" className="py-20 px-6 bg-gradient-to-b from-white via-purple-50 to-white">
