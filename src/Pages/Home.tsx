@@ -68,9 +68,80 @@ function Home() {
             </section>
 
 
-            <section id="courses" className="py-16 px-4 bg-white">
-                <div className="text-center">corses Section</div>
+            <section id="courses" className="py-16 px-6 bg-white">
+                <div className="text-center mb-12">
+                    <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-2">
+                        🎨 Explore Courses
+                    </h2>
+                    <p className="text-gray-600 max-w-2xl mx-auto">
+                        Learn, create, and master your artistic skills through these detailed step-by-step lessons.
+                    </p>
+                </div>
+
+                <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-8">
+                    {/* Course 1 */}
+                    <div className="bg-white rounded-2xl shadow-lg p-4 hover:scale-105 transition">
+                        <img
+                            src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=600&q=60"
+                            alt="Digital Painting"
+                            className="rounded-xl mb-4 h-48 w-full object-cover"
+                        />
+                        <h3 className="text-xl font-semibold mb-2">Digital Painting</h3>
+                        <p className="text-gray-600 mb-3">
+                            Learn how to create stunning digital art from scratch using layers and brushes.
+                        </p>
+                        <div className="flex justify-between text-sm text-gray-500">
+                            <span>12 Lessons</span><span>₹499</span>
+                        </div>
+                        <button className="mt-4 w-full bg-gradient-to-r from-indigo-500 via-sky-500 to-blue-500 text-white font-semibold px-4 py-2 rounded-lg shadow-md hover:shadow-lg hover:from-blue-500 hover:to-indigo-500 transition-all duration-300">
+                            Learn More 🎨
+                        </button>
+
+                    </div>
+
+                    {/* Course 2 */}
+                    <div className="bg-white rounded-2xl shadow-lg p-4 hover:scale-105 transition">
+                        <img
+                            src="https://images.unsplash.com/photo-1501594907352-04cda38ebc29?auto=format&fit=crop&w=600&q=60"
+                            alt="Watercolor Basics"
+                            className="rounded-xl mb-4 h-48 w-full object-cover"
+                        />
+                        <h3 className="text-xl font-semibold mb-2">Watercolor Basics</h3>
+                        <p className="text-gray-600 mb-3">
+                            Master watercolor techniques to bring life and texture to your paintings.
+                        </p>
+                        <div className="flex justify-between text-sm text-gray-500">
+                            <span>8 Lessons</span><span>₹299</span>
+                        </div>
+                        <button className="mt-4 w-full bg-indigo-500/90 backdrop-blur-sm text-white font-medium px-4 py-2 rounded-xl shadow-md hover:bg-indigo-600 transition duration-300">
+                            Learn More
+                        </button>
+
+                    </div>
+
+                    {/* Course 3 */}
+                    <div className="bg-white rounded-2xl shadow-lg p-4 hover:scale-105 transition">
+                        <img
+                            src="https://images.unsplash.com/photo-1529101091764-c3526daf38fe?auto=format&fit=crop&w=600&q=60"
+                            alt="Sketching for Beginners"
+                            className="rounded-xl mb-4 h-48 w-full object-cover"
+                        />
+                        <h3 className="text-xl font-semibold mb-2">Sketching for Beginners</h3>
+                        <p className="text-gray-600 mb-3">
+                            Learn the art of proportion, shading, and expression to build strong sketching skills.
+                        </p>
+                        <div className="flex justify-between text-sm text-gray-500">
+                            <span>10 Lessons</span><span>₹399</span>
+                        </div>
+                        <button className="mt-4 w-full border-2 border-indigo-500 text-indigo-600 font-medium px-4 py-2 rounded-lg hover:bg-indigo-500 hover:text-white transition duration-300">
+                            Learn More
+                        </button>
+
+                    </div>
+                </div>
             </section>
+
+
 
             {/* ---------------- Why Artistic Vicky Section ---------------- */}
             <section className="py-20 px-6 bg-gradient-to-b from-white via-purple-50 to-white">
