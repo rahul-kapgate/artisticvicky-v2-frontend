@@ -57,12 +57,12 @@ function Home() {
           <h1 className="text-5xl font-bold mb-4">
             Welcome to{" "}
             <span className="bg-gradient-to-r from-purple-500 via-purple-600 to-purple-800 bg-clip-text text-transparent">
-              Artistic Vicky
+              Artistic Vickey
             </span>
           </h1>
           <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
             Discover colors, creativity, and inspiration through the eyes of
-            Vicky.
+            Vickey.
           </p>
 
           <div className="relative w-full max-w-4xl mx-auto rounded-2xl overflow-hidden shadow-xl mb-8">
@@ -160,14 +160,14 @@ function Home() {
         </div>
       </section>
 
-      {/* ---------------- Why Artistic Vicky Section ---------------- */}
+      {/* ---------------- Why Artistic Vickey Section ---------------- */}
       <section className="py-12 px-6 bg-gradient-to-b from-white via-purple-50 to-white">
         <div className="max-w-7xl mx-auto text-center">
           <h2 className="text-4xl font-bold mb-6 text-gray-800">
-            Why <span className="text-purple-600">Artistic Vicky?</span>
+            Why <span className="text-purple-600">Artistic Vickey?</span>
           </h2>
           <p className="text-lg text-gray-600 mb-12 max-w-2xl mx-auto leading-relaxed">
-            Discover what makes Artistic Vicky a unique space for creativity,
+            Discover what makes Artistic Vickey a unique space for creativity,
             passion, and meaningful artistic expression.
           </p>
 
@@ -199,13 +199,13 @@ function Home() {
       >
         <div className="max-w-6xl mx-auto text-center">
           <h2 className="text-4xl font-bold mb-6 text-gray-800">
-            About <span className="text-purple-600">Artistic Vicky</span>
+            About <span className="text-purple-600">Artistic Vickey</span>
           </h2>
 
           <p className="text-lg text-gray-600 mb-12 max-w-3xl mx-auto leading-relaxed">
-            Artistic Vicky is more than just an art platform — it's a creative
+            Artistic Vickey is more than just an art platform — it's a creative
             journey that blends imagination, emotion, and technique. Founded by
-            Vicky, a passionate artist dedicated to exploring the beauty of
+            Vickey, a passionate artist dedicated to exploring the beauty of
             colors, textures, and storytelling through art. Each piece
             represents a unique story — inspired by life, nature, and human
             emotion.
@@ -222,16 +222,16 @@ function Home() {
 
             <div className="text-left md:text-justify">
               <h3 className="text-2xl font-semibold mb-4 text-purple-700">
-                Meet Vicky — The Artist Behind the Canvas
+                Meet Vickey — The Artist Behind the Canvas
               </h3>
               <p className="text-gray-700 mb-4 leading-relaxed">
-                Vicky’s artistic vision is rooted in curiosity and constant
+                Vickey’s artistic vision is rooted in curiosity and constant
                 exploration. Whether it’s digital illustration, watercolor
                 realism, or abstract compositions, each artwork aims to connect
                 emotionally with its audience.
               </p>
               <p className="text-gray-700 mb-6 leading-relaxed">
-                Through <strong>Artistic Vicky</strong>, the goal is to inspire
+                Through <strong>Artistic Vickey</strong>, the goal is to inspire
                 others to see art as a language that transcends boundaries —
                 celebrating creativity, diversity, and imagination.
               </p>

@@ -11,11 +11,11 @@ function Footer() {
         <div>
           <Link to="/" className="text-2xl font-extrabold bg-gradient-to-r from-purple-600 via-pink-500 to-purple-700 bg-clip-text text-transparent mb-3 tracking-tight">
             <span className="bg-gradient-to-r from-purple-500 via-purple-600 to-purple-800 bg-clip-text text-transparent">
-              Artistic Vicky
+              Artistic Vickey
             </span>
           </Link>
           <p className="text-sm text-gray-700 leading-relaxed">
-            Explore creativity and learning with <strong>ArtisticVicky</strong> —
+            Explore creativity and learning with <strong>ArtisticVickey</strong> —
             where imagination meets inspiration.
           </p>
         </div>
@@ -36,7 +36,7 @@ function Footer() {
           <h3 className="text-lg font-semibold text-purple-800 mb-3">Follow Us</h3>
           <div className="flex justify-center md:justify-start space-x-5">
             <a
-              href="https://www.instagram.com/artistic.vicky"
+              href="https://www.instagram.com/artistic.Vickey"
               target="_blank"
               rel="noreferrer"
               className="text-purple-700 hover:text-pink-500 transition-transform transform hover:scale-110"
@@ -44,7 +44,7 @@ function Footer() {
               <Instagram size={22} />
             </a>
             <a
-              href="https://www.youtube.com/@ArtisticVicky"
+              href="https://www.youtube.com/@ArtisticVickey"
               target="_blank"
               rel="noreferrer"
               className="text-purple-700 hover:text-red-500 transition-transform transform hover:scale-110"
@@ -66,7 +66,7 @@ function Footer() {
       {/* Divider Line */}
       <div className="border-t border-purple-200 mt-10 pt-4 text-center text-sm text-gray-600">
         &copy; {new Date().getFullYear()}{" "}
-        <span className="font-semibold text-purple-700">ArtisticVicky</span>. All rights reserved.
+        <span className="font-semibold text-purple-700">ArtisticVickey</span>. All rights reserved.
       </div>
     </footer>
   );

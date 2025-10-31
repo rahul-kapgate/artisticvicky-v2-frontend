@@ -24,14 +24,14 @@ const Contact: React.FC = () => {
     {
       icon: <Instagram className="w-6 h-6 text-pink-500" />,
       title: "Instagram",
-      link: "https://www.instagram.com/artistic.vicky/",
-      text: "www.instagram.com/artistic.vicky/",
+      link: "https://www.instagram.com/artistic.Vickey/",
+      text: "www.instagram.com/artistic.Vickey/",
     },
     {
       icon: <Youtube className="w-6 h-6 text-red-600" />,
       title: "YouTube",
-      link: "https://www.youtube.com/@artisticvicky",
-      text: "www.youtube.com/@artisticvicky",
+      link: "https://www.youtube.com/@artisticVickey",
+      text: "www.youtube.com/@artisticVickey",
     },
     {
       icon: <Facebook className="w-6 h-6 text-blue-600" />,
@@ -47,7 +47,7 @@ const Contact: React.FC = () => {
       className="min-h-screen flex flex-col justify-center items-center bg-purple-50 px-6 py-20"
     >
       <h2 className="text-4xl font-extrabold text-purple-800 mb-12 text-center">
-        Connect with Vicky 🎨
+        Connect with Vickey 🎨
       </h2>
 
       {/* Card Grid */}
