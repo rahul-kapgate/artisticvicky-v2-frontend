@@ -106,9 +106,9 @@ function Home() {
               <span>12 Lessons</span>
               <span>₹499</span>
             </div>
-            {/* 🔹 Vibrant Gradient Glow */}
-            <button className="mt-4 w-full bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 text-white font-semibold px-4 py-2 rounded-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300">
-              Enroll Now ✨
+            {/* ✏️ Minimal Elegant Outline */}
+            <button className="mt-4 w-full border-2 border-purple-500 text-purple-600 font-semibold px-4 py-2 rounded-lg hover:bg-purple-500 hover:text-white transition-all duration-300">
+            Enroll Now ✨
             </button>
           </div>
 
@@ -128,9 +128,9 @@ function Home() {
               <span>8 Lessons</span>
               <span>₹299</span>
             </div>
-            {/* 🌊 Calm Indigo Wave */}
-            <button className="mt-4 w-full bg-gradient-to-r from-indigo-500 to-sky-500 text-white font-medium px-4 py-2 rounded-lg shadow-md hover:from-sky-500 hover:to-indigo-500 hover:scale-105 transition-all duration-300">
-              Learn More 🎨
+            {/* ✏️ Minimal Elegant Outline */}
+            <button className="mt-4 w-full border-2 border-purple-500 text-purple-600 font-semibold px-4 py-2 rounded-lg hover:bg-purple-500 hover:text-white transition-all duration-300">
+            Enroll Now ✨
             </button>
           </div>
 
@@ -154,7 +154,7 @@ function Home() {
             </div>
             {/* ✏️ Minimal Elegant Outline */}
             <button className="mt-4 w-full border-2 border-purple-500 text-purple-600 font-semibold px-4 py-2 rounded-lg hover:bg-purple-500 hover:text-white transition-all duration-300">
-              Start Now ✏️
+            Enroll Now ✨
             </button>
           </div>
         </div>
