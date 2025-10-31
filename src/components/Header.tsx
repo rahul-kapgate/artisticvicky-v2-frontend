@@ -33,7 +33,7 @@ function Header() {
           {/* Logo */}
           <Link to="/" className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-purple-600 via-pink-500 to-purple-700 bg-clip-text text-transparent">
             <span className="bg-gradient-to-r from-purple-500 via-purple-600 to-purple-800 bg-clip-text text-transparent">
-              Artistic Vicky
+              Artistic Vickey
             </span>
           </Link>
 
