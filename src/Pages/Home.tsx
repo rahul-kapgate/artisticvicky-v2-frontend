@@ -52,7 +52,7 @@ function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-50 via-white to-white text-gray-800 scroll-smooth mt-14">
       {/* ---------------- Hero Section ---------------- */}
-      <section className="text-center py-20 px-4 bg-gradient-to-b from-purple-50 via-white to-white">
+      <section className="text-center pt-20 pb-6 px-4 bg-gradient-to-b from-purple-50 via-white to-white">
         <div className="max-w-5xl mx-auto">
           <h1 className="text-5xl font-bold mb-4">
             Welcome to{" "}
@@ -78,10 +78,10 @@ function Home() {
       </section>
 
       {/* ---------------- Courses Section ---------------- */}
-      <section id="courses" className="py-16 px-6 bg-white">
+      <section id="courses" className="py-4 px-6 bg-white">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-2">
-            🎨 Explore Courses
+            🎨 Explore <span className="text-purple-600"> Courses </span>
           </h2>
           <p className="text-gray-600 max-w-2xl mx-auto">
             Learn, create, and master your artistic skills through these
@@ -161,7 +161,7 @@ function Home() {
       </section>
 
       {/* ---------------- Why Artistic Vicky Section ---------------- */}
-      <section className="py-20 px-6 bg-gradient-to-b from-white via-purple-50 to-white">
+      <section className="py-12 px-6 bg-gradient-to-b from-white via-purple-50 to-white">
         <div className="max-w-7xl mx-auto text-center">
           <h2 className="text-4xl font-bold mb-6 text-gray-800">
             Why <span className="text-purple-600">Artistic Vicky?</span>
@@ -195,7 +195,7 @@ function Home() {
       {/* ---------------- About Section ---------------- */}
       <section
         id="about"
-        className="py-20 px-6 bg-gradient-to-b from-white via-purple-50 to-white"
+        className="py-4 px-6 bg-gradient-to-b from-white via-purple-50 to-white"
       >
         <div className="max-w-6xl mx-auto text-center">
           <h2 className="text-4xl font-bold mb-6 text-gray-800">
