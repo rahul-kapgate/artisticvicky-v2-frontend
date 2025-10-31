@@ -78,87 +78,106 @@ function Home() {
       </section>
 
       {/* ---------------- Courses Section ---------------- */}
-      <section id="courses" className="py-4 px-6 bg-white">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-2">
-            🎨 Explore <span className="text-purple-600"> Courses </span>
+      {/* <!-- ---------------- Courses Section (plain section markup) ---------------- --> */}
+      <section id="courses" className="py-8 px-6 bg-gradient-to-b from-[#0a0f2c] via-[#10194f] to-[#1a237e] text-gray-100">
+        <div className="text-center mb-10">
+          <h2 className="text-3xl md:text-4xl font-bold mb-2">
+            🎨 Explore <span className="text-cyan-300">Courses</span>
           </h2>
-          <p className="text-gray-600 max-w-2xl mx-auto">
-            Learn, create, and master your artistic skills through these
-            step-by-step lessons.
+          <p className="text-gray-300 max-w-2xl mx-auto">
+            Learn, create, and master your artistic skills through these step-by-step lessons.
           </p>
         </div>
 
-        <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-8">
-          {/* Course 1 */}
-          <div className="bg-white rounded-2xl shadow-lg p-4 hover:scale-105 transition">
-            <img
-              src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=600&q=60"
-              alt="Digital Painting"
-              className="rounded-xl mb-4 h-48 w-full object-cover"
-            />
-            <h3 className="text-xl font-semibold mb-2">Digital Painting</h3>
-            <p className="text-gray-600 mb-3">
-              Learn how to create stunning digital art from scratch using layers
-              and brushes.
-            </p>
-            <div className="flex justify-between text-sm text-gray-500">
+        {/* <!-- Course Cards Grid --> */}
+        <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-10 max-w-6xl mx-auto">
+
+          {/* <!-- Card 1: Deep Purple Glow --> */}
+          <article className="rounded-2xl shadow-xl p-5 transform transition-all duration-300 hover:scale-105
+                    bg-gradient-to-br from-[#2b1a4a] via-[#3c1e65] to-[#472181]
+                    border border-pink-400/20">
+            <div className="relative">
+              <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=900&q=60"
+                alt="Digital Painting" loading="lazy"
+                className="rounded-xl mb-4 h-48 w-full object-cover border border-pink-500/30" />
+              <span className="absolute top-3 left-3 text-xs font-semibold px-2 py-1 rounded-full bg-white/20 backdrop-blur-sm text-white">
+                Popular
+              </span>
+            </div>
+
+            <h3 className="text-xl font-semibold text-pink-300 mb-2">Digital Painting</h3>
+            <p className="text-gray-200 mb-3">Learn how to create stunning digital art from scratch using layers and brushes.</p>
+
+            <div className="flex justify-between text-sm text-gray-300">
               <span>12 Lessons</span>
-              <span>₹499</span>
+              <span className="text-pink-200 font-medium">₹499</span>
             </div>
-            {/* ✏️ Minimal Elegant Outline */}
-            <button className="mt-4 w-full border-2 border-purple-500 text-purple-600 font-semibold px-4 py-2 rounded-lg hover:bg-purple-500 hover:text-white transition-all duration-300">
-            Enroll Now ✨
-            </button>
-          </div>
 
-          {/* Course 2 */}
-          <div className="bg-white rounded-2xl shadow-lg p-4 hover:scale-105 transition">
-            <img
-              src="https://images.unsplash.com/photo-1501594907352-04cda38ebc29?auto=format&fit=crop&w=600&q=60"
-              alt="Watercolor Basics"
-              className="rounded-xl mb-4 h-48 w-full object-cover"
-            />
-            <h3 className="text-xl font-semibold mb-2">Watercolor Basics</h3>
-            <p className="text-gray-600 mb-3">
-              Master watercolor techniques to bring life and texture to your
-              paintings.
-            </p>
-            <div className="flex justify-between text-sm text-gray-500">
+            <div className="mt-5 flex gap-3">
+              <button className="flex-1 px-4 py-2 rounded-lg font-semibold border border-pink-400 text-pink-300 hover:bg-pink-500 hover:text-white transition">
+                Enroll Now ✨
+              </button>
+
+            </div>
+          </article>
+
+          {/* <!-- Card 2: Navy-to-Cyan Glass --> */}
+          <article className="rounded-2xl shadow-lg p-5 transform transition-all duration-300 hover:scale-105
+                    bg-gradient-to-br from-[#0f1b3d]/80 via-[#152a52]/80 to-[#1c3d6e]/70 backdrop-blur-md
+                    border border-cyan-400/20">
+            <div className="relative">
+              <img src="https://images.unsplash.com/photo-1501594907352-04cda38ebc29?auto=format&fit=crop&w=900&q=60"
+                alt="Watercolor Basics" loading="lazy"
+                className="rounded-xl mb-4 h-48 w-full object-cover border border-cyan-500/30" />
+              <span className="absolute top-3 left-3 text-xs font-semibold px-2 py-1 rounded-full bg-white/20 backdrop-blur-sm text-white">
+                New
+              </span>
+            </div>
+
+            <h3 className="text-xl font-semibold text-cyan-300 mb-2">Watercolor Basics</h3>
+            <p className="text-gray-200 mb-3">Master watercolor techniques to bring life and texture to your paintings.</p>
+
+            <div className="flex justify-between text-sm text-gray-300">
               <span>8 Lessons</span>
-              <span>₹299</span>
+              <span className="text-cyan-200 font-medium">₹299</span>
             </div>
-            {/* ✏️ Minimal Elegant Outline */}
-            <button className="mt-4 w-full border-2 border-purple-500 text-purple-600 font-semibold px-4 py-2 rounded-lg hover:bg-purple-500 hover:text-white transition-all duration-300">
-            Enroll Now ✨
-            </button>
-          </div>
 
-          {/* Course 3 */}
-          <div className="bg-white rounded-2xl shadow-lg p-4 hover:scale-105 transition">
-            <img
-              src="https://images.unsplash.com/photo-1529101091764-c3526daf38fe?auto=format&fit=crop&w=600&q=60"
-              alt="Sketching for Beginners"
-              className="rounded-xl mb-4 h-48 w-full object-cover"
-            />
-            <h3 className="text-xl font-semibold mb-2">
-              Sketching for Beginners
-            </h3>
-            <p className="text-gray-600 mb-3">
-              Learn the art of proportion, shading, and expression to build
-              strong sketching skills.
-            </p>
-            <div className="flex justify-between text-sm text-gray-500">
-              <span>10 Lessons</span>
-              <span>₹399</span>
+            <div className="mt-5 flex gap-3">
+              <button className="flex-1 px-4 py-2 rounded-lg font-semibold border border-cyan-400 text-cyan-300 hover:bg-cyan-500 hover:text-white transition">
+                Enroll Now ✨
+              </button>
+
             </div>
-            {/* ✏️ Minimal Elegant Outline */}
-            <button className="mt-4 w-full border-2 border-purple-500 text-purple-600 font-semibold px-4 py-2 rounded-lg hover:bg-purple-500 hover:text-white transition-all duration-300">
-            Enroll Now ✨
-            </button>
-          </div>
+          </article>
+
+          {/* <!-- Card 3: Midnight Indigo Glow --> */}
+          <article className="rounded-2xl shadow-inner p-5 transform transition-all duration-300 hover:scale-105
+                    bg-[#141a33]/90 border border-violet-400/20">
+            <div className="relative">
+              <img src="https://images.unsplash.com/photo-1529101091764-c3526daf38fe?auto=format&fit=crop&w=900&q=60"
+                alt="Sketching for Beginners" loading="lazy"
+                className="rounded-xl mb-4 h-48 w-full object-cover border border-violet-500/30" />
+            </div>
+
+            <h3 className="text-xl font-semibold text-violet-300 mb-2">Sketching for Beginners</h3>
+            <p className="text-gray-200 mb-3">Learn the art of proportion, shading, and expression to build strong sketching skills.</p>
+
+            <div className="flex justify-between text-sm text-gray-300">
+              <span>10 Lessons</span>
+              <span className="text-violet-200 font-medium">₹399</span>
+            </div>
+
+            <div className="mt-5 flex gap-3">
+              <button className="flex-1 px-4 py-2 rounded-lg font-semibold border border-violet-400 text-violet-300 hover:bg-violet-500 hover:text-white transition">
+                Enroll Now ✨
+              </button>
+            </div>
+          </article>
+
         </div>
       </section>
+
+
 
       {/* ---------------- Why Artistic Vickey Section ---------------- */}
       <section className="py-12 px-6 bg-gradient-to-b from-white via-purple-50 to-white">
