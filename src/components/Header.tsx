@@ -49,7 +49,7 @@ function Header() {
               { href: "#courses", label: "Courses" },
               { href: "#mycourses", label: "My Courses" },
               { href: "#about", label: "About" },
-              { href: "#contact", label: "Contact" },
+              { href: "contact", label: "Contact" },
             ].map((item) => (
               <a
                 key={item.href}
@@ -86,7 +86,7 @@ function Header() {
               { href: "#courses", label: "Courses" },
               { href: "#mycourses", label: "My Courses" },
               { href: "#about", label: "About" },
-              { href: "#contact", label: "Contact" },
+              { href: "contact", label: "Contact" },
               { href: "#artmaterial", label: "Art Material" },
               { href: "#artworks", label: "Artworks" },
             ].map((link) => (
