@@ -1,19 +1,21 @@
 import { Instagram, Youtube, Facebook } from "lucide-react";
+import { Link } from "react-router-dom";
+
 
 function Footer() {
   return (
     <footer className="bg-gradient-to-b from-white via-purple-50 to-purple-100/50 backdrop-blur-md border-t border-purple-200/50 shadow-inner py-12 mt-16">
       <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
-        
+
         {/* 1️⃣ Brand Info */}
         <div>
-          <h2 className="text-2xl font-extrabold bg-gradient-to-r from-purple-600 via-pink-500 to-purple-700 bg-clip-text text-transparent mb-3 tracking-tight">
-          <span className="bg-gradient-to-r from-purple-500 via-purple-600 to-purple-800 bg-clip-text text-transparent">
+          <Link to="/" className="text-2xl font-extrabold bg-gradient-to-r from-purple-600 via-pink-500 to-purple-700 bg-clip-text text-transparent mb-3 tracking-tight">
+            <span className="bg-gradient-to-r from-purple-500 via-purple-600 to-purple-800 bg-clip-text text-transparent">
               Artistic Vicky
             </span>
-          </h2>
+          </Link>
           <p className="text-sm text-gray-700 leading-relaxed">
-            Explore creativity and learning with <strong>ArtisticVicky</strong> — 
+            Explore creativity and learning with <strong>ArtisticVicky</strong> —
             where imagination meets inspiration.
           </p>
         </div>

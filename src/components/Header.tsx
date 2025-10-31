@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
+import { Link } from "react-router-dom";
 
 function Header() {
   const [isOpen, setIsOpen] = useState(false);
@@ -23,19 +24,19 @@ function Header() {
 
   return (
     <header
-      className={`fixed top-0 left-0 w-full z-50 transition-transform duration-300 ${
-        showHeader ? "translate-y-0" : "-translate-y-full"
-      }`}
+      className={`fixed top-0 left-0 w-full z-50 transition-transform duration-300 ${showHeader ? "translate-y-0" : "-translate-y-full"
+        }`}
     >
       {/* Gradient Background */}
       <div className="bg-gradient-to-r from-purple-100 via-purple-50 to-pink-100/60 backdrop-blur-md border-b border-purple-200/50 shadow-sm">
         <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
           {/* Logo */}
-          <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-purple-600 via-pink-500 to-purple-700 bg-clip-text text-transparent">
-          <span className="bg-gradient-to-r from-purple-500 via-purple-600 to-purple-800 bg-clip-text text-transparent">
+          <Link to="/" className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-purple-600 via-pink-500 to-purple-700 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-purple-500 via-purple-600 to-purple-800 bg-clip-text text-transparent">
               Artistic Vicky
             </span>
-          </h1>
+          </Link>
+
 
           {/* Desktop Nav */}
           <nav className="hidden md:flex space-x-8 font-medium">
@@ -56,6 +57,12 @@ function Header() {
               className="text-purple-800 hover:text-purple-600 transition-colors duration-200"
             >
               About
+            </a>
+            <a
+              href="contact"
+              className="text-purple-800 hover:text-purple-600 transition-colors duration-200"
+            >
+              Contact
             </a>
           </nav>
 
@@ -84,7 +91,7 @@ function Header() {
               { href: "#courses", label: "Courses" },
               { href: "#mycourses", label: "My Courses" },
               { href: "#about", label: "About" },
-              { href: "#contact", label: "Contact" },
+              { href: "contact", label: "Contact" },
               { href: "#artmaterial", label: "Art Material Link" },
               { href: "#artworks", label: "Artworks" },
             ].map((link) => (
