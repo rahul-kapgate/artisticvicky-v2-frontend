@@ -1,4 +1,4 @@
-import { Instagram, Youtube, Linkedin } from "lucide-react";
+import { Instagram, Youtube, Linkedin, Facebook } from "lucide-react";
 
 function Footer() {
   return (
@@ -8,7 +8,9 @@ function Footer() {
         {/* 1️⃣ Brand Info */}
         <div>
           <h2 className="text-2xl font-extrabold bg-gradient-to-r from-purple-600 via-pink-500 to-purple-700 bg-clip-text text-transparent mb-3 tracking-tight">
-            ArtisticVicky
+          <span className="bg-gradient-to-r from-purple-500 via-purple-600 to-purple-800 bg-clip-text text-transparent">
+              Artistic Vicky
+            </span>
           </h2>
           <p className="text-sm text-gray-700 leading-relaxed">
             Explore creativity and learning with <strong>ArtisticVicky</strong> — 
@@ -32,7 +34,7 @@ function Footer() {
           <h3 className="text-lg font-semibold text-purple-800 mb-3">Follow Us</h3>
           <div className="flex justify-center md:justify-start space-x-5">
             <a
-              href="https://www.instagram.com/"
+              href="https://www.instagram.com/artistic.vicky"
               target="_blank"
               rel="noreferrer"
               className="text-purple-700 hover:text-pink-500 transition-transform transform hover:scale-110"
@@ -40,7 +42,7 @@ function Footer() {
               <Instagram size={22} />
             </a>
             <a
-              href="https://www.youtube.com/"
+              href="https://www.youtube.com/@ArtisticVicky"
               target="_blank"
               rel="noreferrer"
               className="text-purple-700 hover:text-red-500 transition-transform transform hover:scale-110"
@@ -48,12 +50,12 @@ function Footer() {
               <Youtube size={22} />
             </a>
             <a
-              href="https://www.linkedin.com/"
+              href="https://www.facebook.com/mayur.tembhurne.148"
               target="_blank"
               rel="noreferrer"
               className="text-purple-700 hover:text-blue-600 transition-transform transform hover:scale-110"
             >
-              <Linkedin size={22} />
+              <Facebook size={22} />
             </a>
           </div>
         </div>
