@@ -193,7 +193,7 @@ function Home() {
       {/* ---------------- About Section ---------------- */}
       <section
         id="about"
-        className="py-4 px-6 bg-gradient-to-b from-white via-purple-50 to-white"
+        className="pt-4 pb-8 px-6 bg-gradient-to-b from-white via-purple-50 to-white"
       >
         <div className="max-w-6xl mx-auto text-center">
           <h2 className="text-4xl font-bold mb-6 text-gray-800">
