@@ -77,9 +77,6 @@ function Home() {
     fetchCourses();
   }, []);
 
-  if (loading)
-    return <p className="text-center text-gray-500 mt-10">Loading courses...</p>;
-
   if (error)
     return (
       <p className="text-center text-red-500 mt-10">
@@ -131,61 +128,77 @@ function Home() {
           </p>
         </div>
 
-        <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-10 max-w-6xl mx-auto">
-          {courses.map((course, index) => {
-            // 🎨 Assign gradient & border color based on card index
-            const cardStyles = [
-              {
-                gradient: "from-[#2b1a4a] via-[#3c1e65] to-[#472181]",
-                border: "border-pink-400/30",
-                accent: "text-pink-300 border-pink-400 hover:bg-pink-500",
-              },
-              {
-                gradient: "from-[#0f1b3d]/90 via-[#152a52]/90 to-[#1c3d6e]/90",
-                border: "border-cyan-400/30",
-                accent: "text-cyan-300 border-cyan-400 hover:bg-cyan-500",
-              },
-              {
-                gradient: "from-[#1b1335]/90 via-[#2c1e5c]/90 to-[#3a2780]/90",
-                border: "border-violet-400/30",
-                accent: "text-violet-300 border-violet-400 hover:bg-violet-500",
-              },
-            ][index % 3]; // cycle through colors for each card
+        {!loading && courses.length === 0 && (
+          <p className="text-center text-gray-300 mt-6">No courses available yet.</p>
+        )}
 
-            return (
-              <article
-                key={course.id}
-                className={`rounded-2xl shadow-lg p-5 transition-all duration-300 hover:scale-105 bg-gradient-to-br ${cardStyles.gradient} border ${cardStyles.border} group`}
-              >
-                <img
-                  src={course.image}
-                  alt={course.course_name}
-                  className="rounded-xl mb-4 h-48 w-full object-cover border border-white/10 group-hover:border-white/30 transition-all duration-300"
-                />
-                <h3
-                  className={`text-xl font-semibold ${cardStyles.accent.split(" ")[0]} mb-2`}
+        {loading ? (
+          // ✅ Only skeleton inside the same section
+          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-10 max-w-6xl mx-auto animate-pulse">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div
+                key={i}
+                className="rounded-2xl bg-[#2b1a4a]/40 h-80 border border-white/10"
+              />
+            ))}
+          </div>
+        ) : error ? (
+          <p className="text-center text-red-400">Failed to load courses: {error}</p>
+        ) : (
+          // ✅ Actual course cards
+          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-10 max-w-6xl mx-auto">
+            {courses.map((course, index) => {
+              const cardStyles = [
+                {
+                  gradient: "from-[#2b1a4a] via-[#3c1e65] to-[#472181]",
+                  border: "border-pink-400/30",
+                  accent: "text-pink-300 border-pink-400 hover:bg-pink-500",
+                },
+                {
+                  gradient: "from-[#0f1b3d]/90 via-[#152a52]/90 to-[#1c3d6e]/90",
+                  border: "border-cyan-400/30",
+                  accent: "text-cyan-300 border-cyan-400 hover:bg-cyan-500",
+                },
+                {
+                  gradient: "from-[#1b1335]/90 via-[#2c1e5c]/90 to-[#3a2780]/90",
+                  border: "border-violet-400/30",
+                  accent: "text-violet-300 border-violet-400 hover:bg-violet-500",
+                },
+              ][index % 3];
+
+              return (
+                <article
+                  key={course.id}
+                  className={`rounded-2xl shadow-lg p-5 transition-all duration-300 hover:scale-105 bg-gradient-to-br ${cardStyles.gradient} border ${cardStyles.border} group`}
                 >
-                  {course.course_name}
-                </h3>
-                <p className="text-gray-300 mb-3 line-clamp-3">{course.description}</p>
-                <div className="flex justify-between text-sm text-gray-300 mb-3">
-                  <span>{course.category || "—"}</span>
-                  <span className={`${cardStyles.accent.split(" ")[0]} font-medium`}>
-                    ₹{course.price}
-                  </span>
-                </div>
-                <button
-                  className={`w-full py-2 rounded-lg font-semibold border ${cardStyles.accent} text-white/90 hover:text-white transition-all duration-300`}
-                >
-                  Enroll Now ✨
-                </button>
-              </article>
-            );
-          })}
-        </div>
+                  <img
+                    src={course.image}
+                    alt={course.course_name}
+                    className="rounded-xl mb-4 h-48 w-full object-cover border border-white/10 group-hover:border-white/30 transition-all duration-300"
+                  />
+                  <h3
+                    className={`text-xl font-semibold ${cardStyles.accent.split(" ")[0]} mb-2`}
+                  >
+                    {course.course_name}
+                  </h3>
+                  <p className="text-gray-300 mb-3 line-clamp-3">{course.description}</p>
+                  <div className="flex justify-between text-sm text-gray-300 mb-3">
+                    <span>{course.category || "—"}</span>
+                    <span className={`${cardStyles.accent.split(" ")[0]} font-medium`}>
+                      ₹{course.price}
+                    </span>
+                  </div>
+                  <button
+                    className={`w-full py-2 rounded-lg font-semibold border ${cardStyles.accent} text-white/90 hover:text-white transition-all duration-300`}
+                  >
+                    Enroll Now ✨
+                  </button>
+                </article>
+              );
+            })}
+          </div>
+        )}
       </section>
-
-
 
       {/* ---------------- Why Artistic Vickey Section ---------------- */}
       <section className="py-12 px-6 bg-gradient-to-b from-white via-purple-50 to-white">
