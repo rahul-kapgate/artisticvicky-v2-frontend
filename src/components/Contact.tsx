@@ -1,40 +1,52 @@
 import React from "react";
-import { Phone, Mail, Users, Instagram, Youtube, Facebook } from "lucide-react";
+import {
+  SiWhatsapp,
+  SiInstagram,
+  SiFacebook,
+  SiYoutube,
+} from "react-icons/si";
+import { MdPhone, MdEmail, MdGroups } from "react-icons/md"; 
 
 const Contact: React.FC = () => {
   const contacts = [
     {
-      icon: <Phone className="w-6 h-6 text-green-600" />,
+      icon: <MdPhone className="w-6 h-6 text-green-600" />,
+      title: "Phone",
+      link: "tel:9325217691",
+      text: "9325217691",
+    },
+    {
+      icon: <SiWhatsapp className="w-6 h-6 text-green-600" />,
       title: "WhatsApp",
       link: "https://wa.me/9226221871",
       text: "9226221871",
     },
     {
-      icon: <Mail className="w-6 h-6 text-blue-500" />,
+      icon: <MdEmail className="w-6 h-6 text-blue-500" />,
       title: "E-mail",
       link: "mailto:vikkitembhurne358@gmail.com",
       text: "vikkitembhurne358@gmail.com",
     },
     {
-      icon: <Users className="w-6 h-6 text-green-600" />,
+      icon: <MdGroups className="w-6 h-6 text-green-600" />,
       title: "WhatsApp Group",
       link: "https://chat.whatsapp.com/KYAuVuPVR8xJ8eXbTLvDl3",
       text: "chat.whatsapp.com/KYAuVuPVR8xJ8eXbTLvDl3",
     },
     {
-      icon: <Instagram className="w-6 h-6 text-pink-500" />,
+      icon: <SiInstagram className="w-6 h-6 text-pink-500" />,
       title: "Instagram",
       link: "https://www.instagram.com/artistic.Vickey/",
       text: "www.instagram.com/artistic.Vickey/",
     },
     {
-      icon: <Youtube className="w-6 h-6 text-red-600" />,
+      icon: <SiYoutube className="w-6 h-6 text-red-600" />,
       title: "YouTube",
       link: "https://www.youtube.com/@artisticVickey",
       text: "www.youtube.com/@artisticVickey",
     },
     {
-      icon: <Facebook className="w-6 h-6 text-blue-600" />,
+      icon: <SiFacebook className="w-6 h-6 text-blue-600" />,
       title: "Facebook",
       link: "https://www.facebook.com/mayur.tembhurne.148",
       text: "www.facebook.com/mayur.tembhurne.148",
