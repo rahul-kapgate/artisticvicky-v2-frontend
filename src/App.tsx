@@ -7,6 +7,7 @@ import Contact from "./components/Contact";
 import PrivacyPolicy from "./components/PrivacyPolicy";
 import TermsOfUse from "./components/TermsOfUse";
 import RefundPolicy from "./components/RefundPolicy";
+import CourseDetails from "@/Pages/CourseDetails";
 
 function App() {
   return (
@@ -20,6 +21,8 @@ function App() {
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/terms" element={<TermsOfUse />} />
           <Route path="/refund-policy" element={<RefundPolicy />} />
+
+          <Route path="/courses/:id" element={<CourseDetails />} />
         </Routes>
       </main>
 

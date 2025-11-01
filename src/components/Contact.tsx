@@ -5,21 +5,15 @@ import {
   SiFacebook,
   SiYoutube,
 } from "react-icons/si";
-import { MdPhone, MdEmail, MdGroups } from "react-icons/md"; 
+import { MdEmail, MdGroups } from "react-icons/md"; 
 
 const Contact: React.FC = () => {
   const contacts = [
     {
-      icon: <MdPhone className="w-6 h-6 text-green-600" />,
-      title: "Phone",
-      link: "tel:9325217691",
-      text: "9325217691",
-    },
-    {
       icon: <SiWhatsapp className="w-6 h-6 text-green-600" />,
       title: "WhatsApp",
-      link: "https://wa.me/9226221871",
-      text: "9226221871",
+      link: "https://wa.me/9325217691",
+      text: "9325217691",
     },
     {
       icon: <MdEmail className="w-6 h-6 text-blue-500" />,
@@ -30,7 +24,7 @@ const Contact: React.FC = () => {
     {
       icon: <MdGroups className="w-6 h-6 text-green-600" />,
       title: "WhatsApp Group",
-      link: "https://chat.whatsapp.com/KYAuVuPVR8xJ8eXbTLvDl3",
+      link: "https://chat.whatsapp.com/H7MmQmlgJ5W2KgvIRKqZc7?mode=wwt",
       text: "chat.whatsapp.com/KYAuVuPVR8xJ8eXbTLvDl3",
     },
     {
