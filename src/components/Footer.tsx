@@ -1,7 +1,8 @@
 import { Instagram, Youtube, Facebook } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 function Footer() {
+  const navigate = useNavigate();
   return (
     <footer className="bg-gradient-to-r from-[#0a0f2c] via-[#10194f] to-[#1a237e] border-t border-blue-900/40 shadow-inner py-12 text-gray-300">
       <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
@@ -10,6 +11,15 @@ function Footer() {
         <div>
           <Link
             to="/"
+            onClick={(e) => {
+              e.preventDefault();
+              if (location.pathname !== "/") {
+                navigate("/");
+                setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 300);
+              } else {
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }
+            }}
             className="text-2xl font-extrabold tracking-tight flex justify-center md:justify-start mb-3"
           >
             <span className="text-blue-400">Artistic</span>
