@@ -1,7 +1,8 @@
 import { Instagram, Youtube, Facebook } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 function Footer() {
+  const navigate = useNavigate();
   return (
     <footer className="bg-gradient-to-r from-[#0a0f2c] via-[#10194f] to-[#1a237e] border-t border-blue-900/40 shadow-inner py-12 text-gray-300">
       <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
@@ -10,6 +11,15 @@ function Footer() {
         <div>
           <Link
             to="/"
+            onClick={(e) => {
+              e.preventDefault();
+              if (location.pathname !== "/") {
+                navigate("/");
+                setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 300);
+              } else {
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }
+            }}
             className="text-2xl font-extrabold tracking-tight flex justify-center md:justify-start mb-3"
           >
             <span className="text-blue-400">Artistic</span>
@@ -26,16 +36,16 @@ function Footer() {
           <h3 className="text-lg font-semibold text-blue-300 mb-3">Quick Links</h3>
           <ul className="space-y-2 text-gray-400 text-sm">
             <li>
-              <a href="#privacy" className="hover:text-cyan-300 transition">Privacy Policy</a>
+              <a href="privacy-policy" className="hover:text-cyan-300 transition">Privacy Policy</a>
             </li>
             <li>
-              <a href="#terms" className="hover:text-cyan-300 transition">Terms of Use</a>
+              <a href="terms" className="hover:text-cyan-300 transition">Terms of Use</a>
             </li>
             <li>
-              <a href="#contact" className="hover:text-cyan-300 transition">Contact Us</a>
+              <a href="contact" className="hover:text-cyan-300 transition">Contact Us</a>
             </li>
             <li>
-              <a href="#refund" className="hover:text-cyan-300 transition">Refund Policy</a>
+              <a href="refund-policy" className="hover:text-cyan-300 transition">Refund Policy</a>
             </li>
           </ul>
         </div>
