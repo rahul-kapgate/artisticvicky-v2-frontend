@@ -102,7 +102,7 @@ const RefundPolicy: React.FC = () => {
         <li>Screenshot of payment (if available)</li>
       </ul>
       <p className="mb-4">
-        <strong>Email:</strong> support@artisticvickey.com
+        <strong>Email:</strong> vikkitembhurne358@gmail.com
         <br />
         <strong>Subject:</strong> “Payment Issue – Artistic Vickey”
       </p>

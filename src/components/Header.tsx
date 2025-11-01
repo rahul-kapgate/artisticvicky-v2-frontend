@@ -89,7 +89,7 @@ function Header() {
               to="/contact"
               className="text-gray-200 hover:text-cyan-300 transition-colors duration-200"
             >
-              Contact
+              Contact Us
             </Link>
           </nav>
 
@@ -135,7 +135,7 @@ function Header() {
               onClick={() => setIsOpen(false)}
               className="hover:text-cyan-300 transition-colors duration-200"
             >
-              Contact
+              Contact Us
             </Link>
           </nav>
         </div>
