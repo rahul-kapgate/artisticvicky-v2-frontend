@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Palette, Heart, Globe, Star, Layers, Brush } from "lucide-react";
 import { apiClient } from "@/utils/axiosConfig";
 import type { Course, CourseResponse } from "@/types/course";
-
+import { useNavigate } from "react-router-dom";
 
 // Reasons Section 
 const reasons = [
@@ -39,6 +39,7 @@ const reasons = [
 ];
 
 function Home() {
+  const navigate = useNavigate();
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -189,6 +190,7 @@ function Home() {
                     </span>
                   </div>
                   <button
+                  onClick={() => navigate(`/courses/${course.id}`)}
                     className={`w-full py-2 rounded-lg font-semibold border ${cardStyles.accent} text-white/90 hover:text-white transition-all duration-300`}
                   >
                     Enroll Now ✨
