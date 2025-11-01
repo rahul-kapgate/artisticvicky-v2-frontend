@@ -36,16 +36,16 @@ function Footer() {
           <h3 className="text-lg font-semibold text-blue-300 mb-3">Quick Links</h3>
           <ul className="space-y-2 text-gray-400 text-sm">
             <li>
-              <a href="#privacy" className="hover:text-cyan-300 transition">Privacy Policy</a>
+              <a href="privacy-policy" className="hover:text-cyan-300 transition">Privacy Policy</a>
             </li>
             <li>
-              <a href="#terms" className="hover:text-cyan-300 transition">Terms of Use</a>
+              <a href="terms" className="hover:text-cyan-300 transition">Terms of Use</a>
             </li>
             <li>
-              <a href="#contact" className="hover:text-cyan-300 transition">Contact Us</a>
+              <a href="contact" className="hover:text-cyan-300 transition">Contact Us</a>
             </li>
             <li>
-              <a href="#refund" className="hover:text-cyan-300 transition">Refund Policy</a>
+              <a href="refund-policy" className="hover:text-cyan-300 transition">Refund Policy</a>
             </li>
           </ul>
         </div>
