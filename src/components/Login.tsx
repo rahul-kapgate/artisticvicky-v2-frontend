@@ -54,7 +54,7 @@ export default function Login() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="px-5 py-2 font-semibold rounded-full bg-gradient-to-r from-[#6D28D9] via-[#7E3AF2] to-[#4F46E5] text-white shadow-lg hover:shadow-purple-500/30 hover:scale-105 transition-all duration-300">
+        <Button className="px-4 py-2 rounded-lg font-semibold border border-blue-400 text-blue-100 hover:bg-gradient-to-r hover:from-blue-700 hover:to-blue-600 transition-all duration-300 shadow-sm">
           Login
         </Button>
       </DialogTrigger>

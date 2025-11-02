@@ -3,6 +3,9 @@ import { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import Login from "./Login";
+import { useContext } from "react";
+import { AuthContext } from "@/context/AuthContext";
+import { Button } from "@/components/ui/button";
 
 function Header() {
   const [isOpen, setIsOpen] = useState(false);
@@ -10,6 +13,7 @@ function Header() {
   const [lastScrollY, setLastScrollY] = useState(0);
   const navigate = useNavigate();
   const location = useLocation();
+  const { user, logout } = useContext(AuthContext);
 
   // Hide/Show header on scroll
   useEffect(() => {
@@ -96,7 +100,11 @@ function Header() {
 
           {/* Right Side */}
           <div className="flex items-center space-x-4">
-            <Login />
+            {user ? (
+              <Button onClick={logout} className="px-4 py-2 rounded-lg font-semibold border border-blue-400 text-blue-100 hover:bg-gradient-to-r hover:from-blue-700 hover:to-blue-600 transition-all duration-300 shadow-sm">Logout</Button>
+            ) : (
+              <Login />
+            )}
             <button
               className="md:hidden text-cyan-300 focus:outline-none"
               onClick={() => setIsOpen(!isOpen)}
