@@ -11,7 +11,8 @@ import { Button } from "@/components/ui/button";
 import { Mail, Phone, User, Lock, LogIn, Eye, EyeOff } from "lucide-react";
 import { apiClient } from "@/utils/axiosConfig";
 import { useNavigate } from "react-router-dom";
-import { toast } from "sonner"; // ✅ new toast import
+import { toast } from "sonner";
+import Register from "./Register";
 
 export default function Login() {
   const [open, setOpen] = useState(false);
@@ -23,6 +24,7 @@ export default function Login() {
     identifier: "",
     password: "",
   });
+  const [registerOpen, setRegisterOpen] = useState(false);
 
   const navigate = useNavigate();
 
@@ -106,9 +108,8 @@ export default function Login() {
               Email or Mobile Number
             </label>
             <div
-              className={`flex items-center bg-white/5 border ${
-                fieldErrors.identifier ? "border-red-400" : "border-white/20"
-              } rounded-xl px-3 py-2 focus-within:border-cyan-400 focus-within:ring-2 focus-within:ring-cyan-400/40 transition-all duration-300`}
+              className={`flex items-center bg-white/5 border ${fieldErrors.identifier ? "border-red-400" : "border-white/20"
+                } rounded-xl px-3 py-2 focus-within:border-cyan-400 focus-within:ring-2 focus-within:ring-cyan-400/40 transition-all duration-300`}
             >
               {identifier === "" ? (
                 <User className="text-cyan-300 mr-2" size={18} />
@@ -139,9 +140,8 @@ export default function Login() {
               Password
             </label>
             <div
-              className={`flex items-center bg-white/5 border ${
-                fieldErrors.password ? "border-red-400" : "border-white/20"
-              } rounded-xl px-3 py-2 focus-within:border-purple-400 focus-within:ring-2 focus-within:ring-purple-400/40 transition-all duration-300`}
+              className={`flex items-center bg-white/5 border ${fieldErrors.password ? "border-red-400" : "border-white/20"
+                } rounded-xl px-3 py-2 focus-within:border-purple-400 focus-within:ring-2 focus-within:ring-purple-400/40 transition-all duration-300`}
             >
               <Lock className="text-purple-300 mr-2" size={18} />
               <input
@@ -182,13 +182,16 @@ export default function Login() {
           <span
             onClick={() => {
               setOpen(false);
-              navigate("/register");
+              setTimeout(() => setRegisterOpen(true), 300); // small delay for smooth transition
             }}
             className="text-cyan-300 hover:underline cursor-pointer"
           >
             Register here
           </span>
         </p>
+
+        {/* Mount the Register modal */}
+        <Register open={registerOpen} onOpenChange={setRegisterOpen} />
       </DialogContent>
     </Dialog>
   );
