@@ -1,14 +1,13 @@
-// Header.tsx
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { Menu, X } from "lucide-react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import Login from "./Login";
-import { useContext } from "react";
 import { AuthContext } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 
 function Header() {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false); // mobile nav menu
+  const [isProfileOpen, setIsProfileOpen] = useState(false); // profile dropdown
   const [showHeader, setShowHeader] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const navigate = useNavigate();
@@ -31,7 +30,19 @@ function Header() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [lastScrollY]);
 
-  // Scroll to section function
+  // Close profile dropdown when clicking outside (for mobile)
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (!target.closest(".profile-menu")) {
+        setIsProfileOpen(false);
+      }
+    };
+    document.addEventListener("click", handleClickOutside);
+    return () => document.removeEventListener("click", handleClickOutside);
+  }, []);
+
+  // Smooth scroll to section
   const handleNavClick = (id: string) => {
     if (location.pathname !== "/") {
       navigate("/");
@@ -46,8 +57,9 @@ function Header() {
 
   return (
     <header
-      className={`fixed top-0 left-0 w-full z-50 transition-transform duration-300 ${showHeader ? "translate-y-0" : "-translate-y-full"
-        }`}
+      className={`fixed top-0 left-0 w-full z-50 transition-transform duration-300 ${
+        showHeader ? "translate-y-0" : "-translate-y-full"
+      }`}
     >
       <div className="bg-gradient-to-r from-[#0a0f2c] via-[#10194f] to-[#1a237e] backdrop-blur-md border-b border-blue-900/40 shadow-md">
         <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
@@ -69,7 +81,6 @@ function Header() {
             <span className="text-white">Vickey</span>
           </Link>
 
-
           {/* Desktop Nav */}
           <nav className="hidden md:flex items-center space-x-8 font-medium">
             <button
@@ -77,12 +88,6 @@ function Header() {
               className="text-gray-200 hover:text-cyan-300 transition-colors duration-200"
             >
               Courses
-            </button>
-            <button
-              onClick={() => handleNavClick("mycourses")}
-              className="text-gray-200 hover:text-cyan-300 transition-colors duration-200"
-            >
-              My Courses
             </button>
             <button
               onClick={() => handleNavClick("about")}
@@ -101,10 +106,87 @@ function Header() {
           {/* Right Side */}
           <div className="flex items-center space-x-4">
             {user ? (
-              <Button onClick={logout} className="px-4 py-2 rounded-lg font-semibold border border-blue-400 text-blue-100 hover:bg-gradient-to-r hover:from-blue-700 hover:to-blue-600 transition-all duration-300 shadow-sm">Logout</Button>
+              <>
+                {/* Desktop View */}
+                <div className="hidden sm:flex items-center gap-3">
+                  {/* Avatar (click → profile) */}
+                  <button
+                    onClick={() => navigate("/profile")}
+                    className="w-9 h-9 flex items-center justify-center rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold text-lg uppercase shadow-md hover:opacity-90 transition"
+                    title={user.email || user.mobile}
+                  >
+                    {user.email?.[0] || user.mobile?.[0] || "U"}
+                  </button>
+
+                  {/* My Learnings Button */}
+                  <Button
+                    onClick={() => navigate("/my-learnings")}
+                    className="px-4 py-2 rounded-lg font-semibold border border-blue-400 text-blue-100 hover:bg-gradient-to-r hover:from-blue-700 hover:to-blue-600 transition-all duration-300 shadow-sm"
+                  >
+                    My Learnings
+                  </Button>
+
+                  {/* Logout Button */}
+                  <Button
+                    onClick={logout}
+                    className="px-4 py-2 rounded-lg font-semibold border border-blue-400 text-blue-100 hover:bg-gradient-to-r hover:from-blue-700 hover:to-blue-600 transition-all duration-300 shadow-sm"
+                  >
+                    Logout
+                  </Button>
+                </div>
+
+                {/* Mobile View (Avatar Dropdown) */}
+                <div className="relative sm:hidden profile-menu">
+                  {/* Avatar Button */}
+                  <button
+                    onClick={() => setIsProfileOpen((prev) => !prev)}
+                    className="w-9 h-9 flex items-center justify-center rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold text-lg uppercase shadow-md"
+                    title={user.email || user.mobile}
+                  >
+                    {user.email?.[0] || user.mobile?.[0] || "U"}
+                  </button>
+
+                  {/* Dropdown */}
+                  {isProfileOpen && (
+                    <div className="absolute right-0 mt-3 w-48 bg-[#10194f]/95 backdrop-blur-xl border border-blue-900/40 rounded-xl shadow-lg p-2 z-50 animate-fadeIn">
+                      <button
+                        className="w-full text-left text-gray-200 hover:text-cyan-300 hover:bg-blue-800/40 rounded-lg px-4 py-2 transition-colors"
+                        onClick={() => {
+                          setIsProfileOpen(false);
+                          navigate("/profile");
+                        }}
+                      >
+                        👤 View Profile
+                      </button>
+
+                      <button
+                        className="w-full text-left text-gray-200 hover:text-cyan-300 hover:bg-blue-800/40 rounded-lg px-4 py-2 transition-colors"
+                        onClick={() => {
+                          setIsProfileOpen(false);
+                          navigate("/my-learnings");
+                        }}
+                      >
+                        📘 My Learnings
+                      </button>
+
+                      <button
+                        className="w-full text-left text-gray-200 hover:text-red-400 hover:bg-blue-800/40 rounded-lg px-4 py-2 transition-colors"
+                        onClick={() => {
+                          setIsProfileOpen(false);
+                          logout();
+                        }}
+                      >
+                        🚪 Logout
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </>
             ) : (
               <Login />
             )}
+
+            {/* Hamburger Button */}
             <button
               className="md:hidden text-cyan-300 focus:outline-none"
               onClick={() => setIsOpen(!isOpen)}
@@ -124,12 +206,6 @@ function Header() {
               className="hover:text-cyan-300 transition-colors duration-200"
             >
               Courses
-            </button>
-            <button
-              onClick={() => handleNavClick("mycourses")}
-              className="hover:text-cyan-300 transition-colors duration-200"
-            >
-              My Courses
             </button>
             <button
               onClick={() => handleNavClick("about")}

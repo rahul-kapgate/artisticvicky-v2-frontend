@@ -8,30 +8,36 @@ import TermsOfUse from "./components/TermsOfUse";
 import RefundPolicy from "./components/RefundPolicy";
 import CourseDetails from "@/Pages/CourseDetails";
 import { Toaster } from "@/components/ui/sonner";
+import UserProfile from "./Pages/UserProfile";
+import MyLearning from "./Pages/MyLearning";
 
 function App() {
   return (
     <>
 
-    <Toaster richColors position="top-center" />
+      <Toaster richColors position="top-center" />
 
-    <Router>  
-      <Header />
+      <Router>
+        <Header />
 
-      <main>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-          <Route path="/terms" element={<TermsOfUse />} />
-          <Route path="/refund-policy" element={<RefundPolicy />} />
+        <main>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+            <Route path="/terms" element={<TermsOfUse />} />
+            <Route path="/refund-policy" element={<RefundPolicy />} />
 
-          <Route path="/courses/:id" element={<CourseDetails />} />
-        </Routes>
-      </main>
+            <Route path="/courses/:id" element={<CourseDetails />} />
 
-      <Footer />
-    </Router>
+            <Route path="/profile" element={<UserProfile />} />
+            <Route path="/my-learnings" element={<MyLearning />} />
+
+          </Routes>
+        </main>
+
+        <Footer />
+      </Router>
     </>
   );
 }
