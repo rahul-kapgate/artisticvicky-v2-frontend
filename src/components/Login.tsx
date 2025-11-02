@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import {
   Dialog,
   DialogContent,
@@ -13,14 +13,23 @@ import { apiClient } from "@/utils/axiosConfig";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import Register from "./Register";
-import { useContext } from "react";
 import { AuthContext } from "@/context/AuthContext";
 
-export default function Login() {
-
+export default function Login({
+  open,
+  onOpenChange,
+}: {
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+}) {
   const { login } = useContext(AuthContext);
+  const navigate = useNavigate();
 
-  const [open, setOpen] = useState(false);
+  // ✅ Controlled or internal open state
+  const [internalOpen, setInternalOpen] = useState(false);
+  const actualOpen = open !== undefined ? open : internalOpen;
+  const handleOpenChange = onOpenChange ?? setInternalOpen;
+
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -31,9 +40,7 @@ export default function Login() {
   });
   const [registerOpen, setRegisterOpen] = useState(false);
 
-  const navigate = useNavigate();
-
-  // ✅ Validation logic
+  // ✅ Validation
   const validateFields = () => {
     const errors = { identifier: "", password: "" };
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -57,10 +64,9 @@ export default function Login() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-
     if (!validateFields()) return;
-
     setLoading(true);
+
     try {
       const res = await apiClient.post("/api/auth/login", {
         identifier,
@@ -73,12 +79,11 @@ export default function Login() {
         localStorage.setItem("user", JSON.stringify(res.data.user));
 
         login(res.data.user);
-
         toast.success("Login successful 🎉", {
           description: "Welcome back!",
         });
 
-        setOpen(false);
+        handleOpenChange(false);
         navigate("/");
       } else {
         toast.error(res.data.message || "Invalid credentials.");
@@ -91,12 +96,16 @@ export default function Login() {
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button className="px-4 py-2 rounded-lg font-semibold border border-blue-400 text-blue-100 hover:bg-gradient-to-r hover:from-blue-700 hover:to-blue-600 transition-all duration-300 shadow-sm">
-          Login
-        </Button>
-      </DialogTrigger>
+    <Dialog open={actualOpen} onOpenChange={handleOpenChange}>
+      {/* ✅ Show Login button only when used standalone */}
+      {open === undefined && (
+        <DialogTrigger asChild>
+          <Button className="px-4 py-2 rounded-lg font-semibold border border-blue-400 text-blue-100 hover:bg-gradient-to-r hover:from-blue-700 hover:to-blue-600 transition-all duration-300 shadow-sm">
+            Login
+          </Button>
+        </DialogTrigger>
+      )}
+  
 
       <DialogContent className="rounded-3xl border border-white/10 bg-gradient-to-b from-[#1A1446] via-[#22185A] to-[#2D1D70] text-gray-100 shadow-[0_0_25px_rgba(100,70,255,0.3)] max-w-md backdrop-blur-xl">
         <DialogHeader className="text-center">
@@ -115,8 +124,9 @@ export default function Login() {
               Email or Mobile Number
             </label>
             <div
-              className={`flex items-center bg-white/5 border ${fieldErrors.identifier ? "border-red-400" : "border-white/20"
-                } rounded-xl px-3 py-2 focus-within:border-cyan-400 focus-within:ring-2 focus-within:ring-cyan-400/40 transition-all duration-300`}
+              className={`flex items-center bg-white/5 border ${
+                fieldErrors.identifier ? "border-red-400" : "border-white/20"
+              } rounded-xl px-3 py-2 focus-within:border-cyan-400 focus-within:ring-2 focus-within:ring-cyan-400/40 transition-all duration-300`}
             >
               {identifier === "" ? (
                 <User className="text-cyan-300 mr-2" size={18} />
@@ -137,7 +147,9 @@ export default function Login() {
               />
             </div>
             {fieldErrors.identifier && (
-              <p className="text-xs text-red-400 mt-1">{fieldErrors.identifier}</p>
+              <p className="text-xs text-red-400 mt-1">
+                {fieldErrors.identifier}
+              </p>
             )}
           </div>
 
@@ -147,8 +159,9 @@ export default function Login() {
               Password
             </label>
             <div
-              className={`flex items-center bg-white/5 border ${fieldErrors.password ? "border-red-400" : "border-white/20"
-                } rounded-xl px-3 py-2 focus-within:border-purple-400 focus-within:ring-2 focus-within:ring-purple-400/40 transition-all duration-300`}
+              className={`flex items-center bg-white/5 border ${
+                fieldErrors.password ? "border-red-400" : "border-white/20"
+              } rounded-xl px-3 py-2 focus-within:border-purple-400 focus-within:ring-2 focus-within:ring-purple-400/40 transition-all duration-300`}
             >
               <Lock className="text-purple-300 mr-2" size={18} />
               <input
@@ -170,7 +183,9 @@ export default function Login() {
               </button>
             </div>
             {fieldErrors.password && (
-              <p className="text-xs text-red-400 mt-1">{fieldErrors.password}</p>
+              <p className="text-xs text-red-400 mt-1">
+                {fieldErrors.password}
+              </p>
             )}
           </div>
 
@@ -188,8 +203,8 @@ export default function Login() {
           Don’t have an account?{" "}
           <span
             onClick={() => {
-              setOpen(false);
-              setTimeout(() => setRegisterOpen(true), 300); // small delay for smooth transition
+              handleOpenChange(false);
+              setTimeout(() => setRegisterOpen(true), 300);
             }}
             className="text-cyan-300 hover:underline cursor-pointer"
           >
@@ -197,7 +212,7 @@ export default function Login() {
           </span>
         </p>
 
-        {/* Mount the Register modal */}
+        {/* Mount Register Modal */}
         <Register open={registerOpen} onOpenChange={setRegisterOpen} />
       </DialogContent>
     </Dialog>

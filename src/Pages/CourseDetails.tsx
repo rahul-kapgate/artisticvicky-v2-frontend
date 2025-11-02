@@ -1,14 +1,19 @@
 import { useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { apiClient } from "@/utils/axiosConfig";
 import type { Course } from "@/types/course";
 import { Calendar, Clock, Globe, Layers, Users, Star } from "lucide-react";
+import { AuthContext } from "@/context/AuthContext";
+import Login from "@/components/Login";
 
 export default function CourseDetails() {
   const { id } = useParams();
   const [course, setCourse] = useState<Course | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [loginOpen, setLoginOpen] = useState(false);
+
+  const { user } = useContext(AuthContext);
 
   useEffect(() => {
     const fetchCourse = async () => {
@@ -49,6 +54,17 @@ export default function CourseDetails() {
     day: "numeric",
   });
 
+  // ✅ handle Enroll click
+  const handleEnroll = () => {
+    if (user) {
+      // user logged in → open WhatsApp chat
+      window.open("https://wa.me/9325217691", "_blank");
+    } else {
+      // not logged in → open login dialog
+      setLoginOpen(true);
+    }
+  };
+
   return (
     <section className="pt-24 pb-16 bg-gradient-to-b from-[#0f1b3d] to-[#1a237e] text-gray-100">
       {/* ===== HERO IMAGE ===== */}
@@ -73,7 +89,6 @@ export default function CourseDetails() {
       <div className="max-w-6xl mx-auto mt-10 px-6 grid lg:grid-cols-3 gap-10">
         {/* ===== LEFT: MAIN DETAILS ===== */}
         <div className="lg:col-span-2 space-y-8">
-          {/* --- Metadata Grid --- */}
           <div className="grid sm:grid-cols-2 gap-5 bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/10">
             <MetaItem icon={<Layers className="w-5 h-5 text-cyan-400" />} label="Category" value={course.category || "N/A"} />
             <MetaItem icon={<Clock className="w-5 h-5 text-cyan-400" />} label="Duration" value={course.duration || "N/A"} />
@@ -83,18 +98,14 @@ export default function CourseDetails() {
             <MetaItem icon={<Calendar className="w-5 h-5 text-cyan-400" />} label="Created On" value={createdDate} />
           </div>
 
-          {/* --- About the Course --- */}
           <div>
-            <h2 className="text-2xl font-bold text-cyan-300 mb-3">
-              About this course
-            </h2>
+            <h2 className="text-2xl font-bold text-cyan-300 mb-3">About this course</h2>
             <p className="text-gray-200 leading-relaxed text-lg">
               {course.description ||
                 "This course provides a deep dive into the subject with practical examples and step-by-step lessons to help you master new skills."}
             </p>
           </div>
 
-          {/* --- Tags --- */}
           {course.tags && course.tags.length > 0 && (
             <div>
               <h3 className="text-xl font-semibold text-cyan-300 mb-2">Tags</h3>
@@ -112,7 +123,7 @@ export default function CourseDetails() {
           )}
         </div>
 
-        {/* ===== RIGHT: STICKY SIDEBAR ===== */}
+        {/* ===== RIGHT: SIDEBAR ===== */}
         <aside className="lg:sticky lg:top-28 bg-white/10 backdrop-blur-md p-6 rounded-2xl border border-white/10 shadow-lg space-y-5 h-fit">
           <div className="flex flex-col items-center">
             <span className="text-gray-300 text-sm">Course Price</span>
@@ -121,15 +132,21 @@ export default function CourseDetails() {
             </h3>
           </div>
 
-          <button className="w-full bg-cyan-600 hover:bg-cyan-500 px-6 py-3 rounded-lg font-semibold text-white transition-all shadow-md">
+          <button
+            onClick={handleEnroll}
+            className="w-full bg-cyan-600 hover:bg-cyan-500 px-6 py-3 rounded-lg font-semibold text-white transition-all shadow-md"
+          >
             Enroll Now 🚀
           </button>
 
           <p className="text-center text-gray-400 text-sm">
-          Learn. Create. Showcase. • Guided lessons • Join our creative community
+            Learn. Create. Showcase. • Guided lessons • Join our creative community
           </p>
         </aside>
       </div>
+
+      {/* ✅ Mount Login Dialog */}
+      <Login open={loginOpen} onOpenChange={setLoginOpen} />
     </section>
   );
 }
