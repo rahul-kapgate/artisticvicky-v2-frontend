@@ -54,7 +54,7 @@ export default function MyLearning() {
           <h1 className="text-3xl font-bold bg-gradient-to-r from-cyan-300 to-purple-400 bg-clip-text text-transparent mb-10 text-center">
             🎓 My Learnings
           </h1>
-  
+
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8 animate-pulse">
             {Array.from({ length: 3 }).map((_, i) => (
               <div
@@ -73,7 +73,7 @@ export default function MyLearning() {
       </section>
     );
   }
-  
+
 
   return (
     <section className="min-h-screen pt-28 pb-16 px-6 bg-gradient-to-b from-[#10194f] via-[#132060] to-[#1a237e] text-gray-100">
@@ -132,13 +132,13 @@ export default function MyLearning() {
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center min-h-[50vh]">
-  <p className="text-center text-gray-300 text-lg">
-    You haven’t enrolled in any courses yet.
-  </p>
-  <p className="text-cyan-300 mt-2">
-    Explore and start learning today! ✨
-  </p>
-</div>
+            <p className="text-center text-gray-300 text-lg">
+              You haven’t enrolled in any courses yet.
+            </p>
+            <p className="text-cyan-300 mt-2">
+              Explore and start learning today! ✨
+            </p>
+          </div>
 
         )}
       </div>
