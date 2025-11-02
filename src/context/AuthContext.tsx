@@ -10,11 +10,13 @@ interface User {
 
 interface AuthContextType {
     user : User | null;
+    login: (userData: User) => void;
     logout: () => void;
 }
 
 export const AuthContext = createContext<AuthContextType>({
     user: null,
+    login: () => {},
     logout: () => {},
 }) 
 
@@ -28,14 +30,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (storedUser) setUser(JSON.parse(storedUser));
       }, []);
 
+      const login = (userData: User) => {
+        localStorage.setItem("user", JSON.stringify(userData));
+        setUser(userData); 
+      };
+
       const logout = () => {
         localStorage.clear();
         setUser(null);
-        window.location.href = "/"; // redirect to home or login
+        window.location.href = "/"; 
       };
 
       return (
-        <AuthContext.Provider value={{ user, logout }}>
+        <AuthContext.Provider value={{ user, login, logout }}>
           {children}
         </AuthContext.Provider>
       );

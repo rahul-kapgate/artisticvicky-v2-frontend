@@ -13,8 +13,13 @@ import { apiClient } from "@/utils/axiosConfig";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import Register from "./Register";
+import { useContext } from "react";
+import { AuthContext } from "@/context/AuthContext";
 
 export default function Login() {
+
+  const { login } = useContext(AuthContext);
+
   const [open, setOpen] = useState(false);
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
@@ -66,6 +71,8 @@ export default function Login() {
         localStorage.setItem("accessToken", res.data.accessToken);
         localStorage.setItem("refreshToken", res.data.refreshToken);
         localStorage.setItem("user", JSON.stringify(res.data.user));
+
+        login(res.data.user);
 
         toast.success("Login successful 🎉", {
           description: "Welcome back!",
