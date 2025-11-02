@@ -1,4 +1,3 @@
-// App.tsx
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
@@ -8,9 +7,14 @@ import PrivacyPolicy from "./components/PrivacyPolicy";
 import TermsOfUse from "./components/TermsOfUse";
 import RefundPolicy from "./components/RefundPolicy";
 import CourseDetails from "@/Pages/CourseDetails";
+import { Toaster } from "@/components/ui/sonner";
 
 function App() {
   return (
+    <>
+
+    <Toaster richColors position="top-center" />
+
     <Router>  
       <Header />
 
@@ -28,6 +32,7 @@ function App() {
 
       <Footer />
     </Router>
+    </>
   );
 }
 

@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Mail, Phone, User, Lock, LogIn, Eye, EyeOff } from "lucide-react";
 import { apiClient } from "@/utils/axiosConfig";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner"; // ✅ new toast import
 
 export default function Login() {
   const [open, setOpen] = useState(false);
@@ -18,14 +19,41 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState({
+    identifier: "",
+    password: "",
+  });
+
   const navigate = useNavigate();
+
+  // ✅ Validation logic
+  const validateFields = () => {
+    const errors = { identifier: "", password: "" };
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const phoneRegex = /^[0-9]\d{9}$/;
+
+    if (!identifier.trim()) {
+      errors.identifier = "Please enter email or mobile number.";
+    } else if (!emailRegex.test(identifier) && !phoneRegex.test(identifier)) {
+      errors.identifier = "Enter a valid email or 10-digit mobile number.";
+    }
+
+    if (!password.trim()) {
+      errors.password = "Please enter your password.";
+    } else if (password.length < 6) {
+      errors.password = "Password must be at least 6 characters.";
+    }
+
+    setFieldErrors(errors);
+    return !errors.identifier && !errors.password;
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    setError(null);
 
+    if (!validateFields()) return;
+
+    setLoading(true);
     try {
       const res = await apiClient.post("/api/auth/login", {
         identifier,
@@ -33,18 +61,21 @@ export default function Login() {
       });
 
       if (res.data.accessToken) {
-        // ✅ Store tokens & user details
         localStorage.setItem("accessToken", res.data.accessToken);
         localStorage.setItem("refreshToken", res.data.refreshToken);
         localStorage.setItem("user", JSON.stringify(res.data.user));
 
+        toast.success("Login successful 🎉", {
+          description: "Welcome back!",
+        });
+
         setOpen(false);
         navigate("/");
       } else {
-        throw new Error(res.data.message || "Invalid credentials");
+        toast.error(res.data.message || "Invalid credentials.");
       }
     } catch (err: any) {
-      setError(err.response?.data?.message || "Login failed. Please try again.");
+      toast.error(err.response?.data?.message || "Login failed. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -74,23 +105,32 @@ export default function Login() {
             <label className="block mb-2 text-gray-200 font-medium">
               Email or Mobile Number
             </label>
-            <div className="flex items-center bg-white/5 border border-white/20 rounded-xl px-3 py-2 focus-within:border-cyan-400 focus-within:ring-2 focus-within:ring-cyan-400/40 transition-all duration-300">
+            <div
+              className={`flex items-center bg-white/5 border ${
+                fieldErrors.identifier ? "border-red-400" : "border-white/20"
+              } rounded-xl px-3 py-2 focus-within:border-cyan-400 focus-within:ring-2 focus-within:ring-cyan-400/40 transition-all duration-300`}
+            >
               {identifier === "" ? (
-                <User className="text-cyan-300 mr-2" size={18} /> //default icon
+                <User className="text-cyan-300 mr-2" size={18} />
               ) : identifier.includes("@") ? (
-                <Mail className="text-cyan-300 mr-2" size={18} /> //email icon
+                <Mail className="text-cyan-300 mr-2" size={18} />
               ) : (
-                <Phone className="text-cyan-300 mr-2" size={18} /> //phone icon
+                <Phone className="text-cyan-300 mr-2" size={18} />
               )}
               <input
                 type="text"
-                required
                 value={identifier}
-                onChange={(e) => setIdentifier(e.target.value)}
+                onChange={(e) => {
+                  setIdentifier(e.target.value);
+                  setFieldErrors((prev) => ({ ...prev, identifier: "" }));
+                }}
                 placeholder="you@example.com or 9876543210"
                 className="w-full bg-transparent outline-none text-gray-100 placeholder-gray-400"
               />
             </div>
+            {fieldErrors.identifier && (
+              <p className="text-xs text-red-400 mt-1">{fieldErrors.identifier}</p>
+            )}
           </div>
 
           {/* Password */}
@@ -98,13 +138,19 @@ export default function Login() {
             <label className="block mb-2 text-gray-200 font-medium">
               Password
             </label>
-            <div className="flex items-center bg-white/5 border border-white/20 rounded-xl px-3 py-2 focus-within:border-purple-400 focus-within:ring-2 focus-within:ring-purple-400/40 transition-all duration-300">
+            <div
+              className={`flex items-center bg-white/5 border ${
+                fieldErrors.password ? "border-red-400" : "border-white/20"
+              } rounded-xl px-3 py-2 focus-within:border-purple-400 focus-within:ring-2 focus-within:ring-purple-400/40 transition-all duration-300`}
+            >
               <Lock className="text-purple-300 mr-2" size={18} />
               <input
                 type={showPassword ? "text" : "password"}
-                required
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  setFieldErrors((prev) => ({ ...prev, password: "" }));
+                }}
                 placeholder="••••••••"
                 className="w-full bg-transparent outline-none text-gray-100 placeholder-gray-400"
               />
@@ -116,9 +162,10 @@ export default function Login() {
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
+            {fieldErrors.password && (
+              <p className="text-xs text-red-400 mt-1">{fieldErrors.password}</p>
+            )}
           </div>
-
-          {error && <p className="text-center text-sm text-red-400">{error}</p>}
 
           {/* Submit */}
           <Button
