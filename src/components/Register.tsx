@@ -19,7 +19,6 @@ export default function Register({
   open?: boolean;
   onOpenChange?: (value: boolean) => void;
 }) {
-  // ✅ Use controlled OR internal open state
   const [internalOpen, setInternalOpen] = useState(false);
   const open = controlledOpen ?? internalOpen;
   const onOpenChange = setControlledOpen ?? setInternalOpen;
@@ -46,7 +45,6 @@ export default function Register({
     otp: "",
   });
 
-  // ✅ Validation for initiate step
   const validateInitiate = () => {
     const errs = { user_name: "", email: "", mobile: "", password: "", confirmPassword: "", otp: "" };
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -66,8 +64,8 @@ export default function Register({
   const handleInitiate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateInitiate()) return;
-
     setLoading(true);
+
     try {
       const res = await apiClient.post("/api/auth/signup/initiate", {
         user_name: formData.user_name,
@@ -125,126 +123,136 @@ export default function Register({
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="rounded-3xl border border-white/10 bg-gradient-to-b from-[#1A1446] via-[#22185A] to-[#2D1D70] text-gray-100 shadow-[0_0_25px_rgba(100,70,255,0.3)] max-w-md backdrop-blur-xl">
-        <DialogHeader className="text-center">
-          <DialogTitle className="text-3xl font-extrabold bg-gradient-to-r from-cyan-300 to-purple-400 bg-clip-text text-transparent tracking-wide">
+      <DialogContent
+        className="
+          rounded-3xl border border-white/10
+          bg-gradient-to-b from-[#1A1446] via-[#22185A] to-[#2D1D70]
+          text-gray-100 shadow-[0_0_25px_rgba(100,70,255,0.3)]
+          backdrop-blur-xl
+          max-w-md w-[95%] sm:w-[90%] md:w-[420px] 
+          mx-auto px-4 sm:px-6 py-6 sm:py-8 
+          overflow-y-auto max-h-[90vh]
+        "
+      >
+        {/* Responsive header */}
+        <DialogHeader className="text-center space-y-1">
+          <DialogTitle className="text-2xl sm:text-3xl font-extrabold bg-gradient-to-r from-cyan-300 to-purple-400 bg-clip-text text-transparent tracking-wide">
             {step === "initiate" ? "Create Your Account ✨" : "Verify OTP 🔐"}
           </DialogTitle>
-          <DialogDescription className="text-gray-400 mt-2">
+          <DialogDescription className="text-gray-400 text-sm sm:text-base mt-1 sm:mt-2">
             {step === "initiate"
               ? "Register using your details below"
               : "Enter the OTP sent to your email"}
           </DialogDescription>
         </DialogHeader>
 
-        {step === "initiate" ? (
-          <form onSubmit={handleInitiate} className="space-y-4 mt-6">
-            {/* Name */}
-            <Field
-              label="Full Name"
-              icon={<User className="text-cyan-300 mr-2" size={18} />}
-              value={formData.user_name}
-              onChange={(v) => handleChange("user_name", v)}
-              error={errors.user_name}
-              placeholder="John Doe"
-            />
+        <div className="mt-6 space-y-4 sm:space-y-5">
+          {step === "initiate" ? (
+            <form onSubmit={handleInitiate} className="space-y-4">
+              <Field
+                label="Full Name"
+                icon={<User className="text-cyan-300 mr-2" size={18} />}
+                value={formData.user_name}
+                onChange={(v) => handleChange("user_name", v)}
+                error={errors.user_name}
+                placeholder="John Doe"
+              />
 
-            {/* Email */}
-            <Field
-              label="Email"
-              icon={<Mail className="text-cyan-300 mr-2" size={18} />}
-              value={formData.email}
-              onChange={(v) => handleChange("email", v)}
-              error={errors.email}
-              placeholder="you@example.com"
-            />
+              <Field
+                label="Email"
+                icon={<Mail className="text-cyan-300 mr-2" size={18} />}
+                value={formData.email}
+                onChange={(v) => handleChange("email", v)}
+                error={errors.email}
+                placeholder="you@example.com"
+              />
 
-            {/* Mobile */}
-            <Field
-              label="Mobile"
-              icon={<Phone className="text-cyan-300 mr-2" size={18} />}
-              value={formData.mobile}
-              onChange={(v) => handleChange("mobile", v)}
-              error={errors.mobile}
-              placeholder="9876543210"
-            />
+              <Field
+                label="Mobile"
+                icon={<Phone className="text-cyan-300 mr-2" size={18} />}
+                value={formData.mobile}
+                onChange={(v) => handleChange("mobile", v)}
+                error={errors.mobile}
+                placeholder="9876543210"
+              />
 
-            {/* Password */}
-            <PasswordField
-              label="Password"
-              value={formData.password}
-              onChange={(v) => handleChange("password", v)}
-              error={errors.password}
-              show={showPassword}
-              toggleShow={() => setShowPassword(!showPassword)}
-            />
+              <PasswordField
+                label="Password"
+                value={formData.password}
+                onChange={(v) => handleChange("password", v)}
+                error={errors.password}
+                show={showPassword}
+                toggleShow={() => setShowPassword(!showPassword)}
+              />
 
-            {/* Confirm Password */}
-            <PasswordField
-              label="Confirm Password"
-              value={formData.confirmPassword}
-              onChange={(v) => handleChange("confirmPassword", v)}
-              error={errors.confirmPassword}
-              show={showConfirmPassword}
-              toggleShow={() => setShowConfirmPassword(!showConfirmPassword)}
-            />
+              <PasswordField
+                label="Confirm Password"
+                value={formData.confirmPassword}
+                onChange={(v) => handleChange("confirmPassword", v)}
+                error={errors.confirmPassword}
+                show={showConfirmPassword}
+                toggleShow={() => setShowConfirmPassword(!showConfirmPassword)}
+              />
 
-            <Button
-              type="submit"
-              disabled={loading}
-              className="w-full py-2.5 rounded-full font-semibold text-lg bg-gradient-to-r from-cyan-400 via-purple-500 to-fuchsia-500 hover:opacity-90 shadow-lg transition-all duration-300 flex justify-center items-center gap-2"
-            >
-              {loading ? "Sending OTP..." : "Register"}
-            </Button>
-          </form>
-        ) : (
-          <form onSubmit={handleVerify} className="space-y-4 mt-6">
-            <Field
-              label="Enter OTP"
-              icon={<CheckCircle className="text-cyan-300 mr-2" size={18} />}
-              value={formData.otp}
-              onChange={(v) => handleChange("otp", v)}
-              error={errors.otp}
-              placeholder="Enter OTP"
-            />
+              <Button
+                type="submit"
+                disabled={loading}
+                className="w-full py-2.5 rounded-full font-semibold text-base sm:text-lg bg-gradient-to-r from-cyan-400 via-purple-500 to-fuchsia-500 hover:opacity-90 shadow-lg transition-all duration-300 flex justify-center items-center gap-2"
+              >
+                {loading ? "Sending OTP..." : "Register"}
+              </Button>
+            </form>
+          ) : (
+            <form onSubmit={handleVerify} className="space-y-4">
+              <Field
+                label="Enter OTP"
+                icon={<CheckCircle className="text-cyan-300 mr-2" size={18} />}
+                value={formData.otp}
+                onChange={(v) => handleChange("otp", v)}
+                error={errors.otp}
+                placeholder="Enter OTP"
+              />
 
-            <Button
-              type="submit"
-              disabled={loading}
-              className="w-full py-2.5 rounded-full font-semibold text-lg bg-gradient-to-r from-cyan-400 via-purple-500 to-fuchsia-500 hover:opacity-90 shadow-lg transition-all duration-300 flex justify-center items-center gap-2"
-            >
-              {loading ? "Verifying..." : "Verify & Register"}
-            </Button>
-          </form>
-        )}
+              <Button
+                type="submit"
+                disabled={loading}
+                className="w-full py-2.5 rounded-full font-semibold text-base sm:text-lg bg-gradient-to-r from-cyan-400 via-purple-500 to-fuchsia-500 hover:opacity-90 shadow-lg transition-all duration-300 flex justify-center items-center gap-2"
+              >
+                {loading ? "Verifying..." : "Verify & Register"}
+              </Button>
+            </form>
+          )}
+        </div>
       </DialogContent>
     </Dialog>
   );
 }
 
-/* Small subcomponents for cleaner JSX */
+/* ---------- Reusable Fields ---------- */
 function Field({
-    label,
-    icon,
-    value,
-    onChange,
-    error,
-    placeholder,
-  }: {
-    label: string;
-    icon: React.ReactNode;
-    value: string;
-    onChange: (v: string) => void;
-    error?: string;
-    placeholder?: string;
-  }) {  
+  label,
+  icon,
+  value,
+  onChange,
+  error,
+  placeholder,
+}: {
+  label: string;
+  icon: React.ReactNode;
+  value: string;
+  onChange: (v: string) => void;
+  error?: string;
+  placeholder?: string;
+}) {
   return (
     <div>
-      <label className="block mb-2 text-gray-200 font-medium">{label}</label>
+      <label className="block mb-1 text-gray-200 text-sm sm:text-base font-medium">
+        {label}
+      </label>
       <div
         className={`flex items-center bg-white/5 border ${
           error ? "border-red-400" : "border-white/20"
-        } rounded-xl px-3 py-2`}
+        } rounded-xl px-3 py-2 sm:py-2.5`}
       >
         {icon}
         <input
@@ -252,7 +260,7 @@ function Field({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
-          className="w-full bg-transparent outline-none text-gray-100 placeholder-gray-400"
+          className="w-full bg-transparent outline-none text-gray-100 placeholder-gray-400 text-sm sm:text-base"
         />
       </div>
       {error && <p className="text-xs text-red-400 mt-1">{error}</p>}
@@ -277,11 +285,13 @@ function PasswordField({
 }) {
   return (
     <div>
-      <label className="block mb-2 text-gray-200 font-medium">{label}</label>
+      <label className="block mb-1 text-gray-200 text-sm sm:text-base font-medium">
+        {label}
+      </label>
       <div
         className={`flex items-center bg-white/5 border ${
           error ? "border-red-400" : "border-white/20"
-        } rounded-xl px-3 py-2`}
+        } rounded-xl px-3 py-2 sm:py-2.5`}
       >
         <Lock className="text-purple-300 mr-2" size={18} />
         <input
@@ -289,7 +299,7 @@ function PasswordField({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder="••••••••"
-          className="w-full bg-transparent outline-none text-gray-100 placeholder-gray-400"
+          className="w-full bg-transparent outline-none text-gray-100 placeholder-gray-400 text-sm sm:text-base"
         />
         <button
           type="button"
