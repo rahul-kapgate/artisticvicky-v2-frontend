@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
+import Login from "./Login";
 
 function Header() {
   const [isOpen, setIsOpen] = useState(false);
@@ -95,9 +96,7 @@ function Header() {
 
           {/* Right Side */}
           <div className="flex items-center space-x-4">
-            <button className="px-4 py-2 rounded-lg font-semibold border border-blue-400 text-blue-100 hover:bg-gradient-to-r hover:from-blue-700 hover:to-blue-600 transition-all duration-300 shadow-sm">
-              Login
-            </button>
+            <Login />
             <button
               className="md:hidden text-cyan-300 focus:outline-none"
               onClick={() => setIsOpen(!isOpen)}
