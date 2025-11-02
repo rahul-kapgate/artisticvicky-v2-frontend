@@ -49,11 +49,31 @@ export default function MyLearning() {
 
   if (loading) {
     return (
-      <section className="min-h-screen flex items-center justify-center bg-gradient-to-b from-[#10194f] via-[#132060] to-[#1a237e] text-gray-100">
-        <p className="text-lg text-gray-300 animate-pulse">Loading your courses...</p>
+      <section className="min-h-screen pt-28 pb-16 px-6 bg-gradient-to-b from-[#10194f] via-[#132060] to-[#1a237e] text-gray-100">
+        <div className="max-w-6xl mx-auto">
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-cyan-300 to-purple-400 bg-clip-text text-transparent mb-10 text-center">
+            🎓 My Learnings
+          </h1>
+  
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8 animate-pulse">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div
+                key={i}
+                className="bg-white/5 border border-white/10 rounded-2xl p-6 space-y-4"
+              >
+                <div className="h-40 bg-white/10 rounded-xl" />
+                <div className="h-5 bg-white/10 rounded w-3/4" />
+                <div className="h-3 bg-white/10 rounded w-1/2" />
+                <div className="h-2.5 bg-white/10 rounded w-full" />
+                <div className="h-2.5 bg-white/10 rounded w-2/3" />
+              </div>
+            ))}
+          </div>
+        </div>
       </section>
     );
   }
+  
 
   return (
     <section className="min-h-screen pt-28 pb-16 px-6 bg-gradient-to-b from-[#10194f] via-[#132060] to-[#1a237e] text-gray-100">
@@ -111,9 +131,15 @@ export default function MyLearning() {
             ))}
           </div>
         ) : (
-          <p className="text-center text-gray-300 mt-10">
-            You haven’t enrolled in any courses yet. Explore and start learning today!
-          </p>
+          <div className="flex flex-col items-center justify-center min-h-[50vh]">
+  <p className="text-center text-gray-300 text-lg">
+    You haven’t enrolled in any courses yet.
+  </p>
+  <p className="text-cyan-300 mt-2">
+    Explore and start learning today! ✨
+  </p>
+</div>
+
         )}
       </div>
     </section>
