@@ -25,23 +25,14 @@ export default function CourseDetails() {
     if (id) fetchCourse();
   }, [id]);
 
-  // ✅ Loading Skeleton
   if (loading)
     return (
       <section className="pt-28 pb-12 px-6 bg-gradient-to-b from-[#0f1b3d] to-[#1a237e] text-gray-100">
         <div className="max-w-4xl mx-auto animate-pulse">
           <div className="w-full h-80 bg-gray-700 rounded-xl mb-6"></div>
-
           <div className="h-8 bg-gray-700 rounded w-2/3 mb-4"></div>
           <div className="h-4 bg-gray-700 rounded w-full mb-3"></div>
           <div className="h-4 bg-gray-700 rounded w-5/6 mb-6"></div>
-
-          <div className="flex justify-between mb-6">
-            <div className="h-5 bg-gray-700 rounded w-1/4"></div>
-            <div className="h-5 bg-gray-700 rounded w-1/5"></div>
-          </div>
-
-          <div className="h-12 bg-cyan-800/50 rounded-lg w-1/3 mx-auto"></div>
         </div>
       </section>
     );
@@ -52,7 +43,6 @@ export default function CourseDetails() {
   if (!course)
     return <p className="text-center text-gray-300 mt-10">Course not found.</p>;
 
-  // ✅ Format creation date
   const createdDate = new Date(course.created_at).toLocaleDateString("en-IN", {
     year: "numeric",
     month: "long",
@@ -60,60 +50,106 @@ export default function CourseDetails() {
   });
 
   return (
-    <section className="pt-28 pb-16 px-6 bg-gradient-to-b from-[#0f1b3d] to-[#1a237e] text-gray-100">
-      <div className="max-w-4xl mx-auto">
+    <section className="pt-24 pb-16 bg-gradient-to-b from-[#0f1b3d] to-[#1a237e] text-gray-100">
+      {/* ===== HERO IMAGE ===== */}
+      <div className="relative w-full h-[400px] md:h-[500px] overflow-hidden rounded-b-3xl shadow-lg">
         <img
           src={course.image}
           alt={course.course_name}
-          className="rounded-xl w-full h-80 object-cover mb-8 shadow-lg"
+          className="w-full h-full object-cover brightness-75"
         />
-
-        <h2 className="text-4xl font-bold mb-3 text-cyan-300">
-          {course.course_name}
-        </h2>
-        <p className="text-gray-300 text-lg mb-6">{course.description}</p>
-
-        {/* --- Course Metadata --- */}
-        <div className="grid sm:grid-cols-2 gap-4 bg-white/10 rounded-xl p-6 mb-8">
-          <div className="flex items-center space-x-3">
-            <Layers className="w-5 h-5 text-cyan-400" />
-            <span>Category: {course.category || "N/A"}</span>
-          </div>
-          <div className="flex items-center space-x-3">
-            <Clock className="w-5 h-5 text-cyan-400" />
-            <span>Duration: {course.duration || "N/A"}</span>
-          </div>
-          <div className="flex items-center space-x-3">
-            <Globe className="w-5 h-5 text-cyan-400" />
-            <span>Language: {course.language || "N/A"}</span>
-          </div>
-          <div className="flex items-center space-x-3">
-            <Users className="w-5 h-5 text-cyan-400" />
-            <span>
-              Students Enrolled:{" "}
-              {course.students_enrolled?.length ?? 0}
-            </span>
-          </div>
-          <div className="flex items-center space-x-3">
-            <Star className="w-5 h-5 text-yellow-400" />
-            <span>Rating: {course.rating || 0} ⭐</span>
-          </div>
-          <div className="flex items-center space-x-3">
-            <Calendar className="w-5 h-5 text-cyan-400" />
-            <span>Created on: {createdDate}</span>
-          </div>
-        </div>
-
-        {/* --- Price and Checkout --- */}
-        <div className="flex justify-between items-center">
-          <div className="text-2xl font-semibold text-white">
-            Price: <span className="text-cyan-300">₹{course.price}</span>
-          </div>
-          <button className="bg-cyan-600 hover:bg-cyan-500 px-6 py-3 rounded-lg font-semibold text-white transition-all">
-            Proceed to Checkout 🛒
-          </button>
+        <div className="absolute inset-0 bg-black/40 flex flex-col justify-end p-8 md:p-12">
+          <span className="text-cyan-300 uppercase tracking-wide text-sm mb-2">
+            {course.category || "Uncategorized"}
+          </span>
+          <h1 className="text-4xl md:text-5xl font-extrabold leading-tight text-white mb-3">
+            {course.course_name}
+          </h1>
+          <p className="text-gray-200 max-w-2xl text-lg">{course.description}</p>
         </div>
       </div>
+
+      {/* ===== CONTENT WRAPPER ===== */}
+      <div className="max-w-6xl mx-auto mt-10 px-6 grid lg:grid-cols-3 gap-10">
+        {/* ===== LEFT: MAIN DETAILS ===== */}
+        <div className="lg:col-span-2 space-y-8">
+          {/* --- Metadata Grid --- */}
+          <div className="grid sm:grid-cols-2 gap-5 bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/10">
+            <MetaItem icon={<Layers className="w-5 h-5 text-cyan-400" />} label="Category" value={course.category || "N/A"} />
+            <MetaItem icon={<Clock className="w-5 h-5 text-cyan-400" />} label="Duration" value={course.duration || "N/A"} />
+            <MetaItem icon={<Globe className="w-5 h-5 text-cyan-400" />} label="Language" value={course.language || "N/A"} />
+            <MetaItem icon={<Users className="w-5 h-5 text-cyan-400" />} label="Students Enrolled" value={course.students_enrolled?.length ?? 0} />
+            <MetaItem icon={<Star className="w-5 h-5 text-yellow-400" />} label="Rating" value={`${course.rating || 0} ⭐`} />
+            <MetaItem icon={<Calendar className="w-5 h-5 text-cyan-400" />} label="Created On" value={createdDate} />
+          </div>
+
+          {/* --- About the Course --- */}
+          <div>
+            <h2 className="text-2xl font-bold text-cyan-300 mb-3">
+              About this course
+            </h2>
+            <p className="text-gray-200 leading-relaxed text-lg">
+              {course.description ||
+                "This course provides a deep dive into the subject with practical examples and step-by-step lessons to help you master new skills."}
+            </p>
+          </div>
+
+          {/* --- Tags --- */}
+          {course.tags && course.tags.length > 0 && (
+            <div>
+              <h3 className="text-xl font-semibold text-cyan-300 mb-2">Tags</h3>
+              <div className="flex flex-wrap gap-2">
+                {course.tags.map((tag, i) => (
+                  <span
+                    key={i}
+                    className="bg-cyan-800/40 text-cyan-200 px-3 py-1 rounded-full text-sm border border-cyan-500/20"
+                  >
+                    #{tag}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* ===== RIGHT: STICKY SIDEBAR ===== */}
+        <aside className="lg:sticky lg:top-28 bg-white/10 backdrop-blur-md p-6 rounded-2xl border border-white/10 shadow-lg space-y-5 h-fit">
+          <div className="flex flex-col items-center">
+            <span className="text-gray-300 text-sm">Course Price</span>
+            <h3 className="text-4xl font-bold text-cyan-300 mb-2">
+              ₹{course.price}
+            </h3>
+          </div>
+
+          <button className="w-full bg-cyan-600 hover:bg-cyan-500 px-6 py-3 rounded-lg font-semibold text-white transition-all shadow-md">
+            Enroll Now 🚀
+          </button>
+
+          <p className="text-center text-gray-400 text-sm">
+          Learn. Create. Showcase. • Guided lessons • Join our creative community
+          </p>
+        </aside>
+      </div>
     </section>
+  );
+}
+
+/* ===== Small Utility Component ===== */
+function MetaItem({
+  icon,
+  label,
+  value,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string | number;
+}) {
+  return (
+    <div className="flex items-center space-x-3">
+      {icon}
+      <span className="text-gray-200">
+        <strong className="text-white/90">{label}:</strong> {value}
+      </span>
+    </div>
   );
 }
