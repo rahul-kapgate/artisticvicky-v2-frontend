@@ -1,6 +1,6 @@
 import { useContext } from "react";
 import { AuthContext } from "@/context/AuthContext";
-import { Mail, Phone, User, Shield } from "lucide-react";
+import { Mail, Phone, Shield } from "lucide-react";
 
 export default function UserProfile() {
   const { user } = useContext(AuthContext);
