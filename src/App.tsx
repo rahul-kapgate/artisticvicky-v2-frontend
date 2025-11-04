@@ -35,6 +35,12 @@ function App() {
             <Route path="/my-courses" element={<MyCourses />} />
             <Route path="/my-courses/:id" element={<CourseLearning />} />
 
+            {/* <Route path="/my-courses/:id/resources" element={<Resources />} />
+            <Route path="/my-courses/:id/videos" element={<VideoLectures />} />
+            <Route path="/my-courses/:id/mock-test" element={<MockTest />} />
+            <Route path="/my-courses/:id/pyq" element={<PYQ />} /> */}
+
+
           </Routes>
         </main>
 
