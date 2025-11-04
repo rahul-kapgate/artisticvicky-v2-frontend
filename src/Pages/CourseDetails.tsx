@@ -74,7 +74,7 @@ export default function CourseDetails() {
     }
 
     if (isEnrolled) {
-      navigate(`/my-learnings/${id}`);
+      navigate(`/my-learnings/${course.id}`);
     } else {
       window.open("https://wa.me/9325217691", "_blank");
     }

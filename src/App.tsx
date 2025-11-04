@@ -10,6 +10,7 @@ import CourseDetails from "@/Pages/CourseDetails";
 import { Toaster } from "@/components/ui/sonner";
 import UserProfile from "./Pages/UserProfile";
 import MyLearning from "./Pages/MyLearning";
+import CourseLearning from "./Pages/CourseLearning";
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
 
             <Route path="/profile" element={<UserProfile />} />
             <Route path="/my-learnings" element={<MyLearning />} />
+            <Route path="/my-learnings/:id" element={<CourseLearning />} />
 
           </Routes>
         </main>
