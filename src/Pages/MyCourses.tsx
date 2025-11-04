@@ -15,7 +15,7 @@ interface Course {
   image?: string;
 }
 
-export default function MyLearning() {
+export default function MyCourses() {
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
@@ -55,7 +55,7 @@ export default function MyLearning() {
       <section className="min-h-screen pt-28 pb-16 px-6 bg-gradient-to-b from-[#10194f] via-[#132060] to-[#1a237e] text-gray-100">
         <div className="max-w-6xl mx-auto">
           <h1 className="text-3xl font-bold bg-gradient-to-r from-cyan-300 to-purple-400 bg-clip-text text-transparent mb-10 text-center">
-            🎓 My Learnings
+            🎓 My Courses
           </h1>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8 animate-pulse">
@@ -82,7 +82,7 @@ export default function MyLearning() {
     <section className="min-h-screen pt-28 pb-16 px-6 bg-gradient-to-b from-[#10194f] via-[#132060] to-[#1a237e] text-gray-100">
       <div className="max-w-6xl mx-auto">
         <h1 className="text-3xl font-bold bg-gradient-to-r from-cyan-300 to-purple-400 bg-clip-text text-transparent mb-10 text-center">
-          🎓 My Learnings
+          🎓 My Courses
         </h1>
 
         {courses.length > 0 ? (
@@ -126,7 +126,7 @@ export default function MyLearning() {
 
                 <Button
                   className="w-full mt-2 py-2 bg-gradient-to-r from-cyan-400 to-purple-500 rounded-full font-semibold hover:opacity-90 transition-all"
-                  onClick={() => navigate(`/my-learnings/${course.id}`)}
+                  onClick={() => navigate(`/my-courses/${course.id}`)}
                 >
                   Continue Learning
                 </Button>

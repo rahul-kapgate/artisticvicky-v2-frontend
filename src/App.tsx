@@ -9,7 +9,7 @@ import RefundPolicy from "./components/RefundPolicy";
 import CourseDetails from "@/Pages/CourseDetails";
 import { Toaster } from "@/components/ui/sonner";
 import UserProfile from "./Pages/UserProfile";
-import MyLearning from "./Pages/MyLearning";
+import MyCourses from "./Pages/MyCourses";
 import CourseLearning from "./Pages/CourseLearning";
 
 function App() {
@@ -32,8 +32,8 @@ function App() {
             <Route path="/courses/:id" element={<CourseDetails />} />
 
             <Route path="/profile" element={<UserProfile />} />
-            <Route path="/my-learnings" element={<MyLearning />} />
-            <Route path="/my-learnings/:id" element={<CourseLearning />} />
+            <Route path="/my-courses" element={<MyCourses />} />
+            <Route path="/my-courses/:id" element={<CourseLearning />} />
 
           </Routes>
         </main>
