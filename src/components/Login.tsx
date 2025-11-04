@@ -1,4 +1,4 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -39,6 +39,19 @@ export default function Login({
     password: "",
   });
   const [registerOpen, setRegisterOpen] = useState(false);
+
+  // ✅ Function to reset the form
+  const resetForm = () => {
+    setIdentifier("");
+    setPassword("");
+    setShowPassword(false);
+    setFieldErrors({ identifier: "", password: "" });
+  };
+
+  // ✅ Reset when dialog closes
+  useEffect(() => {
+    if (!actualOpen) resetForm();
+  }, [actualOpen]);
 
   // ✅ Validation
   const validateFields = () => {
@@ -83,6 +96,7 @@ export default function Login({
           description: "Welcome back!",
         });
 
+        resetForm();
         handleOpenChange(false);
         navigate("/");
       } else {
@@ -201,15 +215,6 @@ export default function Login({
 
         <p className="text-center text-gray-400 mt-6 text-sm">
           Don’t have an account?{" "}
-          <span
-            onClick={() => {
-              handleOpenChange(false);
-              setTimeout(() => setRegisterOpen(true), 300);
-            }}
-            className="text-cyan-300 hover:underline cursor-pointer"
-          >
-            Register here
-          </span>
         </p>
 
         {/* Mount Register Modal */}
