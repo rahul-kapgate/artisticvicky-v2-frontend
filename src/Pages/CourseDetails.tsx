@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState, useContext } from "react";
 import { apiClient } from "@/utils/axiosConfig";
 import type { Course } from "@/types/course";
@@ -8,10 +8,12 @@ import Login from "@/components/Login";
 
 export default function CourseDetails() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [course, setCourse] = useState<Course | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [loginOpen, setLoginOpen] = useState(false);
+  const [isEnrolled, setIsEnrolled] = useState(false);
 
   const { user } = useContext(AuthContext);
 
@@ -19,8 +21,19 @@ export default function CourseDetails() {
     const fetchCourse = async () => {
       try {
         const { data } = await apiClient.get(`/api/course/${id}`);
-        setCourse(data.data);
-      } catch (err) {
+        const fetchedCourse = data.data;
+        setCourse(fetchedCourse);
+
+        const storedUser =
+          user || JSON.parse(localStorage.getItem("user") || "null");
+
+        if (storedUser && fetchedCourse?.students_enrolled) {
+          const isUserEnrolled = fetchedCourse.students_enrolled.includes(
+            storedUser.id
+          );
+          setIsEnrolled(isUserEnrolled);
+        }
+      } catch {
         setError("Failed to load course details");
       } finally {
         setLoading(false);
@@ -28,7 +41,7 @@ export default function CourseDetails() {
     };
 
     if (id) fetchCourse();
-  }, [id]);
+  }, [id, user]);
 
   if (loading)
     return (
@@ -54,14 +67,16 @@ export default function CourseDetails() {
     day: "numeric",
   });
 
-  // ✅ handle Enroll click
-  const handleEnroll = () => {
-    if (user) {
-      // user logged in → open WhatsApp chat
-      window.open("https://wa.me/9325217691", "_blank");
-    } else {
-      // not logged in → open login dialog
+  const handleButtonClick = () => {
+    if (!user) {
       setLoginOpen(true);
+      return;
+    }
+
+    if (isEnrolled) {
+      navigate(`/my-learnings/${id}`);
+    } else {
+      window.open("https://wa.me/9325217691", "_blank");
     }
   };
 
@@ -87,7 +102,7 @@ export default function CourseDetails() {
 
       {/* ===== CONTENT WRAPPER ===== */}
       <div className="max-w-6xl mx-auto mt-10 px-6 grid lg:grid-cols-3 gap-10">
-        {/* ===== LEFT: MAIN DETAILS ===== */}
+        {/* LEFT: Course Info */}
         <div className="lg:col-span-2 space-y-8">
           <div className="grid sm:grid-cols-2 gap-5 bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/10">
             <MetaItem icon={<Layers className="w-5 h-5 text-cyan-400" />} label="Category" value={course.category || "N/A"} />
@@ -123,35 +138,43 @@ export default function CourseDetails() {
           )}
         </div>
 
-        {/* ===== RIGHT: SIDEBAR ===== */}
+        {/* RIGHT: Sidebar */}
         <aside className="lg:sticky lg:top-28 bg-white/10 backdrop-blur-md p-6 rounded-2xl border border-white/10 shadow-lg space-y-5 h-fit">
-          <div className="flex flex-col items-center">
-            <span className="text-gray-300 text-sm">Course Price</span>
-            <h3 className="text-4xl font-bold text-cyan-300 mb-2">
-              ₹{course.price}
-            </h3>
-          </div>
+          {/* ✅ Hide price if logged in */}
+          {!user && (
+            <div className="flex flex-col items-center">
+              <span className="text-gray-300 text-sm">Course Price</span>
+              <h3 className="text-4xl font-bold text-cyan-300 mb-2">
+                ₹{course.price}
+              </h3>
+            </div>
+          )}
 
           <button
-            onClick={handleEnroll}
-            className="w-full bg-cyan-600 hover:bg-cyan-500 px-6 py-3 rounded-lg font-semibold text-white transition-all shadow-md"
+            onClick={handleButtonClick}
+            className={`w-full px-6 py-3 rounded-lg font-semibold text-white transition-all shadow-md ${
+              isEnrolled
+                ? "bg-green-600 hover:bg-green-500"
+                : "bg-cyan-600 hover:bg-cyan-500"
+            }`}
           >
-            Enroll Now 🚀
+            {isEnrolled ? "Continue learning 🚀" : "Enroll Now 🚀"}
           </button>
 
           <p className="text-center text-gray-400 text-sm">
-            Learn. Create. Showcase. • Guided lessons • Join our creative community
+            {isEnrolled
+              ? "You're already enrolled! Continue learning and explore new modules."
+              : "Learn. Create. Showcase. • Guided lessons • Join our creative community"}
           </p>
         </aside>
       </div>
 
-      {/* ✅ Mount Login Dialog */}
       <Login open={loginOpen} onOpenChange={setLoginOpen} />
     </section>
   );
 }
 
-/* ===== Small Utility Component ===== */
+/* ===== Meta Info Reusable ===== */
 function MetaItem({
   icon,
   label,
