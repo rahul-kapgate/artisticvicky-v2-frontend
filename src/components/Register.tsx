@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -44,6 +44,34 @@ export default function Register({
     confirmPassword: "",
     otp: "",
   });
+
+  // ✅ Reset form function
+  const resetForm = () => {
+    setStep("initiate");
+    setFormData({
+      user_name: "",
+      email: "",
+      mobile: "",
+      password: "",
+      confirmPassword: "",
+      otp: "",
+    });
+    setErrors({
+      user_name: "",
+      email: "",
+      mobile: "",
+      password: "",
+      confirmPassword: "",
+      otp: "",
+    });
+    setShowPassword(false);
+    setShowConfirmPassword(false);
+  };
+
+  // ✅ Auto reset form when dialog closes
+  useEffect(() => {
+    if (!open) resetForm();
+  }, [open]);
 
   const validateInitiate = () => {
     const errs = { user_name: "", email: "", mobile: "", password: "", confirmPassword: "", otp: "" };
@@ -101,6 +129,7 @@ export default function Register({
 
       if (res.data?.message) {
         toast.success("Account created successfully 🎉");
+        resetForm();
         onOpenChange(false);
       }
     } catch (err: any) {
@@ -125,15 +154,16 @@ export default function Register({
 
       <DialogContent
         className="
-          rounded-3xl border border-white/10
-          bg-gradient-to-b from-[#1A1446] via-[#22185A] to-[#2D1D70]
-          text-gray-100 shadow-[0_0_25px_rgba(100,70,255,0.3)]
-          backdrop-blur-xl
-          max-w-md w-[95%] sm:w-[90%] md:w-[420px] 
-          mx-auto px-4 sm:px-6 py-6 sm:py-8 
-          overflow-y-auto max-h-[90vh]
-        "
+    rounded-3xl border border-white/10
+    bg-gradient-to-b from-[#1A1446] via-[#22185A] to-[#2D1D70]
+    text-gray-100 shadow-[0_0_25px_rgba(100,70,255,0.3)]
+    backdrop-blur-xl
+    max-w-md w-[95%] sm:w-[90%] md:w-[420px]
+    mx-auto px-4 sm:px-6 py-6 sm:py-8
+    max-h-[90vh] overflow-y-auto hide-scrollbar
+  "
       >
+
         {/* Responsive header */}
         <DialogHeader className="text-center space-y-1">
           <DialogTitle className="text-2xl sm:text-3xl font-extrabold bg-gradient-to-r from-cyan-300 to-purple-400 bg-clip-text text-transparent tracking-wide">
@@ -250,9 +280,8 @@ function Field({
         {label}
       </label>
       <div
-        className={`flex items-center bg-white/5 border ${
-          error ? "border-red-400" : "border-white/20"
-        } rounded-xl px-3 py-2 sm:py-2.5`}
+        className={`flex items-center bg-white/5 border ${error ? "border-red-400" : "border-white/20"
+          } rounded-xl px-3 py-2 sm:py-2.5`}
       >
         {icon}
         <input
@@ -289,9 +318,8 @@ function PasswordField({
         {label}
       </label>
       <div
-        className={`flex items-center bg-white/5 border ${
-          error ? "border-red-400" : "border-white/20"
-        } rounded-xl px-3 py-2 sm:py-2.5`}
+        className={`flex items-center bg-white/5 border ${error ? "border-red-400" : "border-white/20"
+          } rounded-xl px-3 py-2 sm:py-2.5`}
       >
         <Lock className="text-purple-300 mr-2" size={18} />
         <input

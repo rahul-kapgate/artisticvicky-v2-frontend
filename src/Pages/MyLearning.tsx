@@ -3,6 +3,8 @@ import { BookOpen, Star, Clock } from "lucide-react";
 import { apiClient } from "@/utils/axiosConfig";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
+
 
 interface Course {
   id: number;
@@ -16,6 +18,7 @@ interface Course {
 export default function MyLearning() {
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchEnrolledCourses = async () => {
@@ -123,7 +126,7 @@ export default function MyLearning() {
 
                 <Button
                   className="w-full mt-2 py-2 bg-gradient-to-r from-cyan-400 to-purple-500 rounded-full font-semibold hover:opacity-90 transition-all"
-                  onClick={() => toast.info(`Continue learning: ${course.course_name}`)}
+                  onClick={() => navigate(`/my-learnings/${course.id}`)}
                 >
                   Continue Learning
                 </Button>
