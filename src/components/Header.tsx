@@ -118,12 +118,12 @@ function Header() {
                     {user.email?.[0] || user.mobile?.[0] || "U"}
                   </button>
 
-                  {/* My Learnings Button */}
+                  {/* My courses Button */}
                   <Button
-                    onClick={() => navigate("/my-learnings")}
+                    onClick={() => navigate("/my-courses")}
                     className="px-4 py-2 rounded-lg font-semibold border border-blue-400 text-blue-100 hover:bg-gradient-to-r hover:from-blue-700 hover:to-blue-600 transition-all duration-300 shadow-sm"
                   >
-                    My Learnings
+                    My Courses
                   </Button>
 
                   {/* Logout Button */}
@@ -163,10 +163,10 @@ function Header() {
                         className="w-full text-left text-gray-200 hover:text-cyan-300 hover:bg-blue-800/40 rounded-lg px-4 py-2 transition-colors"
                         onClick={() => {
                           setIsProfileOpen(false);
-                          navigate("/my-learnings");
+                          navigate("/my-courses");
                         }}
                       >
-                        📘 My Learnings
+                        📘 My Courses
                       </button>
 
                       <button
