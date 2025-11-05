@@ -53,7 +53,7 @@ export default function CourseLearning() {
         {cards.map((card, i) => (
           <div
             key={i}
-            onClick={() => navigate(`/my-learnings/${id}/${card.path}`)}
+            onClick={() => navigate(`/my-courses/${id}/${card.path}`)}
             className={`group bg-gradient-to-b ${card.gradient}
               border border-white/10 rounded-3xl p-6 
               hover:border-cyan-400/40 hover:shadow-cyan-500/20 
