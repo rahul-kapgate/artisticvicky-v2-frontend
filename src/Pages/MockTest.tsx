@@ -11,8 +11,19 @@ import {
     ChevronRight,
     ListChecks,
     X,
+    Info,
+    AlertTriangle,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogDescription,
+} from "@/components/ui/dialog";
+import { Skeleton } from "@/components/ui/skeleton";
+import CustomWarningDialog from "@/components/CustomWarningDialog";
 
 interface Option {
     id: number;
@@ -48,23 +59,71 @@ export default function MockTest() {
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
     const [result, setResult] = useState<SubmitResponse | null>(null);
-    const [timeLeft, setTimeLeft] = useState(3600); // 1 hour
+    const [timeLeft, setTimeLeft] = useState(3600);
     const [currentIndex, setCurrentIndex] = useState(0);
-    const [trackerOpen, setTrackerOpen] = useState(false); // 📱 mobile tracker
+    const [trackerOpen, setTrackerOpen] = useState(false);
+    const [testStarted, setTestStarted] = useState(false);
+    const [confirmOpen, setConfirmOpen] = useState(false);
+    const [fetchError, setFetchError] = useState<string | null>(null);
     const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+    const [warningOpen, setWarningOpen] = useState(false);
+
 
     const courseId = 1;
 
-    // ✅ Fetch Questions
+    // 🚨 Warn user on refresh / tab close / back button
+    useEffect(() => {
+        if (!testStarted || result) return;
+
+        let refreshAttempted = false;
+
+        const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+            if (refreshAttempted) return;
+            e.preventDefault();
+            e.returnValue = ""; // Prevent immediate unload
+            refreshAttempted = true;
+
+            // Show your custom dialog instead of native alert
+            setWarningOpen(true);
+            setTimeout(() => (refreshAttempted = false), 2000); // reset safeguard
+        };
+
+        const handlePopState = (e: PopStateEvent) => {
+            e.preventDefault();
+            setWarningOpen(true);
+        };
+
+        // Detect browser refresh / tab close attempts
+        window.addEventListener("beforeunload", handleBeforeUnload);
+        window.addEventListener("popstate", handlePopState);
+
+        // Push dummy history to catch back button
+        window.history.pushState(null, "", window.location.href);
+
+        return () => {
+            window.removeEventListener("beforeunload", handleBeforeUnload);
+            window.removeEventListener("popstate", handlePopState);
+        };
+    }, [testStarted, result]);
+
+
+
+    // ✅ Fetch questions immediately (on Rules Page)
     useEffect(() => {
         const fetchQuestions = async () => {
+            setLoading(true);
             try {
                 const { data } = await apiClient.get<{ success: boolean; data: Question[] }>(
                     `/api/mock-test/${courseId}/questions`
                 );
-                setQuestions(data.data);
+                if (data.success) {
+                    setQuestions(data.data);
+                    setFetchError(null);
+                } else {
+                    setFetchError("Failed to load mock test questions. Please try again.");
+                }
             } catch {
-                toast.error("Failed to load mock test questions.");
+                setFetchError("Network error while loading questions.");
             } finally {
                 setLoading(false);
             }
@@ -72,8 +131,9 @@ export default function MockTest() {
         fetchQuestions();
     }, [courseId]);
 
-    // ✅ Timer logic
+    // ✅ Start timer only when test begins
     useEffect(() => {
+        if (!testStarted) return;
         timerRef.current = setInterval(() => {
             setTimeLeft((prev) => {
                 if (prev <= 1) {
@@ -85,7 +145,7 @@ export default function MockTest() {
             });
         }, 1000);
         return () => clearInterval(timerRef.current!);
-    }, []);
+    }, [testStarted]);
 
     const formatTime = (sec: number) => {
         const h = Math.floor(sec / 3600);
@@ -133,7 +193,7 @@ export default function MockTest() {
 
     const handleScrollToQuestion = (index: number) => {
         setCurrentIndex(index);
-        setTrackerOpen(false); // close tracker on mobile when selecting question
+        setTrackerOpen(false);
     };
 
     const timerColor =
@@ -143,6 +203,139 @@ export default function MockTest() {
                 ? "text-yellow-400"
                 : "text-cyan-300";
 
+    // 🧾 Rules Page before test starts
+    if (!testStarted) {
+        return (
+            <div
+                className={`min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-[#0f1b3d] via-[#152a52] to-[#1a237e] text-gray-100 px-4 py-10 relative transition-all duration-300 ${confirmOpen ? "backdrop-blur-sm" : ""
+                    }`}
+            >
+                {/* 🔙 Back Button */}
+                <button
+                    onClick={() => window.history.back()}
+                    className="
+            fixed top-5 left-5 z-30
+            flex items-center gap-2
+            bg-white/10 backdrop-blur-md border border-white/20
+            px-3 py-2 rounded-full shadow-md
+            text-gray-200 hover:text-white hover:bg-white/20
+            transition-all duration-300
+            active:scale-95
+          "
+                >
+                    <ChevronLeft className="w-4 h-4" />
+                    <span className="font-medium text-sm hidden sm:inline">Back</span>
+                </button>
+
+                {/* Rules Section */}
+                <div className="max-w-2xl w-full bg-[#0f1b3d]/70 backdrop-blur-md border border-white/10 rounded-2xl p-8 shadow-lg mt-12 sm:mt-20 text-center">
+                    {loading ? (
+                        // 🩶 Skeleton placeholders
+                        <div className="space-y-6 animate-pulse">
+                            <div className="flex items-center gap-3">
+                                <Skeleton className="w-10 h-10 rounded-full bg-white/10" />
+                                <Skeleton className="h-6 w-48 bg-white/10 rounded-lg" />
+                            </div>
+
+                            <Skeleton className="h-4 w-3/4 bg-white/10 rounded-lg" />
+
+                            <div className="space-y-3 mt-6">
+                                {Array.from({ length: 6 }).map((_, i) => (
+                                    <Skeleton key={i} className="h-4 w-full bg-white/10 rounded-lg" />
+                                ))}
+                            </div>
+
+                            <div className="flex justify-center mt-8">
+                                <Skeleton className="h-10 w-40 bg-white/10 rounded-lg" />
+                            </div>
+                        </div>
+                    ) : fetchError ? (
+                        <div className="flex flex-col items-center justify-center py-8 text-red-400">
+                            <AlertTriangle className="w-8 h-8 mb-2" />
+                            <p>{fetchError}</p>
+                            <Button
+                                onClick={() => window.location.reload()}
+                                className="mt-4 bg-gradient-to-r from-pink-500 to-red-600 hover:opacity-90"
+                            >
+                                Retry
+                            </Button>
+                        </div>
+                    ) : (
+                        <>
+                            <div className="flex items-center gap-3 mb-4">
+                                <Info className="w-8 h-8 text-cyan-400" />
+                                <h1 className="text-3xl font-bold text-cyan-300">Mock Test Rules</h1>
+                            </div>
+
+                            <p className="text-gray-300 mb-6 text-left">
+                                Please read the following instructions carefully before starting the test.
+                            </p>
+
+                            <ul className="list-disc list-inside space-y-3 text-gray-200 text-[15px] leading-relaxed mb-8 text-left">
+                                <li>You will have <strong>1 hour</strong> to complete the test.</li>
+                                <li>Each question carries equal marks.</li>
+                                <li>You can review and modify your answers anytime before submitting.</li>
+                                <li>Switching tabs or closing the window may lead to auto submission.</li>
+                                <li>Ensure you have a stable internet connection throughout the test.</li>
+                                <li>Click on <strong>Submit Test</strong> once you are done.</li>
+                            </ul>
+
+                            <div className="flex justify-center">
+                                <Button
+                                    onClick={() => setConfirmOpen(true)}
+                                    disabled={loading || !!fetchError || questions.length === 0}
+                                    className="bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-700 hover:opacity-90 rounded-xl px-8 py-3 text-lg text-white shadow-lg disabled:opacity-50"
+                                >
+                                    Start Test 🚀
+                                </Button>
+                            </div>
+                        </>
+                    )}
+
+                </div>
+
+                {/* Confirmation Dialog */}
+                <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+                    <DialogContent
+                        className="
+              bg-[#0f1b3d]/95 text-gray-100 border border-white/10 rounded-2xl
+              backdrop-blur-xl backdrop-brightness-90
+            "
+                    >
+                        <DialogHeader>
+                            <DialogTitle className="text-xl font-semibold text-cyan-300">
+                                Confirm Test Start
+                            </DialogTitle>
+                            <DialogDescription className="text-gray-300 mt-1">
+                                Once you start, the <strong>1-hour timer</strong> will begin and cannot be paused.
+                            </DialogDescription>
+                        </DialogHeader>
+
+                        <div className="flex justify-end gap-3 mt-6">
+                            <Button
+                                variant="ghost"
+                                onClick={() => setConfirmOpen(false)}
+                                className="text-gray-300 hover:text-white hover:bg-white/10"
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                onClick={() => {
+                                    setConfirmOpen(false);
+                                    setTestStarted(true);
+                                }}
+                                className="bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-700 hover:opacity-90 rounded-lg px-5"
+                            >
+                                Yes, Start Now
+                            </Button>
+                        </div>
+                    </DialogContent>
+                </Dialog>
+            </div>
+        );
+    }
+
+    // ✅ Loading after test starts
     if (loading)
         return (
             <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-[#10194f] to-[#1a237e]">
@@ -173,9 +366,9 @@ export default function MockTest() {
     const progress = ((currentIndex + 1) / questions.length) * 100;
 
     return (
-        <div className="min-h-screen flex bg-gradient-to-b from-[#10194f] via-[#132060] to-[#1a237e] text-gray-100 relative">
+        <div className="min-h-screen flex flex-row-reverse bg-gradient-to-b from-[#10194f] via-[#132060] to-[#1a237e] text-gray-100 relative">
             {/* 🧭 Desktop Sidebar */}
-            <aside className="hidden lg:flex flex-col justify-between w-72 bg-[#0f1b3d]/70 backdrop-blur-md border-r border-white/10 p-5 sticky top-0 h-screen">
+            <aside className="hidden lg:flex flex-col justify-between w-72 bg-[#0f1b3d]/70 backdrop-blur-md border-l border-white/10 p-5 sticky top-0 h-screen">
                 <div>
                     <h2 className="text-2xl font-semibold mb-3 text-center text-cyan-300">
                         Answer Tracker
@@ -197,10 +390,10 @@ export default function MockTest() {
                                     onClick={() => handleScrollToQuestion(idx)}
                                     aria-label={`Go to Question ${idx + 1}`}
                                     className={`rounded-full w-10 h-10 text-sm font-semibold border transition-all duration-200 ${isActive
-                                            ? "border-cyan-400 bg-cyan-500/20 text-cyan-300"
-                                            : isAnswered
-                                                ? "bg-green-500/20 border-green-400 text-green-300"
-                                                : "bg-white/5 border-white/20 hover:border-cyan-400/40"
+                                        ? "border-cyan-400 bg-cyan-500/20 text-cyan-300"
+                                        : isAnswered
+                                            ? "bg-green-500/20 border-green-400 text-green-300"
+                                            : "bg-white/5 border-white/20 hover:border-cyan-400/40"
                                         }`}
                                 >
                                     {idx + 1}
@@ -219,7 +412,7 @@ export default function MockTest() {
                 </Button>
             </aside>
 
-            {/* 🕒 Mobile Timer Topbar */}
+            {/* 🕒 Mobile Top Timer */}
             <div className="lg:hidden fixed top-0 left-0 right-0 z-20 flex items-center justify-center bg-[#0f1b3d]/90 backdrop-blur-md border-b border-white/10 py-4">
                 <Clock className="w-5 h-5 text-cyan-300 mr-2" />
                 <span className={`font-mono text-md ${timerColor}`}>
@@ -227,8 +420,7 @@ export default function MockTest() {
                 </span>
             </div>
 
-
-            {/* 🧭 Mobile Tracker Drawer */}
+            {/* 📱 Mobile Tracker Drawer */}
             <AnimatePresence>
                 {trackerOpen && (
                     <motion.div
@@ -238,7 +430,6 @@ export default function MockTest() {
                         transition={{ duration: 0.3 }}
                         className="fixed top-0 right-0 w-72 h-full z-40 bg-[#0f1b3d]/95 backdrop-blur-md border-l border-white/10 flex flex-col"
                     >
-                        {/* Header */}
                         <div className="flex justify-between items-center px-5 py-4 border-b border-white/10">
                             <h2 className="text-xl font-semibold text-cyan-300">Answer Tracker</h2>
                             <button onClick={() => setTrackerOpen(false)}>
@@ -246,7 +437,6 @@ export default function MockTest() {
                             </button>
                         </div>
 
-                        {/* Scrollable Questions */}
                         <div className="flex-1 overflow-y-auto p-5 space-y-6">
                             <div className="grid grid-cols-5 gap-3">
                                 {questions.map((_, idx) => {
@@ -258,10 +448,10 @@ export default function MockTest() {
                                             onClick={() => handleScrollToQuestion(idx)}
                                             aria-label={`Go to Question ${idx + 1}`}
                                             className={`rounded-full w-10 h-10 text-sm font-semibold border transition-all ${isActive
-                                                    ? "border-cyan-400 bg-cyan-500/20 text-cyan-300"
-                                                    : isAnswered
-                                                        ? "bg-green-500/20 border-green-400 text-green-300"
-                                                        : "bg-white/5 border-white/20 hover:border-cyan-400/40"
+                                                ? "border-cyan-400 bg-cyan-500/20 text-cyan-300"
+                                                : isAnswered
+                                                    ? "bg-green-500/20 border-green-400 text-green-300"
+                                                    : "bg-white/5 border-white/20 hover:border-cyan-400/40"
                                                 }`}
                                         >
                                             {idx + 1}
@@ -271,7 +461,6 @@ export default function MockTest() {
                             </div>
                         </div>
 
-                        {/* Submit Button (fixed bottom) */}
                         <div className="p-5 border-t border-white/10 bg-[#0f1b3d]/90">
                             <Button
                                 onClick={handleSubmit}
@@ -285,8 +474,7 @@ export default function MockTest() {
                 )}
             </AnimatePresence>
 
-
-            {/* Floating mobile button */}
+            {/* 📱 Floating Tracker Button */}
             <button
                 onClick={() => setTrackerOpen(true)}
                 className="lg:hidden fixed bottom-5 right-5 z-30 bg-gradient-to-r from-cyan-500 to-blue-600 p-3 rounded-full shadow-lg text-white hover:opacity-90 transition"
@@ -294,7 +482,7 @@ export default function MockTest() {
                 <ListChecks className="w-6 h-6" />
             </button>
 
-            {/* Main Section */}
+            {/* 🧠 Main Test Area */}
             <main className="flex-1 flex flex-col justify-between overflow-hidden p-6 lg:p-10 pt-16 lg:pt-10 pb-28 lg:pb-10">
                 {/* Progress bar */}
                 <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden mb-6">
@@ -331,8 +519,8 @@ export default function MockTest() {
                                         <label
                                             key={opt.id}
                                             className={`flex items-center gap-2 p-2 rounded-lg border cursor-pointer transition-all ${answers[currentQuestion.id] === opt.id
-                                                    ? "border-cyan-400 bg-cyan-500/10"
-                                                    : "border-white/10 hover:border-cyan-400/30"
+                                                ? "border-cyan-400 bg-cyan-500/10"
+                                                : "border-white/10 hover:border-cyan-400/30"
                                                 }`}
                                         >
                                             <input
@@ -379,6 +567,23 @@ export default function MockTest() {
                     )}
                 </div>
             </main>
+
+            <CustomWarningDialog
+                open={warningOpen}
+                onClose={() => {
+                    setWarningOpen(false);
+                    window.history.pushState(null, "", window.location.href);
+                }}
+                onConfirm={() => {
+                    setWarningOpen(false);
+                    handleSubmit();
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 800);
+                }}
+            />
+
         </div>
+
     );
 }
