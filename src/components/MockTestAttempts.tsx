@@ -4,6 +4,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Trophy, BookOpen, Calendar, ListChecks, Filter } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 interface Attempt {
     id: number;
@@ -25,6 +26,7 @@ export default function MockTestAttempts({ studentId }: { studentId: number }) {
     const [attempts, setAttempts] = useState<Attempt[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const navigate = useNavigate();
 
     // 🗓️ Date filters
     const [startDate, setStartDate] = useState<string>("");
@@ -135,6 +137,7 @@ export default function MockTestAttempts({ studentId }: { studentId: number }) {
                 {attempts.map((attempt) => (
                     <div
                         key={attempt.id}
+                        onClick={() => navigate(`/mock-test/result/${attempt.id}`)}
                         className="bg-white/5 border border-white/10 rounded-2xl p-5 shadow-[0_0_15px_rgba(100,70,255,0.2)] backdrop-blur-xl hover:border-cyan-400/40 transition-all duration-300"
                     >
                         <div className="flex justify-between items-start">
