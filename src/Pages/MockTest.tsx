@@ -23,6 +23,7 @@ import {
     DialogDescription,
 } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
+import CustomWarningDialog from "@/components/CustomWarningDialog";
 
 interface Option {
     id: number;
@@ -65,8 +66,47 @@ export default function MockTest() {
     const [confirmOpen, setConfirmOpen] = useState(false);
     const [fetchError, setFetchError] = useState<string | null>(null);
     const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+    const [warningOpen, setWarningOpen] = useState(false);
+
 
     const courseId = 1;
+
+    // 🚨 Warn user on refresh / tab close / back button
+    useEffect(() => {
+        if (!testStarted || result) return;
+
+        let refreshAttempted = false;
+
+        const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+            if (refreshAttempted) return;
+            e.preventDefault();
+            e.returnValue = ""; // Prevent immediate unload
+            refreshAttempted = true;
+
+            // Show your custom dialog instead of native alert
+            setWarningOpen(true);
+            setTimeout(() => (refreshAttempted = false), 2000); // reset safeguard
+        };
+
+        const handlePopState = (e: PopStateEvent) => {
+            e.preventDefault();
+            setWarningOpen(true);
+        };
+
+        // Detect browser refresh / tab close attempts
+        window.addEventListener("beforeunload", handleBeforeUnload);
+        window.addEventListener("popstate", handlePopState);
+
+        // Push dummy history to catch back button
+        window.history.pushState(null, "", window.location.href);
+
+        return () => {
+            window.removeEventListener("beforeunload", handleBeforeUnload);
+            window.removeEventListener("popstate", handlePopState);
+        };
+    }, [testStarted, result]);
+
+
 
     // ✅ Fetch questions immediately (on Rules Page)
     useEffect(() => {
@@ -350,10 +390,10 @@ export default function MockTest() {
                                     onClick={() => handleScrollToQuestion(idx)}
                                     aria-label={`Go to Question ${idx + 1}`}
                                     className={`rounded-full w-10 h-10 text-sm font-semibold border transition-all duration-200 ${isActive
-                                            ? "border-cyan-400 bg-cyan-500/20 text-cyan-300"
-                                            : isAnswered
-                                                ? "bg-green-500/20 border-green-400 text-green-300"
-                                                : "bg-white/5 border-white/20 hover:border-cyan-400/40"
+                                        ? "border-cyan-400 bg-cyan-500/20 text-cyan-300"
+                                        : isAnswered
+                                            ? "bg-green-500/20 border-green-400 text-green-300"
+                                            : "bg-white/5 border-white/20 hover:border-cyan-400/40"
                                         }`}
                                 >
                                     {idx + 1}
@@ -408,10 +448,10 @@ export default function MockTest() {
                                             onClick={() => handleScrollToQuestion(idx)}
                                             aria-label={`Go to Question ${idx + 1}`}
                                             className={`rounded-full w-10 h-10 text-sm font-semibold border transition-all ${isActive
-                                                    ? "border-cyan-400 bg-cyan-500/20 text-cyan-300"
-                                                    : isAnswered
-                                                        ? "bg-green-500/20 border-green-400 text-green-300"
-                                                        : "bg-white/5 border-white/20 hover:border-cyan-400/40"
+                                                ? "border-cyan-400 bg-cyan-500/20 text-cyan-300"
+                                                : isAnswered
+                                                    ? "bg-green-500/20 border-green-400 text-green-300"
+                                                    : "bg-white/5 border-white/20 hover:border-cyan-400/40"
                                                 }`}
                                         >
                                             {idx + 1}
@@ -479,8 +519,8 @@ export default function MockTest() {
                                         <label
                                             key={opt.id}
                                             className={`flex items-center gap-2 p-2 rounded-lg border cursor-pointer transition-all ${answers[currentQuestion.id] === opt.id
-                                                    ? "border-cyan-400 bg-cyan-500/10"
-                                                    : "border-white/10 hover:border-cyan-400/30"
+                                                ? "border-cyan-400 bg-cyan-500/10"
+                                                : "border-white/10 hover:border-cyan-400/30"
                                                 }`}
                                         >
                                             <input
@@ -527,6 +567,23 @@ export default function MockTest() {
                     )}
                 </div>
             </main>
+
+            <CustomWarningDialog
+                open={warningOpen}
+                onClose={() => {
+                    setWarningOpen(false);
+                    window.history.pushState(null, "", window.location.href);
+                }}
+                onConfirm={() => {
+                    setWarningOpen(false);
+                    handleSubmit();
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 800);
+                }}
+            />
+
         </div>
+
     );
 }
