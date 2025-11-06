@@ -90,13 +90,12 @@ export default function MockTestAttemptReview() {
     );
 
   const currentQuestion = details.data[currentIndex];
-  const progress = ((currentIndex + 1) / details.total_questions) * 100;
   const accuracy = ((details.score / details.total_questions) * 100).toFixed(1);
 
   return (
     <div className="min-h-screen flex flex-row-reverse bg-gradient-to-b from-[#10194f] via-[#132060] to-[#1a237e] text-gray-100 relative">
       {/* 🧭 Desktop Sidebar */}
-      <aside className="hidden lg:flex flex-col justify-between w-72 bg-[#0f1b3d]/70 backdrop-blur-md border-l border-white/10 p-6 sticky top-0 h-screen lg:pt-30">
+      <aside className="hidden lg:flex flex-col justify-between w-72 bg-[#0f1b3d]/70 backdrop-blur-md border-l border-white/10 p-6 sticky top-0 h-screen lg:pt-20">
         <ResultSidebar
           details={details}
           accuracy={accuracy}
@@ -148,15 +147,8 @@ export default function MockTestAttemptReview() {
       </AnimatePresence>
 
       {/* 🧠 Main Area */}
-      <main className="flex-1 flex flex-col justify-between overflow-hidden p-6 lg:p-10 pt-16 lg:pt-10 pb-28 lg:pb-10">
-        {/* Progress */}
-        <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden mb-6">
-          <div
-            className="h-full bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-600 transition-all duration-500"
-            style={{ width: `${progress}%` }}
-          ></div>
-        </div>
-
+      <main className="flex-1 flex flex-col justify-between overflow-hidden p-6 lg:p-10 pt-30 lg:pt-10 pb-28 lg:pb-10">
+       
         {/* Question Display */}
         <div className="flex-1 flex justify-center items-center">
           <AnimatePresence mode="wait">
@@ -222,7 +214,7 @@ export default function MockTestAttemptReview() {
         </div>
 
         {/* Navigation Buttons */}
-        <div className="flex justify-center gap-4 mt-6">
+        <div className="flex justify-center gap-4 mt-16">
           <Button
             disabled={currentIndex === 0}
             onClick={() => setCurrentIndex((prev) => prev - 1)}
