@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import CustomWarningDialog from "@/components/CustomWarningDialog";
+import { useNavigate, useParams } from "react-router-dom";
 
 interface Option {
     id: number;
@@ -67,9 +68,9 @@ export default function MockTest() {
     const [fetchError, setFetchError] = useState<string | null>(null);
     const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
     const [warningOpen, setWarningOpen] = useState(false);
-
-
-    const courseId = 1;
+    const navigate = useNavigate();
+    const params = useParams();
+    const courseId = params.id;
 
     // 🚨 Warn user on refresh / tab close / back button
     useEffect(() => {
@@ -354,10 +355,10 @@ export default function MockTest() {
                     {result.totalQuestions}
                 </p>
                 <Button
-                    onClick={() => window.location.reload()}
+                    onClick={() => navigate(-2)}
                     className="bg-gradient-to-r from-purple-500 via-indigo-600 to-blue-700 hover:opacity-90 rounded-xl px-6 py-2"
                 >
-                    Retake Test
+                    Back
                 </Button>
             </div>
         );
