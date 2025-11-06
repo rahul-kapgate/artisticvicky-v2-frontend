@@ -284,14 +284,12 @@ function ResultSidebar({
         ))}
       </div>
 
-      {!isMobile && (
         <Button
           onClick={() => navigate(-1)}
           className="mt-6 w-full bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-700 hover:opacity-90 py-2 rounded-xl text-lg"
         >
           Back to Profile
         </Button>
-      )}
     </div>
   );
 }
