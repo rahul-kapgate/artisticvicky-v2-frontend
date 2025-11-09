@@ -48,7 +48,7 @@ apiClient.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    // If unauthorized and not already retried
+    // Refresh only when token is expired or invalid (401)
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
       const newToken = await refreshAccessToken();
@@ -63,6 +63,12 @@ apiClient.interceptors.response.use(
         localStorage.removeItem("user");
         window.location.href = "/";
       }
+    }
+
+
+    // ❌ For 403 — just reject; don’t refresh
+    if (error.response?.status === 403) {
+      console.warn("Access forbidden:", error.response.data?.message);
     }
 
     console.error("API Error:", error.response?.data || error.message);
