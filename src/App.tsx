@@ -12,9 +12,9 @@ import MyCourses from "./Pages/MyCourses";
 import CourseLearning from "./Pages/CourseLearning";
 import MockTest from "./Pages/MockTest";
 import NotFound from "./Pages/NotFound"
-import MockTestAttemptReview  from "./Pages/MockTestAttemptReview";
 import ScrollToTop from "./components/ScrollToTop";
 import PYQMockTest from "./Pages/PYQMockTest";
+import AttemptReview from "./Pages/AttemptReview";
 
 function App() {
   return (
@@ -37,7 +37,8 @@ function App() {
 
           <Route path="my-courses/:id/pyq-mock-test" element={<PYQMockTest />} />
 
-          <Route path="/mock-test/result/:attempt_id" element={<MockTestAttemptReview  />} />
+          <Route path="/mock-test/result/:attempt_id" element={<AttemptReview  />} />
+          <Route path="/pyq-mock-test/result/:attempt_id" element={<AttemptReview  />} />
 
 
           <Route path="*" element={<NotFound />} />
