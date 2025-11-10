@@ -1,9 +1,12 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { FileText, PlayCircle, ClipboardCheck, History } from "lucide-react";
+import PYQPaperDialog from "@/components/PYQPaperDialog";
+import { useState } from "react";
 
 export default function CourseLearning() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [pyqOpen, setPyqOpen] = useState(false);
 
   const cards = [
     {
@@ -36,12 +39,17 @@ export default function CourseLearning() {
     },
   ];
 
+  const handleCardClick = (path: string) => {
+    if (path === "pyq-mock-test") setPyqOpen(true);
+    else navigate(`/my-courses/${id}/${path}`);
+  };
+
   return (
     <section className="pt-24 pb-16 px-6 bg-gradient-to-b from-[#0f1b3d] to-[#1a237e] text-gray-100">
       {/* ===== HEADER ===== */}
       <div className="max-w-6xl mx-auto text-center mb-12">
         <h1 className="text-4xl md:text-5xl font-bold text-cyan-300 mb-3 capitalize">
-        My Course
+          My Course
         </h1>
         <p className="text-gray-400 max-w-2xl mx-auto text-lg">
           Choose a section below to access your learning materials, mock tests, and PYQs.
@@ -53,7 +61,7 @@ export default function CourseLearning() {
         {cards.map((card, i) => (
           <div
             key={i}
-            onClick={() => navigate(`/my-courses/${id}/${card.path}`)}
+            onClick={() => handleCardClick(card.path)}
             className={`group bg-gradient-to-b ${card.gradient}
               border border-white/10 rounded-3xl p-6 
               hover:border-cyan-400/40 hover:shadow-cyan-500/20 
@@ -72,6 +80,8 @@ export default function CourseLearning() {
           </div>
         ))}
       </div>
+      {/* PYQ Papers Dialog */}
+      <PYQPaperDialog open={pyqOpen} onClose={() => setPyqOpen(false)} courseId={Number(id)} />
     </section>
   );
 }
