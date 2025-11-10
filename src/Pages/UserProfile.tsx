@@ -3,7 +3,7 @@ import { apiClient } from "@/utils/axiosConfig";
 import { Mail, Phone } from "lucide-react";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
-import MockTestAttempts from "@/components/MockTestAttempts";
+import AttemptsList from "@/components/AttemptsList";
 
 
 interface UserProfileData {
@@ -109,9 +109,11 @@ export default function UserProfile() {
         )}
       </div>
       {profile && (
-        <MockTestAttempts studentId={profile.id} />
+        <>
+          <AttemptsList studentId={profile.id} type="mock" />
+          <AttemptsList studentId={profile.id} type="pyq" />
+        </>
       )}
-
 
     </section>
   );

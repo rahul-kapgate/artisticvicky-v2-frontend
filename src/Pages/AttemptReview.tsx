@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { apiClient } from "@/utils/axiosConfig";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -30,6 +30,7 @@ interface Question {
   selected_option_id: number | null;
   is_correct: boolean;
   image_url?: string | null;
+  difficulty?: string;
 }
 
 interface AttemptDetail {
@@ -41,19 +42,25 @@ interface AttemptDetail {
   data: Question[];
 }
 
-export default function MockTestAttemptReview() {
+export default function AttemptReview() {
   const { attempt_id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [details, setDetails] = useState<AttemptDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
+  // ✅ Dynamically detect type (mock-test or pyq-mock-test)
+  const isPyq = location.pathname.includes("pyq-mock-test");
+  const baseUrl = isPyq ? "/api/pyq-mock-test" : "/api/mock-test";
+
+  // 🔹 Fetch details dynamically
   useEffect(() => {
     const fetchAttempt = async () => {
       try {
-        const res = await apiClient.get(`/api/mock-test/attempt/${attempt_id}/details`);
+        const res = await apiClient.get(`${baseUrl}/attempt/${attempt_id}/details`);
         if (res.data?.success) setDetails(res.data);
         else toast.error("Unable to load attempt details.");
       } catch (err: any) {
@@ -63,7 +70,7 @@ export default function MockTestAttemptReview() {
       }
     };
     fetchAttempt();
-  }, [attempt_id]);
+  }, [attempt_id, baseUrl]);
 
   if (loading) {
     return (
@@ -102,6 +109,7 @@ export default function MockTestAttemptReview() {
           currentIndex={currentIndex}
           setCurrentIndex={setCurrentIndex}
           navigate={navigate}
+          title={isPyq ? "PYQ Attempt Summary" : "Mock Test Summary"}
         />
       </aside>
 
@@ -113,7 +121,7 @@ export default function MockTestAttemptReview() {
         <ListChecks className="w-6 h-6" />
       </button>
 
-      {/* 📱 Right-Side Drawer */}
+      {/* 📱 Mobile Drawer */}
       <AnimatePresence>
         {drawerOpen && (
           <motion.div
@@ -124,7 +132,9 @@ export default function MockTestAttemptReview() {
             className="fixed top-0 right-0 w-80 h-full z-50 bg-[#0f1b3d]/95 backdrop-blur-md border-l border-white/10 flex flex-col"
           >
             <div className="flex justify-between items-center px-5 py-4 border-b border-white/10">
-              <h2 className="text-xl font-semibold text-cyan-300">Result Summary</h2>
+              <h2 className="text-xl font-semibold text-cyan-300">
+                {isPyq ? "PYQ Result Summary" : "Mock Test Summary"}
+              </h2>
               <button onClick={() => setDrawerOpen(false)}>
                 <X className="w-5 h-5 text-gray-300 hover:text-white" />
               </button>
@@ -140,6 +150,7 @@ export default function MockTestAttemptReview() {
                 }}
                 navigate={navigate}
                 isMobile
+                title={isPyq ? "PYQ Attempt Summary" : "Mock Test Summary"}
               />
             </div>
           </motion.div>
@@ -148,7 +159,6 @@ export default function MockTestAttemptReview() {
 
       {/* 🧠 Main Area */}
       <main className="flex-1 flex flex-col justify-between overflow-hidden p-6 lg:p-10 pt-30 lg:pt-10 pb-28 lg:pb-10">
-       
         {/* Question Display */}
         <div className="flex-1 flex justify-center items-center">
           <AnimatePresence mode="wait">
@@ -213,7 +223,7 @@ export default function MockTestAttemptReview() {
           </AnimatePresence>
         </div>
 
-        {/* Navigation Buttons */}
+        {/* Navigation */}
         <div className="flex justify-center gap-4 mt-16">
           <Button
             disabled={currentIndex === 0}
@@ -235,7 +245,7 @@ export default function MockTestAttemptReview() {
   );
 }
 
-// 🧩 Sidebar Reusable Component
+// 🧩 Sidebar Component
 function ResultSidebar({
   details,
   accuracy,
@@ -243,6 +253,7 @@ function ResultSidebar({
   setCurrentIndex,
   navigate,
   isMobile,
+  title,
 }: any) {
   return (
     <div>
@@ -264,7 +275,7 @@ function ResultSidebar({
       </div>
 
       <h3 className="text-md font-medium mb-3 text-center text-gray-300">
-        Questions
+        {title}
       </h3>
       <div className="grid grid-cols-5 gap-3">
         {details.data.map((q: Question, idx: number) => (
@@ -284,12 +295,12 @@ function ResultSidebar({
         ))}
       </div>
 
-        <Button
-          onClick={() => navigate(-1)}
-          className="mt-6 w-full bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-700 hover:opacity-90 py-2 rounded-xl text-lg"
-        >
-          Back to Profile
-        </Button>
+      <Button
+        onClick={() => navigate(-1)}
+        className="mt-6 w-full bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-700 hover:opacity-90 py-2 rounded-xl text-lg"
+      >
+        Back to Profile
+      </Button>
     </div>
   );
 }

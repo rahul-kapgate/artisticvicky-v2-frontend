@@ -1,23 +1,25 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Layout from "@/components/Layout";
 
-// Pages
 import Home from "./Pages/Home";
 import Contact from "./components/Contact";
-import PrivacyPolicy from "./components/PrivacyPolicy";
-import TermsOfUse from "./components/TermsOfUse";
-import RefundPolicy from "./components/RefundPolicy";
+import PrivacyPolicy from "./components/footer-links/PrivacyPolicy";
+import TermsOfUse from "./components/footer-links/TermsOfUse";
+import RefundPolicy from "./components/footer-links/RefundPolicy";
 import CourseDetails from "@/Pages/CourseDetails";
 import UserProfile from "./Pages/UserProfile";
 import MyCourses from "./Pages/MyCourses";
 import CourseLearning from "./Pages/CourseLearning";
 import MockTest from "./Pages/MockTest";
 import NotFound from "./Pages/NotFound"
-import MockTestAttemptReview  from "./Pages/MockTestAttemptReview";
+import ScrollToTop from "./components/ScrollToTop";
+import PYQMockTest from "./Pages/PYQMockTest";
+import AttemptReview from "./Pages/AttemptReview";
 
 function App() {
   return (
     <Router>
+      <ScrollToTop />
       <Routes>
         {/* ✅ Wrap all pages in Layout */}
         <Route path="/" element={<Layout />}>
@@ -33,7 +35,10 @@ function App() {
           <Route path="my-courses/:id" element={<CourseLearning />} />
           <Route path="my-courses/:id/mock-test" element={<MockTest />} />
 
-          <Route path="/mock-test/result/:attempt_id" element={<MockTestAttemptReview  />} />
+          <Route path="my-courses/:id/pyq-mock-test" element={<PYQMockTest />} />
+
+          <Route path="/mock-test/result/:attempt_id" element={<AttemptReview  />} />
+          <Route path="/pyq-mock-test/result/:attempt_id" element={<AttemptReview  />} />
 
 
           <Route path="*" element={<NotFound />} />
