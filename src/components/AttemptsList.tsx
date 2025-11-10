@@ -1,7 +1,13 @@
 import { useEffect, useState } from "react";
 import { apiClient } from "@/utils/axiosConfig";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Trophy, BookOpen, Calendar, Filter, FileText, ListChecks } from "lucide-react";
+import {
+  Trophy,
+  BookOpen,
+  Calendar,
+  Filter,
+  ListChecks,
+} from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -40,12 +46,15 @@ export default function AttemptsList({ studentId, type }: AttemptsListProps) {
 
   const isPyq = type === "pyq";
   const title = isPyq ? "📘 PYQ Mock Test Attempts" : "🧠 Mock Test Attempts";
-  const endpoint = isPyq ? "/api/pyq-mock-test/attempts" : "/api/mock-test/attempts";
-  const navigateBase = isPyq ? "/pyq-mock-test/result" : "/mock-test/result";
+  const endpoint = isPyq
+    ? "/api/pyq-mock-test/attempts"
+    : "/api/mock-test/attempts";
+  const navigateBase = isPyq
+    ? "/pyq-mock-test/result"
+    : "/mock-test/result";
 
   const fetchAttempts = async () => {
     if (!studentId) return;
-
     setLoading(true);
     setError(null);
 
@@ -89,7 +98,7 @@ export default function AttemptsList({ studentId, type }: AttemptsListProps) {
     fetchAttempts();
   };
 
-  // 🦴 Skeletons
+  // ⏳ Loading
   if (loading) {
     return (
       <div className="space-y-4 mt-10">
@@ -102,7 +111,8 @@ export default function AttemptsList({ studentId, type }: AttemptsListProps) {
     );
   }
 
-  if (error) return <p className="text-red-400 mt-10 text-center">{error}</p>;
+  if (error)
+    return <p className="text-red-400 mt-10 text-center">{error}</p>;
 
   if (attempts.length === 0) {
     return (
@@ -122,6 +132,7 @@ export default function AttemptsList({ studentId, type }: AttemptsListProps) {
     );
   }
 
+  // 🧩 Identical card design for both Mock and PYQ
   return (
     <div className="mt-10">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-3">
@@ -144,20 +155,14 @@ export default function AttemptsList({ studentId, type }: AttemptsListProps) {
             onClick={() => navigate(`${navigateBase}/${attempt.id}`)}
             className="bg-white/5 border border-white/10 rounded-2xl p-5 shadow-[0_0_15px_rgba(100,70,255,0.2)] backdrop-blur-xl hover:border-cyan-400/40 transition-all duration-300 cursor-pointer"
           >
+            {/* Top Row */}
             <div className="flex justify-between items-start">
               <div>
                 <h3 className="text-base font-semibold text-gray-100 flex items-center gap-2">
-                  {isPyq ? (
-                    <>
-                      <FileText className="text-cyan-400" size={16} />
-                      PYQ {attempt.pyq_papers?.year || "Unknown"}
-                    </>
-                  ) : (
-                    <>
-                      <BookOpen className="text-cyan-400" size={16} />
-                      {attempt.courses?.course_name || "Unknown Course"}
-                    </>
-                  )}
+                  <BookOpen className="text-cyan-400" size={16} />
+                  {isPyq
+                    ? `PYQ ${attempt.pyq_papers?.year || "Unknown"}`
+                    : attempt.courses?.course_name || "Unknown Course"}
                 </h3>
                 <p className="text-xs text-gray-400 flex items-center gap-1 mt-1">
                   <Calendar size={13} className="text-purple-300" />
@@ -167,6 +172,7 @@ export default function AttemptsList({ studentId, type }: AttemptsListProps) {
                   })}
                 </p>
               </div>
+
               <div className="flex items-center gap-2">
                 <Trophy className="text-yellow-400" size={18} />
                 <span className="text-base font-semibold text-yellow-300">
@@ -175,8 +181,9 @@ export default function AttemptsList({ studentId, type }: AttemptsListProps) {
               </div>
             </div>
 
+            {/* Bottom Row */}
             <div className="mt-3 flex items-center gap-2 text-gray-300 text-xs">
-              {!isPyq && <ListChecks size={14} className="text-green-400" />}
+              <ListChecks size={14} className="text-green-400" />
               <span>{attempt.answers.length} Questions Attempted</span>
             </div>
           </div>
