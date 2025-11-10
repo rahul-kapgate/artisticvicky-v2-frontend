@@ -12,8 +12,8 @@ import MyCourses from "./Pages/MyCourses";
 import CourseLearning from "./Pages/CourseLearning";
 import NotFound from "./Pages/NotFound"
 import ScrollToTop from "./components/ScrollToTop";
-import AttemptReview from "./Pages/AttemptReview";
-import TestPage from "./Pages/TestPage";
+import AttemptTestReview from "./Pages/AttemptTestReview";
+import MockTestPage from "./Pages/MockTestPage";
 
 function App() {
   return (
@@ -32,11 +32,11 @@ function App() {
           <Route path="profile" element={<UserProfile />} />
           <Route path="my-courses" element={<MyCourses />} />
           <Route path="my-courses/:id" element={<CourseLearning />} />
-          <Route path="/mock-test/result/:attempt_id" element={<AttemptReview />} />
-          <Route path="/pyq-mock-test/result/:attempt_id" element={<AttemptReview />} />
+          <Route path="/mock-test/result/:attempt_id" element={<AttemptTestReview />} />
+          <Route path="/pyq-mock-test/result/:attempt_id" element={<AttemptTestReview />} />
 
-          <Route path="my-courses/:id/mock-test" element={<TestPage type="mock" />} />
-          <Route path="my-courses/:id/pyq-mock-test" element={<TestPage type="pyq" />} />
+          <Route path="my-courses/:id/mock-test" element={<MockTestPage type="mock" />} />
+          <Route path="my-courses/:id/pyq-mock-test" element={<MockTestPage type="pyq" />} />
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>

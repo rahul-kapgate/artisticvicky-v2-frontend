@@ -53,11 +53,11 @@ interface SubmitResponse {
   data: any;
 }
 
-interface TestPageProps {
+interface MockTestPageProps {
   type: "mock" | "pyq";
 }
 
-export default function TestPage({ type }: TestPageProps) {
+export default function MockTestPage({ type }: MockTestPageProps) {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const [loading, setLoading] = useState(true);
