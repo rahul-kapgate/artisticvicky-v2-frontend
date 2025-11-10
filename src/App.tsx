@@ -10,11 +10,10 @@ import CourseDetails from "@/Pages/CourseDetails";
 import UserProfile from "./Pages/UserProfile";
 import MyCourses from "./Pages/MyCourses";
 import CourseLearning from "./Pages/CourseLearning";
-import MockTest from "./Pages/MockTest";
 import NotFound from "./Pages/NotFound"
 import ScrollToTop from "./components/ScrollToTop";
-import PYQMockTest from "./Pages/PYQMockTest";
-import AttemptReview from "./Pages/AttemptReview";
+import AttemptTestReview from "./Pages/AttemptTestReview";
+import MockTestPage from "./Pages/MockTestPage";
 
 function App() {
   return (
@@ -33,14 +32,11 @@ function App() {
           <Route path="profile" element={<UserProfile />} />
           <Route path="my-courses" element={<MyCourses />} />
           <Route path="my-courses/:id" element={<CourseLearning />} />
-          <Route path="my-courses/:id/mock-test" element={<MockTest />} />
+          <Route path="/mock-test/result/:attempt_id" element={<AttemptTestReview />} />
+          <Route path="/pyq-mock-test/result/:attempt_id" element={<AttemptTestReview />} />
 
-          <Route path="my-courses/:id/pyq-mock-test" element={<PYQMockTest />} />
-
-          <Route path="/mock-test/result/:attempt_id" element={<AttemptReview  />} />
-          <Route path="/pyq-mock-test/result/:attempt_id" element={<AttemptReview  />} />
-
-
+          <Route path="my-courses/:id/mock-test" element={<MockTestPage type="mock" />} />
+          <Route path="my-courses/:id/pyq-mock-test" element={<MockTestPage type="pyq" />} />
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>

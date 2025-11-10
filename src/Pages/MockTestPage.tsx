@@ -9,10 +9,10 @@ import {
   Clock,
   ChevronLeft,
   ChevronRight,
-  Info,
-  AlertTriangle,
   ListChecks,
   X,
+  Info,
+  AlertTriangle,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -33,7 +33,6 @@ interface Option {
 
 interface Question {
   id: number;
-  paper_id: number;
   question_text: string;
   options: Option[];
   correct_option_id: number;
@@ -54,7 +53,11 @@ interface SubmitResponse {
   data: any;
 }
 
-export default function PYQMockTest() {
+interface MockTestPageProps {
+  type: "mock" | "pyq";
+}
+
+export default function MockTestPage({ type }: MockTestPageProps) {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const [loading, setLoading] = useState(true);
@@ -70,9 +73,9 @@ export default function PYQMockTest() {
   const [warningOpen, setWarningOpen] = useState(false);
   const navigate = useNavigate();
   const params = useParams();
-  const paperId = params.id;
+  const id = params.id;
 
-  // 🚨 Warn user on refresh / back button
+  // 🚨 Warn user on refresh / back
   useEffect(() => {
     if (!testStarted || result) return;
     let refreshAttempted = false;
@@ -101,30 +104,36 @@ export default function PYQMockTest() {
     };
   }, [testStarted, result]);
 
-  // ✅ Fetch PYQ Questions
+  // ✅ Fetch Questions (Mock or PYQ)
   useEffect(() => {
     const fetchQuestions = async () => {
       setLoading(true);
       try {
+        const endpoint =
+          type === "mock"
+            ? `/api/mock-test/${id}/questions`
+            : `/api/pyq-mock-test/paper/${id}/questions`;
+
         const { data } = await apiClient.get<{ success: boolean; data: Question[] }>(
-          `/api/pyq-mock-test/paper/${paperId}/questions`
+          endpoint
         );
+
         if (data.success) {
           setQuestions(data.data);
           setFetchError(null);
         } else {
-          setFetchError("Failed to load PYQ questions.");
+          setFetchError("Failed to load questions.");
         }
       } catch {
-        setFetchError("Network error while loading PYQ questions.");
+        setFetchError("Network error while loading questions.");
       } finally {
         setLoading(false);
       }
     };
     fetchQuestions();
-  }, [paperId]);
+  }, [id, type]);
 
-  // 🕒 Timer
+  // 🕒 Timer logic
   useEffect(() => {
     if (!testStarted) return;
     timerRef.current = setInterval(() => {
@@ -153,6 +162,7 @@ export default function PYQMockTest() {
     setAnswers((prev) => ({ ...prev, [questionId]: optionId }));
   };
 
+  // ✅ Submit (Mock or PYQ)
   const handleSubmit = async () => {
     if (Object.keys(answers).length === 0) {
       toast.warning("Please attempt at least one question.");
@@ -169,16 +179,21 @@ export default function PYQMockTest() {
         })
       );
 
-      const { data } = await apiClient.post<SubmitResponse>(
-        "/api/pyq-mock-test/attempt/submit",
-        { paper_id: paperId, answers: formattedAnswers }
-      );
+      const endpoint =
+        type === "mock" ? "/api/mock-test/submit" : "/api/pyq-mock-test/attempt/submit";
+
+      const payload =
+        type === "mock"
+          ? { course_id: id, answers: formattedAnswers }
+          : { paper_id: id, answers: formattedAnswers };
+
+      const { data } = await apiClient.post<SubmitResponse>(endpoint, payload);
 
       setResult(data);
       clearInterval(timerRef.current!);
-      toast.success("PYQ submitted successfully!");
+      toast.success(`${type === "mock" ? "Mock" : "PYQ"} Test Submitted!`);
     } catch {
-      toast.error("Failed to submit PYQ test.");
+      toast.error("Failed to submit test.");
     } finally {
       setSubmitting(false);
     }
@@ -196,7 +211,7 @@ export default function PYQMockTest() {
         ? "text-yellow-400"
         : "text-cyan-300";
 
-  // 🧾 Rules Page
+  // 🧾 Rules page
   if (!testStarted) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-[#0f1b3d] via-[#152a52] to-[#1a237e] text-gray-100 px-4 py-10">
@@ -225,16 +240,17 @@ export default function PYQMockTest() {
             <>
               <div className="flex items-center gap-3 mb-4">
                 <Info className="w-8 h-8 text-cyan-400" />
-                <h1 className="text-3xl font-bold text-cyan-300">PYQ Test Rules</h1>
+                <h1 className="text-3xl font-bold text-cyan-300">
+                  {type === "mock" ? "Mock Test Rules" : "PYQ Test Rules"}
+                </h1>
               </div>
 
               <ul className="list-disc list-inside space-y-3 text-gray-200 text-[15px] leading-relaxed mb-8 text-left">
                 <li>You will have <strong>1 hour</strong> to complete the test.</li>
                 <li>Each question carries equal marks.</li>
                 <li>You can review and modify your answers anytime before submitting.</li>
-                <li>Switching tabs or closing the window may lead to auto submission.</li>
-                <li>Ensure you have a stable internet connection throughout the test.</li>
-                <li>Click on <strong>Submit Test</strong> once you are done.</li>
+                <li>Switching tabs or closing the window may auto-submit the test.</li>
+                <li>Ensure a stable internet connection throughout.</li>
               </ul>
 
               <Button
@@ -251,11 +267,9 @@ export default function PYQMockTest() {
         <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
           <DialogContent className="bg-[#0f1b3d]/95 text-gray-100 border border-white/10 rounded-2xl">
             <DialogHeader>
-              <DialogTitle className="text-xl text-cyan-300">
-                Confirm Start
-              </DialogTitle>
+              <DialogTitle className="text-xl text-cyan-300">Confirm Start</DialogTitle>
               <DialogDescription className="text-gray-300">
-                Once started, the 1-hour timer will begin and cannot be paused.
+                Once started, the timer cannot be paused.
               </DialogDescription>
             </DialogHeader>
 
@@ -279,7 +293,6 @@ export default function PYQMockTest() {
     );
   }
 
-  // Loading
   if (loading)
     return (
       <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-[#10194f] to-[#1a237e]">
@@ -287,12 +300,13 @@ export default function PYQMockTest() {
       </div>
     );
 
-  // ✅ After submission
   if (result)
     return (
       <div className="min-h-screen flex flex-col justify-center items-center text-center bg-gradient-to-b from-[#0f1b3d] via-[#152a52] to-[#1a237e] text-gray-100 px-4">
         <Trophy className="w-14 h-14 text-yellow-400 mb-4 animate-bounce" />
-        <h1 className="text-3xl font-bold mb-2">🎯 PYQ Test Completed!</h1>
+        <h1 className="text-3xl font-bold mb-2">
+          🎯 {type === "mock" ? "Mock" : "PYQ"} Test Completed!
+        </h1>
         <p className="text-lg mb-6">
           You scored{" "}
           <span className="text-cyan-300 font-semibold">{result.score}</span> /{" "}
@@ -312,7 +326,7 @@ export default function PYQMockTest() {
 
   return (
     <div className="min-h-screen flex flex-row-reverse bg-gradient-to-b from-[#10194f] via-[#132060] to-[#1a237e] text-gray-100 relative">
-      {/* 🧭 Desktop Sidebar */}
+      {/* Sidebar */}
       <aside className="hidden lg:flex flex-col justify-between w-72 bg-[#0f1b3d]/70 backdrop-blur-md border-l border-white/10 p-5 sticky top-0 h-screen">
         <div>
           <h2 className="text-2xl font-semibold mb-3 text-center text-cyan-300">
@@ -356,15 +370,7 @@ export default function PYQMockTest() {
         </Button>
       </aside>
 
-      {/* 🕒 Mobile Timer */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 z-20 flex items-center justify-center bg-[#0f1b3d]/90 backdrop-blur-md border-b border-white/10 py-4">
-        <Clock className="w-5 h-5 text-cyan-300 mr-2" />
-        <span className={`font-mono text-md ${timerColor}`}>
-          {formatTime(timeLeft)}
-        </span>
-      </div>
-
-      {/* 📱 Floating Tracker Button */}
+      {/* Mobile Tracker */}
       <button
         onClick={() => setTrackerOpen(true)}
         className="lg:hidden fixed bottom-5 right-5 z-30 bg-gradient-to-r from-cyan-500 to-blue-600 p-3 rounded-full shadow-lg text-white hover:opacity-90 transition"
@@ -372,7 +378,6 @@ export default function PYQMockTest() {
         <ListChecks className="w-6 h-6" />
       </button>
 
-      {/* 📱 Tracker Drawer */}
       <AnimatePresence>
         {trackerOpen && (
           <motion.div
@@ -383,7 +388,9 @@ export default function PYQMockTest() {
             className="fixed top-0 right-0 w-72 h-full z-40 bg-[#0f1b3d]/95 backdrop-blur-md border-l border-white/10 flex flex-col"
           >
             <div className="flex justify-between items-center px-5 py-4 border-b border-white/10">
-              <h2 className="text-xl font-semibold text-cyan-300">Question Tracker</h2>
+              <h2 className="text-xl font-semibold text-cyan-300">
+                Question Tracker
+              </h2>
               <button onClick={() => setTrackerOpen(false)}>
                 <X className="w-5 h-5 text-gray-300 hover:text-white" />
               </button>
@@ -425,9 +432,8 @@ export default function PYQMockTest() {
         )}
       </AnimatePresence>
 
-      {/* 🧠 Question Section */}
+      {/* Question Area */}
       <main className="flex-1 flex flex-col justify-between overflow-hidden p-6 lg:p-10 pt-16 lg:pt-10 pb-28 lg:pb-10">
-        {/* Progress bar */}
         <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden mb-6">
           <div
             className="h-full bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-600 transition-all duration-500"
@@ -435,7 +441,6 @@ export default function PYQMockTest() {
           ></div>
         </div>
 
-        {/* Question */}
         <div className="flex-1 flex justify-center items-center">
           <AnimatePresence mode="wait">
             <motion.div
@@ -482,7 +487,6 @@ export default function PYQMockTest() {
           </AnimatePresence>
         </div>
 
-        {/* Navigation */}
         <div className="flex justify-center gap-4 mt-6">
           <Button
             disabled={currentIndex === 0}
@@ -511,7 +515,7 @@ export default function PYQMockTest() {
         </div>
       </main>
 
-      {/* ⚠️ Exit Warning Dialog */}
+      {/* Exit Warning */}
       <CustomWarningDialog
         open={warningOpen}
         onClose={() => {

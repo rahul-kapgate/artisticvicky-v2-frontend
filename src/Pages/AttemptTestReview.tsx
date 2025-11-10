@@ -42,7 +42,7 @@ interface AttemptDetail {
   data: Question[];
 }
 
-export default function AttemptReview() {
+export default function AttemptTestReview() {
   const { attempt_id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
