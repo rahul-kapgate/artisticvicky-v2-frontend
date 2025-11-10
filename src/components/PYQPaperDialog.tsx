@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Loader2, Calendar, AlertTriangle } from "lucide-react";
 import { apiClient } from "@/utils/axiosConfig";
 import { useNavigate } from "react-router-dom";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface PYQPaper {
   id: number;
@@ -83,10 +84,24 @@ export default function PYQPaperDialog({
 
         {/* ===== CONTENT AREA ===== */}
         <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 space-y-4 scrollbar-thin scrollbar-thumb-cyan-500/20">
-          {/* Loading State */}
+          {/* 🔄 Skeleton Loading */}
           {loading && (
-            <div className="flex justify-center py-10">
-              <Loader2 className="w-8 h-8 text-cyan-300 animate-spin" />
+            <div className="space-y-4 animate-pulse">
+              {[1, 2].map((i) => (
+                <div
+                  key={i}
+                  className="p-4 sm:p-5 rounded-2xl bg-white/5 border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between"
+                >
+                  <div className="flex items-center gap-3 mb-3 sm:mb-0">
+                    <div className="w-8 h-8 bg-white/10 rounded-full" />
+                    <div>
+                      <Skeleton className="h-4 w-36 bg-white/10 rounded-md mb-2" />
+                      <Skeleton className="h-3 w-24 bg-white/10 rounded-md" />
+                    </div>
+                  </div>
+                  <Skeleton className="h-9 w-28 bg-white/10 rounded-lg" />
+                </div>
+              ))}
             </div>
           )}
 
