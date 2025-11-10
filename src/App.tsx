@@ -14,6 +14,7 @@ import MockTest from "./Pages/MockTest";
 import NotFound from "./Pages/NotFound"
 import MockTestAttemptReview  from "./Pages/MockTestAttemptReview";
 import ScrollToTop from "./components/ScrollToTop";
+import PYQMockTest from "./Pages/PYQMockTest";
 
 function App() {
   return (
@@ -33,6 +34,8 @@ function App() {
           <Route path="my-courses" element={<MyCourses />} />
           <Route path="my-courses/:id" element={<CourseLearning />} />
           <Route path="my-courses/:id/mock-test" element={<MockTest />} />
+
+          <Route path="my-courses/:id/pyq-mock-test" element={<PYQMockTest />} />
 
           <Route path="/mock-test/result/:attempt_id" element={<MockTestAttemptReview  />} />
 

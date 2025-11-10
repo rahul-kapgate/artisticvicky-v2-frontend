@@ -32,7 +32,7 @@ export default function CourseLearning() {
       desc: "Solve past year question papers to strengthen your preparation.",
       icon: <History className="w-10 h-10 text-cyan-300" />,
       gradient: "from-amber-500/20 to-orange-700/20",
-      path: "pyq",
+      path: "pyq-mock-test",
     },
   ];
 

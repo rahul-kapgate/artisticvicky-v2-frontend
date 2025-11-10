@@ -12,7 +12,7 @@ export default function Layout() {
   const location = useLocation();
 
   // 🚫 Routes where we don't want Header/Footer
-  const noLayoutRoutes = ["/my-courses/:id/mock-test"];
+  const noLayoutRoutes = ["/my-courses/:id/mock-test", "/my-courses/:id/pyq-mock-test"];
 
   // ✅ Check dynamic route match
   const hideLayout = noLayoutRoutes.some((pattern) => {
