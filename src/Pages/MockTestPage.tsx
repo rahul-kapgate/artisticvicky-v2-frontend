@@ -13,6 +13,7 @@ import {
   X,
   Info,
   AlertTriangle,
+  ArrowLeftSquare,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -312,12 +313,23 @@ export default function MockTestPage({ type }: MockTestPageProps) {
           <span className="text-cyan-300 font-semibold">{result.score}</span> /{" "}
           {result.totalQuestions}
         </p>
-        <Button
-          onClick={() => navigate(-2)}
-          className="bg-gradient-to-r from-purple-500 via-indigo-600 to-blue-700 hover:opacity-90 rounded-xl px-6 py-2"
-        >
-          Back
-        </Button>
+        <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 w-full max-w-md mx-auto">
+          <Button
+            onClick={() => navigate(-2)}
+            className="flex-1 bg-gradient-to-r from-purple-500 via-indigo-600 to-blue-700 hover:opacity-90 rounded-xl px-6 py-3 text-sm sm:text-base"
+          >
+            <ArrowLeftSquare />
+            Back
+          </Button>
+
+          <Button
+            onClick={() => navigate("/profile")}
+            className="flex-1 bg-gradient-to-r from-purple-500 via-indigo-600 to-blue-700 hover:opacity-90 rounded-xl px-6 py-3 text-sm sm:text-base"
+          >
+            View Detailed Results
+          </Button>
+        </div>
+
       </div>
     );
 
@@ -348,10 +360,10 @@ export default function MockTestPage({ type }: MockTestPageProps) {
                   key={idx}
                   onClick={() => handleScrollToQuestion(idx)}
                   className={`rounded-full w-10 h-10 text-sm font-semibold border transition-all duration-200 ${isActive
-                      ? "border-cyan-400 bg-cyan-500/20 text-cyan-300"
-                      : isAnswered
-                        ? "bg-green-500/20 border-green-400 text-green-300"
-                        : "bg-white/5 border-white/20 hover:border-cyan-400/40"
+                    ? "border-cyan-400 bg-cyan-500/20 text-cyan-300"
+                    : isAnswered
+                      ? "bg-green-500/20 border-green-400 text-green-300"
+                      : "bg-white/5 border-white/20 hover:border-cyan-400/40"
                     }`}
                 >
                   {idx + 1}
@@ -406,10 +418,10 @@ export default function MockTestPage({ type }: MockTestPageProps) {
                       key={idx}
                       onClick={() => handleScrollToQuestion(idx)}
                       className={`rounded-full w-10 h-10 text-sm font-semibold border transition-all ${isActive
-                          ? "border-cyan-400 bg-cyan-500/20 text-cyan-300"
-                          : isAnswered
-                            ? "bg-green-500/20 border-green-400 text-green-300"
-                            : "bg-white/5 border-white/20 hover:border-cyan-400/40"
+                        ? "border-cyan-400 bg-cyan-500/20 text-cyan-300"
+                        : isAnswered
+                          ? "bg-green-500/20 border-green-400 text-green-300"
+                          : "bg-white/5 border-white/20 hover:border-cyan-400/40"
                         }`}
                     >
                       {idx + 1}
@@ -467,8 +479,8 @@ export default function MockTestPage({ type }: MockTestPageProps) {
                     <label
                       key={opt.id}
                       className={`flex items-center gap-2 p-2 rounded-lg border cursor-pointer transition-all ${answers[currentQuestion.id] === opt.id
-                          ? "border-cyan-400 bg-cyan-500/10"
-                          : "border-white/10 hover:border-cyan-400/30"
+                        ? "border-cyan-400 bg-cyan-500/10"
+                        : "border-white/10 hover:border-cyan-400/30"
                         }`}
                     >
                       <input
