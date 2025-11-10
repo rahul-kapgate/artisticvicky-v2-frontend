@@ -1,12 +1,11 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Layout from "@/components/Layout";
 
-// Pages
 import Home from "./Pages/Home";
 import Contact from "./components/Contact";
-import PrivacyPolicy from "./components/PrivacyPolicy";
-import TermsOfUse from "./components/TermsOfUse";
-import RefundPolicy from "./components/RefundPolicy";
+import PrivacyPolicy from "./components/footer-links/PrivacyPolicy";
+import TermsOfUse from "./components/footer-links/TermsOfUse";
+import RefundPolicy from "./components/footer-links/RefundPolicy";
 import CourseDetails from "@/Pages/CourseDetails";
 import UserProfile from "./Pages/UserProfile";
 import MyCourses from "./Pages/MyCourses";
@@ -14,10 +13,12 @@ import CourseLearning from "./Pages/CourseLearning";
 import MockTest from "./Pages/MockTest";
 import NotFound from "./Pages/NotFound"
 import MockTestAttemptReview  from "./Pages/MockTestAttemptReview";
+import ScrollToTop from "./components/ScrollToTop";
 
 function App() {
   return (
     <Router>
+      <ScrollToTop />
       <Routes>
         {/* ✅ Wrap all pages in Layout */}
         <Route path="/" element={<Layout />}>
