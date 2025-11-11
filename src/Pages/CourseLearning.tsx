@@ -5,6 +5,7 @@ import { useState, useEffect, useMemo } from "react";
 import { apiClient } from "@/utils/axiosConfig";
 import { toast } from "sonner";
 import React from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type SectionKey = "resources" | "videos" | "mock-test" | "pyq-mock-test";
 
@@ -96,8 +97,26 @@ export default function CourseLearning() {
 
   if (loading) {
     return (
-      <section className="pt-24 pb-16 px-6 text-gray-100 bg-gradient-to-b from-[#0f1b3d] to-[#1a237e] flex items-center justify-center min-h-screen">
-        <p className="text-gray-400 animate-pulse">Loading course details...</p>
+      <section className="pt-24 pb-16 px-6 bg-gradient-to-b from-[#0f1b3d] to-[#1a237e] text-gray-100 min-h-screen">
+        <div className="max-w-6xl mx-auto">
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-cyan-300 to-purple-400 bg-clip-text text-transparent mb-10 text-center animate-pulse">
+            🎓 Loading Course...
+          </h1>
+  
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div
+                key={i}
+                className="bg-white/5 backdrop-blur-lg border border-white/10 rounded-3xl p-6 space-y-4 animate-pulse"
+              >
+                <div className="h-10 w-10 bg-white/10 rounded-full mx-auto" />
+                <div className="h-4 bg-white/10 rounded w-3/4 mx-auto" />
+                <div className="h-3 bg-white/10 rounded w-5/6 mx-auto" />
+                <div className="h-2 bg-white/10 rounded w-1/2 mx-auto" />
+              </div>
+            ))}
+          </div>
+        </div>
       </section>
     );
   }
