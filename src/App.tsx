@@ -25,6 +25,9 @@ import UserProfile from "@/Pages/UserProfile";
 import MockTestPage from "@/Pages/MockTestPage";
 import AttemptTestReview from "@/Pages/AttemptTestReview";
 
+// Video Lectures
+import VideoLectures from "./Pages/VideoLectures";
+
 function App() {
   return (
     <Router>
@@ -64,6 +67,9 @@ function App() {
             path="pyq-mock-test/result/:attempt_id"
             element={<AttemptTestReview />}
           />
+
+          {/* 🧑 Video Lectures */}
+          <Route path="my-courses/:id/videos" element={<VideoLectures />} />
 
           {/* 🧑‍🎓 User */}
           <Route path="profile" element={<UserProfile />} />
