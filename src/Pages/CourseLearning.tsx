@@ -4,6 +4,17 @@ import PYQPaperDialog from "@/components/PYQPaperDialog";
 import { useState, useEffect, useMemo } from "react";
 import { apiClient } from "@/utils/axiosConfig";
 import { toast } from "sonner";
+import React from "react";
+
+type SectionKey = "resources" | "videos" | "mock-test" | "pyq-mock-test";
+
+interface SectionCard {
+  title: string;
+  desc: string;
+  icon: React.ReactNode;
+  gradient: string;
+  path: string;
+}
 
 export default function CourseLearning() {
   const { id } = useParams();
@@ -26,7 +37,8 @@ export default function CourseLearning() {
         }
       } catch (error: any) {
         toast.error(
-          error.response?.data?.message || "Something went wrong while loading course"
+          error.response?.data?.message ||
+            "Something went wrong while loading course"
         );
       } finally {
         setLoading(false);
@@ -36,7 +48,7 @@ export default function CourseLearning() {
     if (!course) fetchCourse();
   }, [id]);
 
-  const sectionMap = useMemo(
+  const sectionMap: Record<SectionKey, SectionCard> = useMemo(
     () => ({
       resources: {
         title: "Resources",
@@ -70,9 +82,11 @@ export default function CourseLearning() {
     []
   );
 
-  const sectionsToShow =
+  const sectionsToShow: SectionCard[] =
     course?.sections?.length > 0
-      ? course.sections.map((sec: string) => sectionMap[sec]).filter(Boolean)
+      ? course.sections
+          .map((sec: string) => sectionMap[sec as SectionKey])
+          .filter(Boolean)
       : Object.values(sectionMap);
 
   const handleCardClick = (path: string) => {
@@ -103,12 +117,13 @@ export default function CourseLearning() {
           {course?.course_name || "My Course"}
         </h1>
         <p className="text-gray-400 max-w-2xl mx-auto text-lg">
-          Choose a section below to access your learning materials, mock tests, and PYQs.
+          Choose a section below to access your learning materials, mock tests,
+          and PYQs.
         </p>
       </div>
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto">
-        {sectionsToShow.map((card, i) => (
+        {sectionsToShow.map((card: SectionCard, i: number) => (
           <div
             key={i}
             onClick={() => handleCardClick(card.path)}
@@ -124,7 +139,9 @@ export default function CourseLearning() {
             <h2 className="text-xl font-semibold text-white mb-2">
               {card.title}
             </h2>
-            <p className="text-gray-300 text-sm leading-relaxed">{card.desc}</p>
+            <p className="text-gray-300 text-sm leading-relaxed">
+              {card.desc}
+            </p>
           </div>
         ))}
       </div>
