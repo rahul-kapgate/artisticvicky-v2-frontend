@@ -1,42 +1,74 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Layout from "@/components/Layout";
+import ScrollToTop from "@/components/ScrollToTop";
 
-import Home from "./Pages/Home";
-import Contact from "./components/Contact";
-import PrivacyPolicy from "./components/footer-links/PrivacyPolicy";
-import TermsOfUse from "./components/footer-links/TermsOfUse";
-import RefundPolicy from "./components/footer-links/RefundPolicy";
+// 🏠 Main Pages
+import Home from "@/Pages/Home";
+import Contact from "@/components/Contact";
+import NotFound from "@/Pages/NotFound";
+
+// ⚙️ Footer Pages
+import PrivacyPolicy from "@/components/footer-links/PrivacyPolicy";
+import TermsOfUse from "@/components/footer-links/TermsOfUse";
+import RefundPolicy from "@/components/footer-links/RefundPolicy";
+
+// 🎓 Course Pages
 import CourseDetails from "@/Pages/CourseDetails";
-import UserProfile from "./Pages/UserProfile";
-import MyCourses from "./Pages/MyCourses";
-import CourseLearning from "./Pages/CourseLearning";
-import NotFound from "./Pages/NotFound"
-import ScrollToTop from "./components/ScrollToTop";
-import AttemptTestReview from "./Pages/AttemptTestReview";
-import MockTestPage from "./Pages/MockTestPage";
+import MyCourses from "@/Pages/MyCourses";
+import CourseLearning from "@/Pages/CourseLearning";
+import Resources from "@/Pages/Resources";
+
+// 🧑‍🎓 User Pages
+import UserProfile from "@/Pages/UserProfile";
+
+// 🧩 Tests
+import MockTestPage from "@/Pages/MockTestPage";
+import AttemptTestReview from "@/Pages/AttemptTestReview";
 
 function App() {
   return (
     <Router>
       <ScrollToTop />
       <Routes>
-        {/* ✅ Wrap all pages in Layout */}
+        {/* ✅ All pages wrapped in Layout */}
         <Route path="/" element={<Layout />}>
+          {/* 🏠 Public Pages */}
           <Route index element={<Home />} />
           <Route path="contact" element={<Contact />} />
+
+          {/* ⚙️ Footer Links */}
           <Route path="privacy-policy" element={<PrivacyPolicy />} />
           <Route path="terms" element={<TermsOfUse />} />
           <Route path="refund-policy" element={<RefundPolicy />} />
 
+          {/* 🎓 Course Flow */}
           <Route path="courses/:id" element={<CourseDetails />} />
-          <Route path="profile" element={<UserProfile />} />
           <Route path="my-courses" element={<MyCourses />} />
           <Route path="my-courses/:id" element={<CourseLearning />} />
-          <Route path="/mock-test/result/:attempt_id" element={<AttemptTestReview />} />
-          <Route path="/pyq-mock-test/result/:attempt_id" element={<AttemptTestReview />} />
+          <Route path="my-courses/:id/resources" element={<Resources />} />
 
-          <Route path="my-courses/:id/mock-test" element={<MockTestPage type="mock" />} />
-          <Route path="my-courses/:id/pyq-mock-test" element={<MockTestPage type="pyq" />} />
+          {/* 🧩 Tests & Reviews */}
+          <Route
+            path="my-courses/:id/mock-test"
+            element={<MockTestPage type="mock" />}
+          />
+          <Route
+            path="my-courses/:id/pyq-mock-test"
+            element={<MockTestPage type="pyq" />}
+          />
+          <Route
+            path="mock-test/result/:attempt_id"
+            element={<AttemptTestReview />}
+          />
+          <Route
+            path="pyq-mock-test/result/:attempt_id"
+            element={<AttemptTestReview />}
+          />
+
+          {/* 🧑‍🎓 User */}
+          <Route path="profile" element={<UserProfile />} />
+
+          {/* ❌ Fallback */}
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
