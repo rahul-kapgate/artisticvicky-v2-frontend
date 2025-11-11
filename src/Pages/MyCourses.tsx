@@ -126,7 +126,7 @@ export default function MyCourses() {
 
                 <Button
                   className="w-full mt-2 py-2 bg-gradient-to-r from-cyan-400 to-purple-500 rounded-full font-semibold hover:opacity-90 transition-all"
-                  onClick={() => navigate(`/my-courses/${course.id}`)}
+                  onClick={() => navigate(`/my-courses/${course.id}`, { state: { course } })}
                 >
                   Continue Learning
                 </Button>
