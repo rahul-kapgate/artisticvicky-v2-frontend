@@ -39,7 +39,7 @@ export default function CourseLearning() {
       } catch (error: any) {
         toast.error(
           error.response?.data?.message ||
-            "Something went wrong while loading course"
+          "Something went wrong while loading course"
         );
       } finally {
         setLoading(false);
@@ -86,8 +86,8 @@ export default function CourseLearning() {
   const sectionsToShow: SectionCard[] =
     course?.sections?.length > 0
       ? course.sections
-          .map((sec: string) => sectionMap[sec as SectionKey])
-          .filter(Boolean)
+        .map((sec: string) => sectionMap[sec as SectionKey])
+        .filter(Boolean)
       : Object.values(sectionMap);
 
   const handleCardClick = (path: string) => {
@@ -102,7 +102,7 @@ export default function CourseLearning() {
           <h1 className="text-3xl font-bold bg-gradient-to-r from-cyan-300 to-purple-400 bg-clip-text text-transparent mb-10 text-center animate-pulse">
             🎓 Loading Course...
           </h1>
-  
+
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {Array.from({ length: 4 }).map((_, i) => (
               <div
@@ -141,7 +141,16 @@ export default function CourseLearning() {
         </p>
       </div>
 
-      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto">
+      <div
+        className={`max-w-6xl mx-auto ${sectionsToShow.length === 1
+            ? "flex justify-center"
+            : sectionsToShow.length === 2
+              ? "grid grid-cols-1 sm:grid-cols-2 gap-8 justify-items-center"
+              : sectionsToShow.length === 3
+                ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 justify-items-center"
+                : "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8"
+          }`}
+      >
         {sectionsToShow.map((card: SectionCard, i: number) => (
           <div
             key={i}
