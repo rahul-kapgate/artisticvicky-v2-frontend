@@ -1,64 +1,156 @@
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { FileText, PlayCircle, ClipboardCheck, History } from "lucide-react";
 import PYQPaperDialog from "@/components/PYQPaperDialog";
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
+import { apiClient } from "@/utils/axiosConfig";
+import { toast } from "sonner";
+import React from "react";
+
+type SectionKey = "resources" | "videos" | "mock-test" | "pyq-mock-test";
+
+interface SectionCard {
+  title: string;
+  desc: string;
+  icon: React.ReactNode;
+  gradient: string;
+  path: string;
+}
 
 export default function CourseLearning() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const [pyqOpen, setPyqOpen] = useState(false);
+  const [course, setCourse] = useState<any>(location.state?.course || null);
+  const [loading, setLoading] = useState(!location.state?.course);
 
-  const cards = [
-    {
-      title: "Resources",
-      desc: "Access notes, guides, and downloadable materials for this course.",
-      icon: <FileText className="w-10 h-10 text-cyan-300" />,
-      gradient: "from-cyan-500/20 to-blue-700/20",
-      path: "resources",
-    },
-    {
-      title: "Video Lectures",
-      desc: "Watch all video lectures and master your concepts.",
-      icon: <PlayCircle className="w-10 h-10 text-cyan-300" />,
-      gradient: "from-purple-500/20 to-pink-700/20",
-      path: "videos",
-    },
-    {
-      title: "Mock Test",
-      desc: "Evaluate your understanding through interactive tests.",
-      icon: <ClipboardCheck className="w-10 h-10 text-cyan-300" />,
-      gradient: "from-emerald-500/20 to-green-700/20",
-      path: "mock-test",
-    },
-    {
-      title: "PYQ (Previous Year Questions) Test",
-      desc: "Solve past year question papers to strengthen your preparation.",
-      icon: <History className="w-10 h-10 text-cyan-300" />,
-      gradient: "from-amber-500/20 to-orange-700/20",
-      path: "pyq-mock-test",
-    },
-  ];
+  // 🔹 Fetch course details if state is missing
+  useEffect(() => {
+    const fetchCourse = async () => {
+      try {
+        setLoading(true);
+        const { data } = await apiClient.get(`/api/course/${id}`);
+        if (data.success) {
+          setCourse(data.data);
+        } else {
+          toast.error(data.message || "Failed to load course details");
+        }
+      } catch (error: any) {
+        toast.error(
+          error.response?.data?.message ||
+          "Something went wrong while loading course"
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (!course) fetchCourse();
+  }, [id]);
+
+  const sectionMap: Record<SectionKey, SectionCard> = useMemo(
+    () => ({
+      resources: {
+        title: "Resources",
+        desc: "Access notes, guides, and downloadable materials for this course.",
+        icon: <FileText className="w-10 h-10 text-cyan-300" />,
+        gradient: "from-cyan-500/20 to-blue-700/20",
+        path: "resources",
+      },
+      videos: {
+        title: "Video Lectures",
+        desc: "Watch all video lectures and master your concepts.",
+        icon: <PlayCircle className="w-10 h-10 text-cyan-300" />,
+        gradient: "from-purple-500/20 to-pink-700/20",
+        path: "videos",
+      },
+      "mock-test": {
+        title: "Mock Test",
+        desc: "Evaluate your understanding through interactive tests.",
+        icon: <ClipboardCheck className="w-10 h-10 text-cyan-300" />,
+        gradient: "from-emerald-500/20 to-green-700/20",
+        path: "mock-test",
+      },
+      "pyq-mock-test": {
+        title: "PYQ (Previous Year Questions) Test",
+        desc: "Solve past year question papers to strengthen your preparation.",
+        icon: <History className="w-10 h-10 text-cyan-300" />,
+        gradient: "from-amber-500/20 to-orange-700/20",
+        path: "pyq-mock-test",
+      },
+    }),
+    []
+  );
+
+  const sectionsToShow: SectionCard[] =
+    course?.sections?.length > 0
+      ? course.sections
+        .map((sec: string) => sectionMap[sec as SectionKey])
+        .filter(Boolean)
+      : Object.values(sectionMap);
 
   const handleCardClick = (path: string) => {
     if (path === "pyq-mock-test") setPyqOpen(true);
     else navigate(`/my-courses/${id}/${path}`);
   };
 
+  if (loading) {
+    return (
+      <section className="pt-24 pb-16 px-6 bg-gradient-to-b from-[#0f1b3d] to-[#1a237e] text-gray-100 min-h-screen">
+        <div className="max-w-6xl mx-auto">
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-cyan-300 to-purple-400 bg-clip-text text-transparent mb-10 text-center animate-pulse">
+            🎓 Loading Course...
+          </h1>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div
+                key={i}
+                className="bg-white/5 backdrop-blur-lg border border-white/10 rounded-3xl p-6 space-y-4 animate-pulse"
+              >
+                <div className="h-10 w-10 bg-white/10 rounded-full mx-auto" />
+                <div className="h-4 bg-white/10 rounded w-3/4 mx-auto" />
+                <div className="h-3 bg-white/10 rounded w-5/6 mx-auto" />
+                <div className="h-2 bg-white/10 rounded w-1/2 mx-auto" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (!course) {
+    return (
+      <section className="pt-24 pb-16 px-6 text-gray-100 bg-gradient-to-b from-[#0f1b3d] to-[#1a237e] flex items-center justify-center min-h-screen">
+        <p className="text-red-400">Course not found or inaccessible.</p>
+      </section>
+    );
+  }
+
   return (
     <section className="pt-24 pb-16 px-6 bg-gradient-to-b from-[#0f1b3d] to-[#1a237e] text-gray-100">
-      {/* ===== HEADER ===== */}
       <div className="max-w-6xl mx-auto text-center mb-12">
         <h1 className="text-4xl md:text-5xl font-bold text-cyan-300 mb-3 capitalize">
-          My Course
+          {course?.course_name || "My Course"}
         </h1>
         <p className="text-gray-400 max-w-2xl mx-auto text-lg">
-          Choose a section below to access your learning materials, mock tests, and PYQs.
+          Choose a section below to access your learning materials, mock tests,
+          and PYQs.
         </p>
       </div>
 
-      {/* ===== 4 CARDS GRID ===== */}
-      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto">
-        {cards.map((card, i) => (
+      <div
+        className={`max-w-6xl mx-auto ${sectionsToShow.length === 1
+            ? "flex justify-center"
+            : sectionsToShow.length === 2
+              ? "grid grid-cols-1 sm:grid-cols-2 gap-8 justify-items-center"
+              : sectionsToShow.length === 3
+                ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 justify-items-center"
+                : "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8"
+          }`}
+      >
+        {sectionsToShow.map((card: SectionCard, i: number) => (
           <div
             key={i}
             onClick={() => handleCardClick(card.path)}
@@ -80,8 +172,12 @@ export default function CourseLearning() {
           </div>
         ))}
       </div>
-      {/* PYQ Papers Dialog */}
-      <PYQPaperDialog open={pyqOpen} onClose={() => setPyqOpen(false)} courseId={Number(id)} />
+
+      <PYQPaperDialog
+        open={pyqOpen}
+        onClose={() => setPyqOpen(false)}
+        courseId={Number(id)}
+      />
     </section>
   );
 }
