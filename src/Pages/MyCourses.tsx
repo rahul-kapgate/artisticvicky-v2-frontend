@@ -86,7 +86,14 @@ export default function MyCourses() {
         </h1>
 
         {courses.length > 0 ? (
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div
+            className={`grid gap-8 justify-center ${courses.length === 1
+                ? "grid-cols-1 max-w-sm mx-auto"
+                : courses.length === 2
+                  ? "grid-cols-1 sm:grid-cols-2 max-w-3xl mx-auto"
+                  : "sm:grid-cols-2 lg:grid-cols-3"
+              }`}
+          >
             {courses.map((course) => (
               <div
                 key={course.id}
@@ -126,7 +133,9 @@ export default function MyCourses() {
 
                 <Button
                   className="w-full mt-2 py-2 bg-gradient-to-r from-cyan-400 to-purple-500 rounded-full font-semibold hover:opacity-90 transition-all"
-                  onClick={() => navigate(`/my-courses/${course.id}`, { state: { course } })}
+                  onClick={() =>
+                    navigate(`/my-courses/${course.id}`, { state: { course } })
+                  }
                 >
                   Continue Learning
                 </Button>
@@ -142,8 +151,8 @@ export default function MyCourses() {
               Explore and start learning today! ✨
             </p>
           </div>
-
         )}
+
       </div>
     </section>
   );

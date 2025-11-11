@@ -5,7 +5,6 @@ import { useState, useEffect, useMemo } from "react";
 import { apiClient } from "@/utils/axiosConfig";
 import { toast } from "sonner";
 import React from "react";
-import { Skeleton } from "@/components/ui/skeleton";
 
 type SectionKey = "resources" | "videos" | "mock-test" | "pyq-mock-test";
 
