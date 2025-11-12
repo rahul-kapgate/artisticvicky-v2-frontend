@@ -190,7 +190,7 @@ function Home() {
                     </span>
                   </div>
                   <button
-                  onClick={() => navigate(`/courses/${course.id}`)}
+                    onClick={() => navigate(`/courses/${course.id}`)}
                     className={`w-full py-2 rounded-lg font-semibold border ${cardStyles.accent} text-white/90 hover:text-white transition-all duration-300`}
                   >
                     Enroll Now ✨
@@ -256,9 +256,9 @@ function Home() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <div className="flex justify-center">
               <img
-                src="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=800&q=80"
+                src="https://jofgujxmsxubscczjimz.supabase.co/storage/v1/object/public/course-images/courses/IMG_5525.JPG"
                 alt="Artist at work"
-                className="rounded-2xl shadow-xl w-full max-w-md hover:scale-105 transition-transform duration-300"
+                className="rounded-2xl shadow-xl w-full max-w-md h-[42vh] object-cover object-center hover:scale-105 transition-transform duration-300"
               />
             </div>
 
