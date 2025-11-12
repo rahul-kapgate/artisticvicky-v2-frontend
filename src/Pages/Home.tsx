@@ -99,8 +99,7 @@ function Home() {
             </span>
           </h1>
           <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
-            Discover colors, creativity, and inspiration through the eyes of
-            Vickey.
+            Sketch Your Success, Ace the MAH AAC CET.
           </p>
 
           <div className="relative w-full max-w-4xl mx-auto rounded-2xl overflow-hidden shadow-xl mb-8">
