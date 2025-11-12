@@ -90,28 +90,65 @@ function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-50 via-white to-white text-gray-800 scroll-smooth mt-14">
       {/* ---------------- Hero Section ---------------- */}
-      <section className="text-center pt-20 pb-6 px-4 bg-gradient-to-b from-purple-50 via-white to-white">
-        <div className="max-w-5xl mx-auto">
-          <h1 className="text-5xl font-bold mb-4">
+
+      {/* ---------------- Hero Section ---------------- */}
+      <section className="relative flex flex-col justify-center items-center h-[85vh] text-center text-white overflow-hidden">
+
+        {/* 🔹 Auto-scrolling background images */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="flex animate-scroll-slow w-[300%]">
+            {/* Repeat image set for continuous scroll */}
+            {Array(2).fill(0).map((_, setIdx) => (
+              <div key={setIdx} className="flex">
+                {[
+                  "https://images.unsplash.com/photo-1504196606672-aef5c9cefc92?auto=format&fit=crop&w=800&q=80",
+                  "https://images.unsplash.com/photo-1526948128573-703ee1aeb6fa?auto=format&fit=crop&w=800&q=80",
+                  "https://images.unsplash.com/photo-1545235617-9465d2a55698?auto=format&fit=crop&w=800&q=80",
+                  "https://images.unsplash.com/photo-1559136555-9303baea8ebd?auto=format&fit=crop&w=800&q=80",
+                  "https://images.unsplash.com/photo-1511765224389-37f0e77cf0eb?auto=format&fit=crop&w=800&q=80"
+                ].map((img, i) => (
+                  <img
+                    key={`${setIdx}-${i}`}
+                    src={img}
+                    alt="Artistic background"
+                    className="w-[20vw] h-[85vh] object-cover"
+                  />
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* 🔹 Soft dark overlay to enhance text contrast */}
+        <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" />
+
+        {/* 🔹 Hero Content */}
+        <div className="relative z-10 px-6 max-w-3xl">
+          <h1 className="text-5xl sm:text-6xl font-bold mb-4 leading-tight">
             Welcome to{" "}
-            <span className="bg-gradient-to-r from-purple-500 via-purple-600 to-purple-800 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-[#3b82f6] via-[#60a5fa] to-[#22d3ee] bg-clip-text text-transparent drop-shadow-[0_2px_8px_rgba(0,0,0,0.4)]">
               Artistic Vickey
             </span>
           </h1>
-          <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
-            Sketch Your Success, Ace the MAH AAC CET.
+          <p className="text-lg text-gray-100 max-w-2xl mx-auto mb-8 leading-relaxed drop-shadow-[0_1px_3px_rgba(0,0,0,0.6)]">
+            Sketch your imagination. Paint your story. Bring art to life. 🎨
           </p>
 
-          <div className="relative w-full max-w-4xl mx-auto rounded-2xl overflow-hidden shadow-xl mb-8">
-            <iframe
-              className="w-full h-64 sm:h-96"
-              src="https://www.youtube.com/embed/R_9NzB6LzEY?autoplay=1&mute=1&loop=1&playlist=R_9NzB6LzEY&controls=1&rel=0"
-              title="Intro Video"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            ></iframe>
-          </div>
+          <button
+            onClick={() =>
+              document
+                .getElementById("courses")
+                ?.scrollIntoView({ behavior: "smooth" })
+            }
+            className="px-8 py-3 bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-400 rounded-full text-white font-semibold hover:opacity-90 transition drop-shadow-lg"
+          >
+            Explore Courses
+          </button>
         </div>
+
+        {/* Subtle top & bottom gradient fades for smooth blending */}
+        <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-black/40 to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-black/50 to-transparent" />
       </section>
 
       {/* ---------------- Courses Section ---------------- */}
