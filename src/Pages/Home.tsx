@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Palette, Heart, Globe, Star, Layers, Brush } from "lucide-react";
 import { apiClient } from "@/utils/axiosConfig";
 import type { Course, CourseResponse } from "@/types/course";
@@ -49,6 +49,10 @@ function Home() {
   const [artworkLoading, setArtworkLoading] = useState(true);
   const [artworkError, setArtworkError] = useState<string | null>(null);
 
+  const scrollContainerRef = useRef<HTMLDivElement | null>(null);
+  const firstRowRef = useRef<HTMLDivElement | null>(null);
+
+
   // Fetch all courses
   const fetchCourses = async () => {
     try {
@@ -91,40 +95,39 @@ function Home() {
     fetchStudentArtworks();
   }, []);
 
-  // 🔁 Auto-scroll Student Artwork strip
+  // 🔁 Infinite auto-scroll Student Artwork strip (1..N..1..N...)
   useEffect(() => {
-    // Wait until artworks are loaded
-    if (studentArtworks.length === 0) return;
+    if (artworkLoading || studentArtworks.length === 0) return;
 
-    const container = document.getElementById(
-      "studentArtworkScroll"
-    ) as HTMLDivElement | null;
+    const container = scrollContainerRef.current;
+    const firstRow = firstRowRef.current;
 
-    if (!container) return;
+    if (!container || !firstRow) return;
 
-    let scrollAmount = 0;
+    const speed = 0.7; // pixels per frame – tweak for faster/slower
+    let animationFrameId: number;
 
-    const interval = setInterval(() => {
-      const maxScroll = container.scrollWidth - container.clientWidth;
-
-      // If there's nothing to scroll horizontally, skip
-      if (maxScroll <= 0) return;
-
-      // How much to move each step
-      scrollAmount += 280;
-
-      if (scrollAmount >= maxScroll) {
-        scrollAmount = 0; // loop back to start
+    const step = () => {
+      const firstWidth = firstRow.offsetWidth;
+      if (firstWidth <= 0) {
+        animationFrameId = requestAnimationFrame(step);
+        return;
       }
 
-      container.scrollTo({
-        left: scrollAmount,
-        behavior: "smooth",
-      });
-    }, 2000); // every 2s
+      // When we've scrolled past the first set, wrap back by exactly its width
+      if (container.scrollLeft >= firstWidth) {
+        container.scrollLeft -= firstWidth;
+      }
 
-    return () => clearInterval(interval);
-  }, [studentArtworks.length]);
+      container.scrollLeft += speed;
+      animationFrameId = requestAnimationFrame(step);
+    };
+
+    animationFrameId = requestAnimationFrame(step);
+
+    return () => cancelAnimationFrame(animationFrameId);
+  }, [artworkLoading, studentArtworks.length]);
+
 
 
   if (error)
@@ -198,8 +201,8 @@ function Home() {
 
           {artworkLoading ? (
             // ✅ Skeleton shimmer while loading
-            <div className="flex gap-6 overflow-hidden max-w-6xl mx-auto animate-pulse">
-              {Array.from({ length: 3 }).map((_, i) => (
+            <div className="flex gap-6 overflow-hidden max-w-[90vw] mx-auto animate-pulse">
+              {Array.from({ length: 4 }).map((_, i) => (
                 <div
                   key={i}
                   className="min-w-[260px] sm:min-w-[320px] h-64 rounded-2xl bg-slate-800/40 border border-slate-700/60"
@@ -219,42 +222,84 @@ function Home() {
               {/* Horizontal scroll container */}
               <div
                 id="studentArtworkScroll"
-               className="flex gap-6 overflow-x-auto pb-4 art-scrollbar"
+                ref={scrollContainerRef}
+                className="overflow-x-hidden pb-4 art-scrollbar"
               >
-                {studentArtworks.map((art) => (
-                  <div
-                    key={art.id}
-                    className="min-w-[260px] sm:min-w-[320px] bg-gradient-to-br from-[#0f172a] via-[#020617] to-[#1e293b] rounded-2xl border border-cyan-400/20 shadow-lg overflow-hidden group"
-                  >
-                    <div className="relative h-56 w-full overflow-hidden">
-                      <img
-                        src={art.image}
-                        alt={art.title}
-                        className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent opacity-90" />
-                      <div className="absolute bottom-3 left-4 right-4">
-                        <h3 className="text-lg font-semibold text-white mb-1 line-clamp-1">
-                          {art.title || "Untitled Artwork"}
-                        </h3>
-                        <p className="text-sm text-gray-200">
-                          by <span className="font-medium">{art.student_name}</span>
-                          {art.city && (
-                            <span className="text-xs text-gray-300 ml-2">
-                              • {art.city}
-                            </span>
-                          )}
-                        </p>
+                <div className="flex gap-6">
+                  {/* 🔹 First set (used for measuring width) */}
+                  <div className="flex gap-6" ref={firstRowRef}>
+                    {studentArtworks.map((art) => (
+                      <div
+                        key={`first-${art.id}`}
+                        className="min-w-[260px] sm:min-w-[320px] bg-gradient-to-br from-[#0f172a] via-[#020617] to-[#1e293b] rounded-2xl border border-cyan-400/20 shadow-lg overflow-hidden group"
+                      >
+                        <div className="relative h-56 w-full overflow-hidden">
+                          <img
+                            src={art.image}
+                            alt={art.title}
+                            className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent opacity-90" />
+                          <div className="absolute bottom-3 left-4 right-4">
+                            <h3 className="text-lg font-semibold text-white mb-1 line-clamp-1">
+                              {art.title || "Untitled Artwork"}
+                            </h3>
+                            <p className="text-sm text-gray-200">
+                              by <span className="font-medium">{art.student_name}</span>
+                              {art.city && (
+                                <span className="text-xs text-gray-300 ml-2">
+                                  • {art.city}
+                                </span>
+                              )}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="px-4 py-3 flex items-center justify-between text-xs text-gray-300 bg-slate-900/70">
+                          <span className="uppercase tracking-wide text-cyan-300">
+                            Student Artwork
+                          </span>
+                        </div>
                       </div>
-                    </div>
-
-                    <div className="px-4 py-3 flex items-center justify-between text-xs text-gray-300 bg-slate-900/70">
-                      <span className="uppercase tracking-wide text-cyan-300">
-                        Student Artwork
-                      </span>
-                    </div>
+                    ))}
                   </div>
-                ))}
+
+                  {/* 🔹 Second set (for seamless looping after the first 5) */}
+                  <div className="flex gap-6">
+                    {studentArtworks.map((art) => (
+                      <div
+                        key={`second-${art.id}`}
+                        className="min-w-[260px] sm:min-w-[320px] bg-gradient-to-br from-[#0f172a] via-[#020617] to-[#1e293b] rounded-2xl border border-cyan-400/20 shadow-lg overflow-hidden group"
+                      >
+                        <div className="relative h-56 w-full overflow-hidden">
+                          <img
+                            src={art.image}
+                            alt={art.title}
+                            className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent opacity-90" />
+                          <div className="absolute bottom-3 left-4 right-4">
+                            <h3 className="text-lg font-semibold text-white mb-1 line-clamp-1">
+                              {art.title || "Untitled Artwork"}
+                            </h3>
+                            <p className="text-sm text-gray-200">
+                              by <span className="font-medium">{art.student_name}</span>
+                              {art.city && (
+                                <span className="text-xs text-gray-300 ml-2">
+                                  • {art.city}
+                                </span>
+                              )}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="px-4 py-3 flex items-center justify-between text-xs text-gray-300 bg-slate-900/70">
+                          <span className="uppercase tracking-wide text-cyan-300">
+                            Student Artwork
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
           )}
