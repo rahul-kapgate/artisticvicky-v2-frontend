@@ -40,7 +40,7 @@ export default function PYQPaperDialog({
     const fetchPapers = async () => {
       setLoading(true);
       try {
-        const { data } = await apiClient.get(`/api/pyq-mock-test/${courseId}/papers`);
+        const { data } = await apiClient.get(`/api/pyq-mock-test/${1}/papers`);
         if (data.success) {
           setPapers(data.data);
           setError(null);

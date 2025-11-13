@@ -114,22 +114,9 @@ export default function AttemptsList({ studentId, type }: AttemptsListProps) {
   if (error)
     return <p className="text-red-400 mt-10 text-center">{error}</p>;
 
+  // don't render anything if there are zero attempts
   if (attempts.length === 0) {
-    return (
-      <div className="mt-10 text-center">
-        <h2 className="text-2xl font-semibold bg-gradient-to-r from-cyan-300 to-purple-400 bg-clip-text text-transparent mb-3">
-          {title}
-        </h2>
-        <FilterBar
-          startDate={startDate}
-          endDate={endDate}
-          onStartChange={setStartDate}
-          onEndChange={setEndDate}
-          onFilter={handleFilter}
-        />
-        <p className="text-gray-400 mt-8">No attempts yet.</p>
-      </div>
-    );
+    return null;
   }
 
   // 🧩 Identical card design for both Mock and PYQ
