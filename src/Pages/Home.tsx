@@ -3,6 +3,7 @@ import { Palette, Heart, Globe, Star, Layers, Brush } from "lucide-react";
 import { apiClient } from "@/utils/axiosConfig";
 import type { Course, CourseResponse } from "@/types/course";
 import { useNavigate } from "react-router-dom";
+import type { StudentArtwork, StudentArtworkResponse } from "@/types/studentArtwork";
 
 // Reasons Section 
 const reasons = [
@@ -44,39 +45,87 @@ function Home() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const container = document.querySelector("#courseScroll");
-    let scrollAmount = 0;
-    const interval = setInterval(() => {
-      scrollAmount += 300;
-      // @ts-ignore
-      if (scrollAmount >= container.scrollWidth) scrollAmount = 0;
-      // @ts-ignore
-      container.scrollTo({ left: scrollAmount, behavior: "smooth" });
-    }, 3000);
-    return () => clearInterval(interval);
-  }, []);
+  const [studentArtworks, setStudentArtworks] = useState<StudentArtwork[]>([]);
+  const [artworkLoading, setArtworkLoading] = useState(true);
+  const [artworkError, setArtworkError] = useState<string | null>(null);
 
   // Fetch all courses
-  useEffect(() => {
-    const fetchCourses = async () => {
-      try {
-        const res = await apiClient.get<CourseResponse>("/api/course/all-courses");
-        if (res.data.success) {
-          setCourses(res.data.data);
-        } else {
-          throw new Error(res.data.message || "Failed to fetch courses");
-        }
-      } catch (err: any) {
-        console.error("Error fetching courses:", err);
-        setError(err.message || "Something went wrong");
-      } finally {
-        setLoading(false);
+  const fetchCourses = async () => {
+    try {
+      const res = await apiClient.get<CourseResponse>("/api/course/all-courses");
+      if (res.data.success) {
+        setCourses(res.data.data);
+      } else {
+        throw new Error(res.data.message || "Failed to fetch courses");
       }
-    };
+    } catch (err: any) {
+      console.error("Error fetching courses:", err);
+      setError(err.message || "Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  // fetch artworks
+  const fetchStudentArtworks = async () => {
+    try {
+      const res = await apiClient.get<StudentArtworkResponse>(
+        "/api/student-artwork/all"
+      );
+
+      if (res.data.success) {
+        setStudentArtworks(res.data.data);
+      } else {
+        throw new Error("Failed to fetch student artworks");
+      }
+    } catch (err: any) {
+      console.error("Error fetching student artworks:", err);
+      setArtworkError(err.message || "Something went wrong");
+    } finally {
+      setArtworkLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchCourses();
+    fetchStudentArtworks();
   }, []);
+
+  // 🔁 Auto-scroll Student Artwork strip
+  useEffect(() => {
+    // Wait until artworks are loaded
+    if (studentArtworks.length === 0) return;
+
+    const container = document.getElementById(
+      "studentArtworkScroll"
+    ) as HTMLDivElement | null;
+
+    if (!container) return;
+
+    let scrollAmount = 0;
+
+    const interval = setInterval(() => {
+      const maxScroll = container.scrollWidth - container.clientWidth;
+
+      // If there's nothing to scroll horizontally, skip
+      if (maxScroll <= 0) return;
+
+      // How much to move each step
+      scrollAmount += 280;
+
+      if (scrollAmount >= maxScroll) {
+        scrollAmount = 0; // loop back to start
+      }
+
+      container.scrollTo({
+        left: scrollAmount,
+        behavior: "smooth",
+      });
+    }, 2000); // every 2s
+
+    return () => clearInterval(interval);
+  }, [studentArtworks.length]);
+
 
   if (error)
     return (
@@ -90,33 +139,16 @@ function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-50 via-white to-white text-gray-800 scroll-smooth mt-14">
       {/* ---------------- Hero Section ---------------- */}
-
-      {/* ---------------- Hero Section ---------------- */}
       <section className="relative flex flex-col justify-center items-center h-[85vh] text-center text-white overflow-hidden">
 
-        {/* 🔹 Auto-scrolling background images */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="flex animate-scroll-slow w-[300%]">
-            {/* Repeat image set for continuous scroll */}
-            {Array(2).fill(0).map((_, setIdx) => (
-              <div key={setIdx} className="flex">
-                {[
-                  "https://images.unsplash.com/photo-1504196606672-aef5c9cefc92?auto=format&fit=crop&w=800&q=80",
-                  "https://images.unsplash.com/photo-1526948128573-703ee1aeb6fa?auto=format&fit=crop&w=800&q=80",
-                  "https://images.unsplash.com/photo-1545235617-9465d2a55698?auto=format&fit=crop&w=800&q=80",
-                  "https://images.unsplash.com/photo-1559136555-9303baea8ebd?auto=format&fit=crop&w=800&q=80",
-                  "https://images.unsplash.com/photo-1511765224389-37f0e77cf0eb?auto=format&fit=crop&w=800&q=80"
-                ].map((img, i) => (
-                  <img
-                    key={`${setIdx}-${i}`}
-                    src={img}
-                    alt="Artistic background"
-                    className="w-[20vw] h-[85vh] object-cover"
-                  />
-                ))}
-              </div>
-            ))}
-          </div>
+        {/* 🔹 Static gradient background that matches the home theme (blues/purples) */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#050816] via-[#10194f] to-[#1e3a8a]" />
+
+        {/* 🔹 Subtle glowing blobs for depth */}
+        <div className="pointer-events-none absolute inset-0 opacity-60">
+          <div className="absolute -top-32 -left-16 w-72 h-72 bg-[#3b82f6] rounded-full blur-3xl" />
+          <div className="absolute -bottom-40 -right-10 w-80 h-80 bg-[#22d3ee] rounded-full blur-3xl" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-[#a855f7]/60 rounded-full blur-3xl" />
         </div>
 
         {/* 🔹 Soft dark overlay to enhance text contrast */}
@@ -131,7 +163,7 @@ function Home() {
             </span>
           </h1>
           <p className="text-lg text-gray-100 max-w-2xl mx-auto mb-8 leading-relaxed drop-shadow-[0_1px_3px_rgba(0,0,0,0.6)]">
-            Sketch your imagination. Paint your story. Bring art to life. 🎨
+            Sketch Your Success. Ace the MAH AAC CET. Bring art to life. 🎨
           </p>
 
           <button
@@ -150,6 +182,85 @@ function Home() {
         <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-black/40 to-transparent" />
         <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-black/50 to-transparent" />
       </section>
+
+      {/* ---------------- Student Artwork Section ---------------- */}
+      <section className="py-16 px-6 bg-gradient-to-b from-[#020617] via-[#020617] to-[#0b1120] text-gray-100">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-10">
+            <h2 className="text-4xl font-bold mb-3">
+              🖼️ Student <span className="text-cyan-300">Artwork</span>
+            </h2>
+            <p className="text-gray-300 max-w-2xl mx-auto">
+              Explore beautiful creations made by students of Artistic Vickey from
+              different cities and backgrounds.
+            </p>
+          </div>
+
+          {artworkLoading ? (
+            // ✅ Skeleton shimmer while loading
+            <div className="flex gap-6 overflow-hidden max-w-6xl mx-auto animate-pulse">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="min-w-[260px] sm:min-w-[320px] h-64 rounded-2xl bg-slate-800/40 border border-slate-700/60"
+                />
+              ))}
+            </div>
+          ) : artworkError ? (
+            <p className="text-center text-red-400">
+              Failed to load student artwork: {artworkError}
+            </p>
+          ) : studentArtworks.length === 0 ? (
+            <p className="text-center text-gray-400 mt-4">
+              No student artwork shared yet. Stay tuned! ✨
+            </p>
+          ) : (
+            <div className="relative max-w-[90vw] mx-auto">
+              {/* Horizontal scroll container */}
+              <div
+                id="studentArtworkScroll"
+               className="flex gap-6 overflow-x-auto pb-4 art-scrollbar"
+              >
+                {studentArtworks.map((art) => (
+                  <div
+                    key={art.id}
+                    className="min-w-[260px] sm:min-w-[320px] bg-gradient-to-br from-[#0f172a] via-[#020617] to-[#1e293b] rounded-2xl border border-cyan-400/20 shadow-lg overflow-hidden group"
+                  >
+                    <div className="relative h-56 w-full overflow-hidden">
+                      <img
+                        src={art.image}
+                        alt={art.title}
+                        className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent opacity-90" />
+                      <div className="absolute bottom-3 left-4 right-4">
+                        <h3 className="text-lg font-semibold text-white mb-1 line-clamp-1">
+                          {art.title || "Untitled Artwork"}
+                        </h3>
+                        <p className="text-sm text-gray-200">
+                          by <span className="font-medium">{art.student_name}</span>
+                          {art.city && (
+                            <span className="text-xs text-gray-300 ml-2">
+                              • {art.city}
+                            </span>
+                          )}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="px-4 py-3 flex items-center justify-between text-xs text-gray-300 bg-slate-900/70">
+                      <span className="uppercase tracking-wide text-cyan-300">
+                        Student Artwork
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </section>
+
 
       {/* ---------------- Courses Section ---------------- */}
       <section
