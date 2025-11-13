@@ -4,6 +4,8 @@ import { apiClient } from "@/utils/axiosConfig";
 import type { Course, CourseResponse } from "@/types/course";
 import { useNavigate } from "react-router-dom";
 import type { StudentArtwork, StudentArtworkResponse } from "@/types/studentArtwork";
+import { motion } from "framer-motion";
+
 
 // Reasons Section 
 const reasons = [
@@ -144,44 +146,74 @@ function Home() {
       {/* ---------------- Hero Section ---------------- */}
       <section className="relative flex flex-col justify-center items-center h-[85vh] text-center text-white overflow-hidden">
 
-        {/* 🔹 Static gradient background that matches the home theme (blues/purples) */}
+        {/* 🔹 Static gradient background */}
         <div className="absolute inset-0 bg-gradient-to-br from-[#050816] via-[#10194f] to-[#1e3a8a]" />
 
-        {/* 🔹 Subtle glowing blobs for depth */}
+        {/* 🔹 Animated glowing blobs for depth */}
         <div className="pointer-events-none absolute inset-0 opacity-60">
-          <div className="absolute -top-32 -left-16 w-72 h-72 bg-[#3b82f6] rounded-full blur-3xl" />
-          <div className="absolute -bottom-40 -right-10 w-80 h-80 bg-[#22d3ee] rounded-full blur-3xl" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-[#a855f7]/60 rounded-full blur-3xl" />
+          <motion.div
+            className="absolute -top-32 -left-16 w-72 h-72 bg-[#3b82f6] rounded-full blur-3xl"
+            animate={{ y: [0, 25, 0], x: [0, 10, 0] }}
+            transition={{ duration: 16, repeat: Infinity, ease: "easeInOut" }}
+          />
+          <motion.div
+            className="absolute -bottom-40 -right-10 w-80 h-80 bg-[#22d3ee] rounded-full blur-3xl"
+            animate={{ y: [0, -20, 0], x: [0, -15, 0] }}
+            transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
+          />
+          <motion.div
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-[#a855f7]/60 rounded-full blur-3xl"
+            animate={{ scale: [1, 1.1, 1] }}
+            transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
+          />
         </div>
 
         {/* 🔹 Soft dark overlay to enhance text contrast */}
         <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" />
 
-        {/* 🔹 Hero Content */}
-        <div className="relative z-10 px-6 max-w-3xl">
-          <h1 className="text-5xl sm:text-6xl font-bold mb-4 leading-tight">
+        {/* 🔹 Hero Content with entrance animation */}
+        <motion.div
+          className="relative z-10 px-6 max-w-3xl"
+          initial={{ opacity: 0, y: 25 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.9, ease: "easeOut" }}
+        >
+          <motion.h1
+            className="text-5xl sm:text-6xl font-bold mb-4 leading-tight"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, delay: 0.1 }}
+          >
             Welcome to{" "}
             <span className="bg-gradient-to-r from-[#3b82f6] via-[#60a5fa] to-[#22d3ee] bg-clip-text text-transparent drop-shadow-[0_2px_8px_rgba(0,0,0,0.4)]">
               Artistic Vickey
             </span>
-          </h1>
-          <p className="text-lg text-gray-100 max-w-2xl mx-auto mb-8 leading-relaxed drop-shadow-[0_1px_3px_rgba(0,0,0,0.6)]">
-            Sketch Your Success. Ace the MAH AAC CET. Bring art to life. 🎨
-          </p>
+          </motion.h1>
 
-          <button
+          <motion.p
+            className="text-lg text-gray-100 max-w-2xl mx-auto mb-8 leading-relaxed drop-shadow-[0_1px_3px_rgba(0,0,0,0.6)]"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.25 }}
+          >
+            Sketch Your Success. Ace the MAH AAC CET. Bring art to life. 🎨
+          </motion.p>
+
+          <motion.button
             onClick={() =>
               document
                 .getElementById("courses")
                 ?.scrollIntoView({ behavior: "smooth" })
             }
             className="px-8 py-3 bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-400 rounded-full text-white font-semibold hover:opacity-90 transition drop-shadow-lg"
+            whileHover={{ scale: 1.04 }}
+            whileTap={{ scale: 0.97 }}
           >
             Explore Courses
-          </button>
-        </div>
+          </motion.button>
+        </motion.div>
 
-        {/* Subtle top & bottom gradient fades for smooth blending */}
+        {/* Gradient fades for smooth blending */}
         <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-black/40 to-transparent" />
         <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-black/50 to-transparent" />
       </section>
