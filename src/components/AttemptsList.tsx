@@ -88,7 +88,7 @@ export default function AttemptsList({ studentId, type }: AttemptsListProps) {
   useEffect(() => {
     const today = new Date();
     const past = new Date();
-    past.setDate(today.getDate() - 30);
+    past.setDate(today.getDate() - 10);
     setStartDate(past.toISOString().split("T")[0]);
     setEndDate(today.toISOString().split("T")[0]);
   }, []);
@@ -114,22 +114,9 @@ export default function AttemptsList({ studentId, type }: AttemptsListProps) {
   if (error)
     return <p className="text-red-400 mt-10 text-center">{error}</p>;
 
+  // don't render anything if there are zero attempts
   if (attempts.length === 0) {
-    return (
-      <div className="mt-10 text-center">
-        <h2 className="text-2xl font-semibold bg-gradient-to-r from-cyan-300 to-purple-400 bg-clip-text text-transparent mb-3">
-          {title}
-        </h2>
-        <FilterBar
-          startDate={startDate}
-          endDate={endDate}
-          onStartChange={setStartDate}
-          onEndChange={setEndDate}
-          onFilter={handleFilter}
-        />
-        <p className="text-gray-400 mt-8">No attempts yet.</p>
-      </div>
-    );
+    return null;
   }
 
   // 🧩 Identical card design for both Mock and PYQ
@@ -148,7 +135,7 @@ export default function AttemptsList({ studentId, type }: AttemptsListProps) {
         />
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-5 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-4 gap-6">
         {attempts.map((attempt) => (
           <div
             key={attempt.id}
@@ -159,13 +146,13 @@ export default function AttemptsList({ studentId, type }: AttemptsListProps) {
             <div className="flex justify-between items-start">
               <div>
                 <h3 className="text-base font-semibold text-gray-100 flex items-center gap-2">
-                  <BookOpen className="text-cyan-400" size={16} />
+                  <BookOpen className="text-cyan-400 shrink-0" size={16} />
                   {isPyq
                     ? `PYQ ${attempt.pyq_papers?.year || "Unknown"}`
                     : attempt.courses?.course_name || "Unknown Course"}
                 </h3>
                 <p className="text-xs text-gray-400 flex items-center gap-1 mt-1">
-                  <Calendar size={13} className="text-purple-300" />
+                  <Calendar size={13} className="text-purple-300 shrink-0" />
                   {new Date(attempt.submitted_at).toLocaleString("en-IN", {
                     dateStyle: "medium",
                     timeStyle: "short",
@@ -174,7 +161,7 @@ export default function AttemptsList({ studentId, type }: AttemptsListProps) {
               </div>
 
               <div className="flex items-center gap-2">
-                <Trophy className="text-yellow-400" size={18} />
+                <Trophy className="text-yellow-400 shrink-0" size={18} />
                 <span className="text-base font-semibold text-yellow-300">
                   {attempt.score}
                 </span>
