@@ -33,3 +33,26 @@
 .animate-scroll-slow {
   animation: scroll-slow 40s linear infinite;
 }
+
+
+@layer utilities {
+  /* Horizontal scrollbar styling for student artwork strip */
+  .art-scrollbar::-webkit-scrollbar {
+    height: 6px;              /* thinner bar */
+  }
+
+  .art-scrollbar::-webkit-scrollbar-track {
+    background: transparent;  /* remove big white bar */
+  }
+
+  .art-scrollbar::-webkit-scrollbar-thumb {
+    background-color: #4b5563;  /* slate-600 */
+    border-radius: 9999px;
+  }
+
+  /* Firefox */
+  .art-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: #4b5563 transparent;
+  }
+}
