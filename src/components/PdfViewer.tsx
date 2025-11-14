@@ -85,7 +85,7 @@ export default function PdfViewer({ url, title, onClose }: PdfViewerProps) {
             <Button
               size="icon"
               variant="outline"
-              className="h-7 w-7"
+              className="h-7 w-7 text-white"
               onClick={onClose}
             >
               <X className="w-4 h-4" />
@@ -95,9 +95,6 @@ export default function PdfViewer({ url, title, onClose }: PdfViewerProps) {
 
         {/* Body */}
         <div className="flex-1 flex items-center justify-center overflow-auto bg-slate-900">
-          {loading && (
-            <Skeleton className="w-[100%] h-[100%] rounded-lg bg-white/10" />
-          )}
 
           <Document file={url} onLoadSuccess={handleLoad}>
             <Page
