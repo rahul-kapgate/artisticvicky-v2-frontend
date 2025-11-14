@@ -57,9 +57,8 @@ function Header() {
 
   return (
     <header
-      className={`fixed top-0 left-0 w-full z-50 transition-transform duration-300 ${
-        showHeader ? "translate-y-0" : "-translate-y-full"
-      }`}
+      className={`fixed top-0 left-0 w-full z-50 transition-transform duration-300 ${showHeader ? "translate-y-0" : "-translate-y-full"
+        }`}
     >
       <div className="bg-gradient-to-r from-[#0a0f2c] via-[#10194f] to-[#1a237e] backdrop-blur-md border-b border-blue-900/40 shadow-md">
         <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
@@ -139,7 +138,13 @@ function Header() {
                 <div className="relative sm:hidden profile-menu">
                   {/* Avatar Button */}
                   <button
-                    onClick={() => setIsProfileOpen((prev) => !prev)}
+                    onClick={() => {
+                      setIsProfileOpen((prev) => {
+                        const next = !prev;
+                        if (next) setIsOpen(false); //close mobile nav if profile opens
+                        return next;
+                      });
+                    }}
                     className="w-9 h-9 flex items-center justify-center rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold text-lg uppercase shadow-md"
                     title={user.email || user.mobile}
                   >

@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { FileText } from "lucide-react";
+import PdfViewer from "@/components/PdfViewer";
 
 interface Resource {
   id: number;
@@ -21,6 +22,8 @@ export default function Resources() {
   const [resources, setResources] = useState<Resource[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedType, setSelectedType] = useState<string>("All");
+
+  const [activeResource, setActiveResource] = useState<Resource | null>(null);
 
   // ✅ Fetch resources
   useEffect(() => {
@@ -46,6 +49,7 @@ export default function Resources() {
       : resources.filter((r) => r.type === selectedType);
 
   return (
+    <>
     <section className="bg-gradient-to-b from-[#0f1b3d] via-[#152a52] to-[#1a237e] text-gray-100 pt-[16vh] pb-[4rem] px-4 sm:px-6 lg:px-8">
       <div className="max-w-6xl mx-auto w-full">
         {/* Header + Filter */}
@@ -105,10 +109,10 @@ export default function Resources() {
                   </p>
                 </div>
                 <Button
-                  onClick={() => window.open(res.file_url, "_blank")}
+                  onClick={() => setActiveResource(res)}
                   className="mt-4 bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-700 hover:opacity-90 text-sm py-2"
                 >
-                  View / Download
+                  View 
                 </Button>
               </Card>
             ))}
@@ -116,5 +120,15 @@ export default function Resources() {
         )}
       </div>
     </section>
+
+    {/* PDF Viewer Overlay */}
+    {activeResource && (
+      <PdfViewer
+        url={activeResource.file_url}
+        title={activeResource.title}
+        onClose={() => setActiveResource(null)}
+      />
+    )}
+  </>
   );
 }
