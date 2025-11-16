@@ -2,12 +2,7 @@ import { useEffect, useState } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
-
-// ❌ remove these, they are causing the error
-// import "react-pdf/dist/esm/Page/AnnotationLayer.css";
-// import "react-pdf/dist/esm/Page/TextLayer.css";
-
+;
 // Better worker config for bundlers (Vite, etc.)
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   "pdfjs-dist/build/pdf.worker.min.mjs",
@@ -23,12 +18,10 @@ interface PdfViewerProps {
 export default function PdfViewer({ url, title, onClose }: PdfViewerProps) {
   const [numPages, setNumPages] = useState<number | null>(null);
   const [page, setPage] = useState(1);
-  const [loading, setLoading] = useState(true);
 
   const handleLoad = ({ numPages }: { numPages: number }) => {
     setNumPages(numPages);
     setPage(1);
-    setLoading(false);
   };
 
   // optional: block Ctrl/Cmd + P for light anti-print friction
