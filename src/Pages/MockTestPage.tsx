@@ -113,7 +113,7 @@ export default function MockTestPage({ type }: MockTestPageProps) {
         const endpoint =
           type === "mock"
             ? `/api/mock-test/${1}/questions`
-            : `/api/pyq-mock-test/paper/${1}/questions`;
+            : `/api/pyq-mock-test/paper/${id}/questions`;
 
         const { data } = await apiClient.get<{ success: boolean; data: Question[] }>(
           endpoint
