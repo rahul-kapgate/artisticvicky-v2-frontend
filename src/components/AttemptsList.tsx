@@ -149,7 +149,7 @@ export default function AttemptsList({ studentId, type }: AttemptsListProps) {
                   <BookOpen className="text-cyan-400 shrink-0" size={16} />
                   {isPyq
                     ? `PYQ ${attempt.pyq_papers?.year || "Unknown"}`
-                    : attempt.courses?.course_name || "Unknown Course"}
+                    : "MAH AAC CET : Mock Test"}
                 </h3>
                 <p className="text-xs text-gray-400 flex items-center gap-1 mt-1">
                   <Calendar size={13} className="text-purple-300 shrink-0" />
