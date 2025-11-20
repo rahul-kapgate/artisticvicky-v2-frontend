@@ -113,7 +113,7 @@ export default function MockTestPage({ type }: MockTestPageProps) {
         const endpoint =
           type === "mock"
             ? `/api/mock-test/${1}/questions`
-            : `/api/pyq-mock-test/paper/${1}/questions`;
+            : `/api/pyq-mock-test/paper/${id}/questions`;
 
         const { data } = await apiClient.get<{ success: boolean; data: Question[] }>(
           endpoint
@@ -465,14 +465,16 @@ export default function MockTestPage({ type }: MockTestPageProps) {
             >
               <Card className="bg-gradient-to-br from-[#1b1335]/90 via-[#2c1e5c]/90 to-[#3a2780]/90 border border-violet-400/20 p-6 rounded-2xl shadow-lg">
                 <p className="font-semibold mb-4 text-lg">
-                  Q{currentIndex + 1}. {currentQuestion.question_text}
+                  Q {currentIndex + 1}. {currentQuestion.question_text}
                 </p>
                 {currentQuestion.image_url && (
-                  <img
-                    src={currentQuestion.image_url}
-                    alt="question"
-                    className="w-full rounded-xl border border-white/10 mb-4"
-                  />
+                  <div className="flex justify-center mb-4">
+                    <img
+                      src={currentQuestion.image_url}
+                      alt="question"
+                      className="lg:w-[50%] rounded-xl border border-white/10"
+                    />
+                  </div>
                 )}
                 <div className="space-y-3">
                   {currentQuestion.options.map((opt) => (
