@@ -158,7 +158,7 @@ export default function AttemptTestReview() {
       </AnimatePresence>
 
       {/* 🧠 Main Area */}
-      <main className="flex-1 flex flex-col justify-between overflow-hidden p-6 lg:p-10 pt-30 lg:pt-10 pb-28 lg:pb-10">
+      <main className="flex-1 flex flex-col justify-between overflow-hidden p-6 lg:p-10 pt-30 lg:pt-20 pb-28 lg:pb-10">
         {/* Question Display */}
         <div className="flex-1 flex justify-center items-center">
           <AnimatePresence mode="wait">
@@ -189,11 +189,13 @@ export default function AttemptTestReview() {
                 </div>
 
                 {currentQuestion.image_url && (
-                  <img
-                    src={currentQuestion.image_url}
-                    alt="question"
-                    className="w-full rounded-xl border border-white/10 mb-4"
-                  />
+                  <div className="flex justify-center mb-4">
+                    <img
+                      src={currentQuestion.image_url}
+                      alt="question"
+                      className="lg:w-[50%] rounded-xl border border-white/10"
+                    />
+                  </div>
                 )}
 
                 <div className="space-y-3">
