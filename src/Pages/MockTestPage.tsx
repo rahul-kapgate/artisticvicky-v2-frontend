@@ -185,7 +185,7 @@ export default function MockTestPage({ type }: MockTestPageProps) {
 
       const payload =
         type === "mock"
-          ? { course_id: id, answers: formattedAnswers }
+          ? { course_id: 1, answers: formattedAnswers }
           : { paper_id: id, answers: formattedAnswers };
 
       const { data } = await apiClient.post<SubmitResponse>(endpoint, payload);
