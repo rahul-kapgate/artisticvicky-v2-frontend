@@ -12,15 +12,16 @@ import { Mail, Phone, User, Lock, LogIn, Eye, EyeOff } from "lucide-react";
 import { apiClient } from "@/utils/axiosConfig";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import Register from "./Register";
 import { AuthContext } from "@/context/AuthContext";
 
 export default function Login({
   open,
   onOpenChange,
+  onOpenRegister,          
 }: {
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
+  onOpenRegister?: () => void;   
 }) {
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -38,19 +39,15 @@ export default function Login({
     identifier: "",
     password: "",
   });
-  const [registerOpen, setRegisterOpen] = useState(false);
-
-  // ✅ Function to reset the form
-  const resetForm = () => {
-    setIdentifier("");
-    setPassword("");
-    setShowPassword(false);
-    setFieldErrors({ identifier: "", password: "" });
-  };
 
   // ✅ Reset when dialog closes
   useEffect(() => {
-    if (!actualOpen) resetForm();
+    if (!actualOpen) {
+      setIdentifier("");
+      setPassword("");
+      setShowPassword(false);
+      setFieldErrors({ identifier: "", password: "" });
+    }
   }, [actualOpen]);
 
   // ✅ Validation
@@ -96,7 +93,6 @@ export default function Login({
           description: "Welcome back!",
         });
 
-        resetForm();
         handleOpenChange(false);
         navigate("/");
       } else {
@@ -111,15 +107,14 @@ export default function Login({
 
   return (
     <Dialog open={actualOpen} onOpenChange={handleOpenChange}>
-      {/* ✅ Show Login button only when used standalone */}
-      {open === undefined && (
+       {/* ✅ Only show Login button when uncontrolled */}
+       {open === undefined && (
         <DialogTrigger asChild>
           <Button className="px-4 py-2 rounded-lg font-semibold border border-blue-400 text-blue-100 hover:bg-gradient-to-r hover:from-blue-700 hover:to-blue-600 transition-all duration-300 shadow-sm">
             Login
           </Button>
         </DialogTrigger>
       )}
-  
 
       <DialogContent className="rounded-3xl border border-white/10 bg-gradient-to-b from-[#1A1446] via-[#22185A] to-[#2D1D70] text-gray-100 shadow-[0_0_25px_rgba(100,70,255,0.3)] max-w-md backdrop-blur-xl">
         <DialogHeader className="text-center">
@@ -215,10 +210,19 @@ export default function Login({
 
         <p className="text-center text-gray-400 mt-6 text-sm">
           Don’t have an account?{" "}
+          <button
+            type="button"
+            onClick={() => {
+              // ✅ Close login
+              handleOpenChange(false);
+              // ✅ Ask parent (Header) to open Register
+              onOpenRegister?.();
+            }}
+            className="text-cyan-300 hover:text-cyan-200 font-semibold underline-offset-2 hover:underline"
+          >
+            Register
+          </button>
         </p>
-
-        {/* Mount Register Modal */}
-        <Register open={registerOpen} onOpenChange={setRegisterOpen} />
       </DialogContent>
     </Dialog>
   );

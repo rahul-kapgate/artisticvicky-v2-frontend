@@ -146,11 +146,13 @@ export default function Register({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogTrigger asChild>
-        <Button className="px-4 py-2 rounded-lg font-semibold border border-cyan-400 text-cyan-100 hover:bg-gradient-to-r hover:from-cyan-700 hover:to-cyan-600 transition-all duration-300 shadow-sm">
-          Register
-        </Button>
-      </DialogTrigger>
+      {controlledOpen === undefined && (
+        <DialogTrigger asChild>
+          <Button className="px-4 py-2 rounded-lg font-semibold border border-cyan-400 text-cyan-100 hover:bg-gradient-to-r hover:from-cyan-700 hover:to-cyan-600 transition-all duration-300 shadow-sm">
+            Register
+          </Button>
+        </DialogTrigger>
+      )}
 
       <DialogContent
         className="
