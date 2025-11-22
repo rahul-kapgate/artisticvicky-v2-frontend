@@ -17,11 +17,13 @@ import { AuthContext } from "@/context/AuthContext";
 export default function Login({
   open,
   onOpenChange,
-  onOpenRegister,          
+  onOpenRegister,
+  onOpenForgotPassword,
 }: {
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
-  onOpenRegister?: () => void;   
+  onOpenRegister?: () => void;
+  onOpenForgotPassword?: () => void;
 }) {
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -107,8 +109,8 @@ export default function Login({
 
   return (
     <Dialog open={actualOpen} onOpenChange={handleOpenChange}>
-       {/* ✅ Only show Login button when uncontrolled */}
-       {open === undefined && (
+      {/* ✅ Only show Login button when uncontrolled */}
+      {open === undefined && (
         <DialogTrigger asChild>
           <Button className="px-4 py-2 rounded-lg font-semibold border border-blue-400 text-blue-100 hover:bg-gradient-to-r hover:from-blue-700 hover:to-blue-600 transition-all duration-300 shadow-sm">
             Login
@@ -133,9 +135,8 @@ export default function Login({
               Email or Mobile Number
             </label>
             <div
-              className={`flex items-center bg-white/5 border ${
-                fieldErrors.identifier ? "border-red-400" : "border-white/20"
-              } rounded-xl px-3 py-2 focus-within:border-cyan-400 focus-within:ring-2 focus-within:ring-cyan-400/40 transition-all duration-300`}
+              className={`flex items-center bg-white/5 border ${fieldErrors.identifier ? "border-red-400" : "border-white/20"
+                } rounded-xl px-3 py-2 focus-within:border-cyan-400 focus-within:ring-2 focus-within:ring-cyan-400/40 transition-all duration-300`}
             >
               {identifier === "" ? (
                 <User className="text-cyan-300 mr-2" size={18} />
@@ -168,9 +169,8 @@ export default function Login({
               Password
             </label>
             <div
-              className={`flex items-center bg-white/5 border ${
-                fieldErrors.password ? "border-red-400" : "border-white/20"
-              } rounded-xl px-3 py-2 focus-within:border-purple-400 focus-within:ring-2 focus-within:ring-purple-400/40 transition-all duration-300`}
+              className={`flex items-center bg-white/5 border ${fieldErrors.password ? "border-red-400" : "border-white/20"
+                } rounded-xl px-3 py-2 focus-within:border-purple-400 focus-within:ring-2 focus-within:ring-purple-400/40 transition-all duration-300`}
             >
               <Lock className="text-purple-300 mr-2" size={18} />
               <input
@@ -197,6 +197,20 @@ export default function Login({
               </p>
             )}
           </div>
+
+          {/*forgot password  */}
+          <div className="flex justify-end mt-1">
+            <button
+              type="button"
+              onClick={() => {
+                onOpenForgotPassword?.();
+              }}
+              className="text-xs text-cyan-300 hover:text-cyan-200 underline-offset-2 hover:underline"
+            >
+              Forgot password?
+            </button>
+          </div>
+
 
           {/* Submit */}
           <Button

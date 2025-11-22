@@ -5,6 +5,7 @@ import Login from "./Login";
 import { AuthContext } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import Register from "./Register";
+import ForgotPassword from "./ForgotPassword"
 
 function Header() {
   const [isOpen, setIsOpen] = useState(false); // mobile nav menu
@@ -15,8 +16,9 @@ function Header() {
   const location = useLocation();
   const { user, logout } = useContext(AuthContext);
 
-  const [loginOpen, setLoginOpen] = useState(false);       // ✅ NEW
-  const [registerOpen, setRegisterOpen] = useState(false); // ✅ NEW
+  const [loginOpen, setLoginOpen] = useState(false);
+  const [registerOpen, setRegisterOpen] = useState(false);
+  const [forgotOpen, setForgotOpen] = useState(false);
 
   // Hide/Show header on scroll
   useEffect(() => {
@@ -193,33 +195,38 @@ function Header() {
               </>
             ) : (
               <>
-              {/* ✅ Header-controlled Login button */}
-              <Button
-                onClick={() => {
-                  setRegisterOpen(false); // make sure Register is closed
-                  setLoginOpen(true);
-                }}
-                className="px-4 py-2 rounded-lg font-semibold border border-blue-400 text-blue-100 hover:bg-gradient-to-r hover:from-blue-700 hover:to-blue-600 transition-all duration-300 shadow-sm"
-              >
-                Login
-              </Button>
+                {/* ✅ Header-controlled Login button */}
+                <Button
+                  onClick={() => {
+                    setRegisterOpen(false); // make sure Register is closed
+                    setLoginOpen(true);
+                  }}
+                  className="px-4 py-2 rounded-lg font-semibold border border-blue-400 text-blue-100 hover:bg-gradient-to-r hover:from-blue-700 hover:to-blue-600 transition-all duration-300 shadow-sm"
+                >
+                  Login
+                </Button>
 
-              {/* ✅ Mount dialogs (portaled, won’t affect layout) */}
-              <Login
-                open={loginOpen}
-                onOpenChange={setLoginOpen}
-                onOpenRegister={() => {
-                  setLoginOpen(false);
-                  setRegisterOpen(true);
-                }}
-              />
+                {/* ✅ Mount dialogs (portaled, won’t affect layout) */}
+                <Login
+                  open={loginOpen}
+                  onOpenChange={setLoginOpen}
+                  onOpenRegister={() => {
+                    setLoginOpen(false);
+                    setRegisterOpen(true);
+                  }}
+                  onOpenForgotPassword={() => {
+                    setLoginOpen(false);
+                    setForgotOpen(true);
+                  }}
+                />
 
-              <Register
-                open={registerOpen}
-                onOpenChange={setRegisterOpen}
-              />
-            </>
-          )}
+                <Register
+                  open={registerOpen}
+                  onOpenChange={setRegisterOpen}
+                />
+                <ForgotPassword open={forgotOpen} onOpenChange={setForgotOpen} />
+              </>
+            )}
 
             {/* Hamburger Button */}
             <button
