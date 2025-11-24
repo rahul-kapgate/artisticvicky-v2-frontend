@@ -18,6 +18,13 @@ interface Resource {
   created_at: string;
 }
 
+/** ✅ Build stream URL from the same baseURL used by apiClient */
+const getResourceStreamUrl = (resourceId: number) => {
+  const baseURL = apiClient.defaults.baseURL?.replace(/\/+$/, "") || "";
+  // adjust path if your route is different
+  return `${baseURL}/api/resource/${resourceId}/file`;
+};
+
 export default function Resources() {
   const [resources, setResources] = useState<Resource[]>([]);
   const [loading, setLoading] = useState(true);
@@ -47,11 +54,6 @@ export default function Resources() {
     selectedType === "All"
       ? resources
       : resources.filter((r) => r.type === selectedType);
-
-      // 🔗 Build backend stream URL for a resource
-  const getStreamUrl = (resource: Resource) => {
-    return `/api/resource/${resource.id}/file`;
-  };
 
 
   return (
@@ -130,7 +132,7 @@ export default function Resources() {
     {/* PDF Viewer Overlay */}
     {activeResource && (
       <PdfViewer
-      url={getStreamUrl(activeResource)}
+      url={getResourceStreamUrl(activeResource.id)} 
         title={activeResource.title}
         onClose={() => setActiveResource(null)}
       />

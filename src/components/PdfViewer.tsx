@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-;
+
 // Better worker config for bundlers (Vite, etc.)
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   "pdfjs-dist/build/pdf.worker.min.mjs",
@@ -18,11 +18,33 @@ interface PdfViewerProps {
 export default function PdfViewer({ url, title, onClose }: PdfViewerProps) {
   const [numPages, setNumPages] = useState<number | null>(null);
   const [page, setPage] = useState(1);
+  const [error, setError] = useState<string | null>(null);
 
   const handleLoad = ({ numPages }: { numPages: number }) => {
     setNumPages(numPages);
     setPage(1);
+    setError(null);
   };
+
+  // ✅ Build file config with Authorization header for react-pdf
+  const fileConfig = useMemo(() => {
+    const token = localStorage.getItem("accessToken");
+
+    if (!token) {
+      // optional: set a friendly message, but still let it try
+      // setError("You must be logged in to view this resource.");
+      return { url }; // backend will return 401/403
+    }
+
+    return {
+      url,
+      // this goes directly to pdf.js fetch call:
+      httpHeaders: {
+        Authorization: `Bearer ${token}`,
+      },
+      withCredentials: false,
+    } as any; // cast if TS complains
+  }, [url]);
 
   // optional: block Ctrl/Cmd + P for light anti-print friction
   useEffect(() => {
@@ -87,13 +109,24 @@ export default function PdfViewer({ url, title, onClose }: PdfViewerProps) {
         </div>
 
         {/* Body */}
-        <div className="flex-1 flex items-center justify-center overflow-auto bg-slate-900">
+        <div className="flex-1 flex flex-col items-center justify-center overflow-auto bg-slate-900">
+          {error && (
+            <p className="text-red-400 text-xs sm:text-sm mb-2">
+              {error}
+            </p>
+          )}
 
-          <Document file={url} onLoadSuccess={handleLoad}>
+          <Document
+            file={fileConfig}           // 🔑 now includes Authorization header
+            onLoadSuccess={handleLoad}
+            onLoadError={(err) => {
+              console.error("PDF load error:", err);
+              setError("Failed to load PDF. Please try again.");
+            }}
+          >
             <Page
               pageNumber={page}
               width={400}
-              // 🔑 no text/annotation layers, so no CSS imports needed
               renderAnnotationLayer={false}
               renderTextLayer={false}
             />
