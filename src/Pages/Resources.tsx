@@ -48,6 +48,12 @@ export default function Resources() {
       ? resources
       : resources.filter((r) => r.type === selectedType);
 
+      // 🔗 Build backend stream URL for a resource
+  const getStreamUrl = (resource: Resource) => {
+    return `/api/resource/${resource.id}/file`;
+  };
+
+
   return (
     <>
     <section className="bg-gradient-to-b from-[#0f1b3d] via-[#152a52] to-[#1a237e] text-gray-100 pt-[16vh] pb-[4rem] px-4 sm:px-6 lg:px-8">
@@ -124,7 +130,7 @@ export default function Resources() {
     {/* PDF Viewer Overlay */}
     {activeResource && (
       <PdfViewer
-        url={activeResource.file_url}
+      url={getStreamUrl(activeResource)}
         title={activeResource.title}
         onClose={() => setActiveResource(null)}
       />
