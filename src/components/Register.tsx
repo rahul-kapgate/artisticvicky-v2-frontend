@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Dialog,
   DialogContent,
@@ -8,7 +8,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Mail, Phone, User, Lock, Eye, EyeOff, CheckCircle } from "lucide-react";
+import { Mail, Phone, User, Lock, Eye, EyeOff } from "lucide-react";
 import { apiClient } from "@/utils/axiosConfig";
 import { toast } from "sonner";
 
@@ -146,11 +146,13 @@ export default function Register({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogTrigger asChild>
-        <Button className="px-4 py-2 rounded-lg font-semibold border border-cyan-400 text-cyan-100 hover:bg-gradient-to-r hover:from-cyan-700 hover:to-cyan-600 transition-all duration-300 shadow-sm">
-          Register
-        </Button>
-      </DialogTrigger>
+      {controlledOpen === undefined && (
+        <DialogTrigger asChild>
+          <Button className="px-4 py-2 rounded-lg font-semibold border border-cyan-400 text-cyan-100 hover:bg-gradient-to-r hover:from-cyan-700 hover:to-cyan-600 transition-all duration-300 shadow-sm">
+            Register
+          </Button>
+        </DialogTrigger>
+      )}
 
       <DialogContent
         className="
@@ -234,13 +236,12 @@ export default function Register({
             </form>
           ) : (
             <form onSubmit={handleVerify} className="space-y-4">
-              <Field
+              <OtpInput
                 label="Enter OTP"
-                icon={<CheckCircle className="text-cyan-300 mr-2" size={18} />}
+                length={6} // assume 6-digit OTP
                 value={formData.otp}
                 onChange={(v) => handleChange("otp", v)}
                 error={errors.otp}
-                placeholder="Enter OTP"
               />
 
               <Button
@@ -341,3 +342,108 @@ function PasswordField({
     </div>
   );
 }
+
+
+function OtpInput({
+  label,
+  length = 6,
+  value,
+  onChange,
+  error,
+}: {
+  label: string;
+  length?: number;
+  value: string;
+  onChange: (v: string) => void;
+  error?: string;
+}) {
+  const inputsRef = useRef<Array<HTMLInputElement | null>>([]);
+
+  // Ensure we always have exactly `length` characters (pad with empty)
+  const digits = (value || "").padEnd(length, "").slice(0, length).split("");
+
+  const handleChangeDigit = (index: number, digit: string) => {
+    // allow only 0-9
+    const cleaned = digit.replace(/[^0-9]/g, "");
+    const newDigits = [...digits];
+
+    // if user pasted multiple digits in one box, handle first one and ignore rest
+    if (cleaned.length > 1) {
+      // e.g. paste "123456" into first box
+      let cursor = index;
+      const arr = [...digits];
+      for (let i = 0; i < cleaned.length && cursor < length; i++, cursor++) {
+        arr[cursor] = cleaned[i];
+      }
+      onChange(arr.join(""));
+      if (inputsRef.current[cursor - 1]) {
+        inputsRef.current[cursor - 1]?.focus();
+      }
+      return;
+    }
+
+    newDigits[index] = cleaned || "";
+    onChange(newDigits.join(""));
+
+    // move to next box if typed a digit
+    if (cleaned && index < length - 1) {
+      inputsRef.current[index + 1]?.focus();
+    }
+  };
+
+  const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Backspace") {
+      if (digits[index]) {
+        // clear current digit
+        const newDigits = [...digits];
+        newDigits[index] = "";
+        onChange(newDigits.join(""));
+      } else if (index > 0) {
+        // move to previous and clear
+        inputsRef.current[index - 1]?.focus();
+        const newDigits = [...digits];
+        newDigits[index - 1] = "";
+        onChange(newDigits.join(""));
+      }
+    }
+
+    if (e.key === "ArrowLeft" && index > 0) {
+      inputsRef.current[index - 1]?.focus();
+    }
+
+    if (e.key === "ArrowRight" && index < length - 1) {
+      inputsRef.current[index + 1]?.focus();
+    }
+  };
+
+  return (
+    <div className="w-full">
+      <label className="block mb-2 text-gray-200 text-sm sm:text-base font-medium text-center">
+        {label}
+      </label>
+
+      <div className="flex justify-center gap-2 sm:gap-3">
+        {Array.from({ length }).map((_, i) => (
+          <input
+            key={i}
+            ref={(el) => {
+              inputsRef.current[i] = el;
+            }}            
+            type="text"
+            inputMode="numeric"
+            maxLength={1}
+            className={`w-10 h-10 sm:w-12 sm:h-12 text-center text-lg sm:text-2xl font-semibold rounded-xl bg-white/5 border ${
+              error ? "border-red-400" : "border-cyan-400/40"
+            } text-gray-100 focus:outline-none focus:ring-2 focus:ring-cyan-400/60 focus:border-cyan-400 transition-all`}
+            value={digits[i]}
+            onChange={(e) => handleChangeDigit(i, e.target.value)}
+            onKeyDown={(e) => handleKeyDown(i, e)}
+          />
+        ))}
+      </div>
+
+      {error && <p className="text-xs text-red-400 mt-2 text-center">{error}</p>}
+    </div>
+  );
+}
+
