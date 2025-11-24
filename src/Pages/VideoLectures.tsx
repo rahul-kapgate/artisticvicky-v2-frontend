@@ -109,19 +109,35 @@ export default function VideoLectures() {
             {loading ? (
               <Skeleton className="w-full aspect-video bg-slate-800" />
             ) : currentVideo ? (
-              <div className="w-full aspect-video bg-black">
+              <div
+                className="relative w-full aspect-video bg-black"
+                // ❌ Block right-click (copy video URL)
+                onContextMenu={(e) => e.preventDefault()}
+              >
                 <iframe
                   src={
                     extractVideoId(currentVideo.youtube_url)
                       ? `https://www.youtube.com/embed/${extractVideoId(
                         currentVideo.youtube_url
-                      )}`
+                      )}?rel=0&modestbranding=1&iv_load_policy=3&fs=0`
                       : currentVideo.youtube_url
                   }
                   title={currentVideo.title}
-                  className="w-full h-full"
+                  className="absolute inset-0 w-full h-full"
+                  // Keep needed permissions, but no fullscreen button
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
+                />
+
+                {/* 🔒 Overlay over TOP bar (title + watch later/share/info) */}
+                <div
+                  className="absolute top-0 left-0 w-full h-15 z-10"
+                  onClick={(e) => e.preventDefault()}
+                />
+
+                {/* 🔒 Overlay over bottom-right where YT logo/share usually is */}
+                <div
+                  className="absolute bottom-0 right-0 w-[22%] h-9 z-10"
+                  onClick={(e) => e.preventDefault()}
                 />
               </div>
             ) : (
@@ -269,8 +285,8 @@ export default function VideoLectures() {
                                       type="button"
                                       onClick={() => setCurrentVideo(video)}
                                       className={`w-full flex items-center gap-3 px-4 py-2.5 text-left text-xs border-t border-slate-800/60 hover:bg-slate-800/60 transition-colors ${isActive
-                                          ? "bg-slate-800 text-cyan-200"
-                                          : "text-slate-200"
+                                        ? "bg-slate-800 text-cyan-200"
+                                        : "text-slate-200"
                                         }`}
                                     >
                                       <div className="flex items-center justify-center w-5">
