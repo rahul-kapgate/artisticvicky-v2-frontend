@@ -382,13 +382,18 @@ export default function MockTestPage({ type }: MockTestPageProps) {
         </Button>
       </aside>
 
-      {/* Mobile Tracker */}
+      {/* Mobile Tracker + Timer */}
       <button
         onClick={() => setTrackerOpen(true)}
-        className="lg:hidden fixed bottom-5 right-5 z-30 bg-gradient-to-r from-cyan-500 to-blue-600 p-3 rounded-full shadow-lg text-white hover:opacity-90 transition"
+        className="lg:hidden fixed bottom-5 right-5 z-30 bg-gradient-to-r from-cyan-500 to-blue-600 px-4 py-3 rounded-full shadow-lg text-white hover:opacity-90 transition flex items-center gap-2"
       >
-        <ListChecks className="w-6 h-6" />
+        <Clock className="w-4 h-4" />
+        <span className={`font-mono text-sm ${timerColor}`}>
+          {formatTime(timeLeft)}
+        </span>
+        <ListChecks className="w-5 h-5" />
       </button>
+
 
       <AnimatePresence>
         {trackerOpen && (
@@ -406,6 +411,13 @@ export default function MockTestPage({ type }: MockTestPageProps) {
               <button onClick={() => setTrackerOpen(false)}>
                 <X className="w-5 h-5 text-gray-300 hover:text-white" />
               </button>
+            </div>
+
+            <div className="flex items-center px-5 py-2 border-b border-white/10 gap-2">
+              <Clock className="w-4 h-4" />
+              <span className={`font-mono text-lg ${timerColor}`}>
+                {formatTime(timeLeft)}
+              </span>
             </div>
 
             <div className="flex-1 overflow-y-auto p-5 space-y-6">
