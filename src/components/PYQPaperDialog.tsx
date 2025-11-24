@@ -17,6 +17,7 @@ interface PYQPaper {
   year: number;
   total_questions: number;
   created_at: string;
+  exam_day: number | null;
 }
 
 interface PYQPaperDialogProps {
@@ -136,7 +137,7 @@ export default function PYQPaperDialog({
                     <Calendar className="w-6 h-6 text-cyan-300 shrink-0" />
                     <div>
                       <h3 className="font-semibold text-white text-base sm:text-lg">
-                        MAH AAC CET {paper.year}
+                        MAH AAC CET {paper.year} {paper.exam_day ? `- Day ${ paper.exam_day}` : ""}
                       </h3>
                       <p className="text-sm text-gray-400">
                         {paper.total_questions} Questions
