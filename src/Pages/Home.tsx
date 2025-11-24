@@ -132,15 +132,6 @@ function Home() {
 
 
 
-  if (error)
-    return (
-      <p className="text-center text-red-500 mt-10">
-        Failed to load courses: {error}
-      </p>
-    );
-
-  console.log(courses)
-
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-50 via-white to-white text-gray-800 scroll-smooth mt-14">
       {/* ---------------- Hero Section ---------------- */}
