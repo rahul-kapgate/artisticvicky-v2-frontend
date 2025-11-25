@@ -91,15 +91,6 @@ export default function VideoLectures() {
     );
   };
 
-  const formatDuration = (seconds?: number) => {
-    if (!seconds || seconds <= 0) return "Duration N/A";
-    const mins = Math.floor(seconds / 60);
-    const hrs = Math.floor(mins / 60);
-    const remMins = mins % 60;
-    if (hrs > 0) return `${hrs}h ${remMins}m`;
-    return `${mins} min`;
-  };
-
   return (
     <section className="min-h-screen bg-slate-950 text-gray-100 pt-[15vh] pb-6">
       <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 flex flex-col lg:flex-row gap-4 lg:gap-6">
@@ -169,7 +160,7 @@ export default function VideoLectures() {
                   <div className="flex flex-wrap items-center gap-4 text-xs text-slate-400">
                     <div className="flex items-center gap-1.5">
                       <Clock className="w-4 h-4" />
-                      <span>{formatDuration(currentVideo.duration)}</span>
+                      <span>{`${currentVideo.duration} min`}</span>
                     </div>
                     <span>
                       Published on{" "}
@@ -303,7 +294,7 @@ export default function VideoLectures() {
                                             {index + 1}. {video.title}
                                           </span>
                                           <span className="whitespace-nowrap text-[11px] text-slate-400">
-                                            {formatDuration(video.duration)}
+                                          <span>{`${video.duration} min`}</span>
                                           </span>
                                         </div>
                                       </div>
