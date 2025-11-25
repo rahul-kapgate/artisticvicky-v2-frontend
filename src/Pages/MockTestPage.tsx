@@ -247,7 +247,9 @@ export default function MockTestPage({ type }: MockTestPageProps) {
               </div>
 
               <ul className="list-disc list-inside space-y-3 text-gray-200 text-[15px] leading-relaxed mb-8 text-left">
-                <li>You will have <strong>1 hour</strong> to complete the test.</li>
+                <li>
+                  You will have <strong>1 hour</strong> to complete the test.
+                </li>
                 <li>Each question carries equal marks.</li>
                 <li>You can review and modify your answers anytime before submitting.</li>
                 <li>Switching tabs or closing the window may auto-submit the test.</li>
@@ -268,7 +270,9 @@ export default function MockTestPage({ type }: MockTestPageProps) {
         <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
           <DialogContent className="bg-[#0f1b3d]/95 text-gray-100 border border-white/10 rounded-2xl">
             <DialogHeader>
-              <DialogTitle className="text-xl text-cyan-300">Confirm Start</DialogTitle>
+              <DialogTitle className="text-xl text-cyan-300">
+                Confirm Start
+              </DialogTitle>
               <DialogDescription className="text-gray-300">
                 Once started, the timer cannot be paused.
               </DialogDescription>
@@ -329,7 +333,6 @@ export default function MockTestPage({ type }: MockTestPageProps) {
             View Detailed Results
           </Button>
         </div>
-
       </div>
     );
 
@@ -360,10 +363,10 @@ export default function MockTestPage({ type }: MockTestPageProps) {
                   key={idx}
                   onClick={() => handleScrollToQuestion(idx)}
                   className={`rounded-full w-10 h-10 text-sm font-semibold border transition-all duration-200 ${isActive
-                    ? "border-cyan-400 bg-cyan-500/20 text-cyan-300"
-                    : isAnswered
-                      ? "bg-green-500/20 border-green-400 text-green-300"
-                      : "bg-white/5 border-white/20 hover:border-cyan-400/40"
+                      ? "border-cyan-400 bg-cyan-500/20 text-cyan-300"
+                      : isAnswered
+                        ? "bg-green-500/20 border-green-400 text-green-300"
+                        : "bg-white/5 border-white/20 hover:border-cyan-400/40"
                     }`}
                 >
                   {idx + 1}
@@ -382,15 +385,11 @@ export default function MockTestPage({ type }: MockTestPageProps) {
         </Button>
       </aside>
 
-      {/* Mobile Tracker + Timer */}
+      {/* Mobile Tracker*/}
       <button
         onClick={() => setTrackerOpen(true)}
         className="lg:hidden fixed bottom-5 right-5 z-30 bg-gradient-to-r from-cyan-500 to-blue-600 px-4 py-3 rounded-full shadow-lg text-white hover:opacity-90 transition flex items-center gap-2"
       >
-        <Clock className="w-4 h-4" />
-        <span className={`font-mono text-sm ${timerColor}`}>
-          {formatTime(timeLeft)}
-        </span>
         <ListChecks className="w-5 h-5" />
       </button>
 
@@ -430,10 +429,10 @@ export default function MockTestPage({ type }: MockTestPageProps) {
                       key={idx}
                       onClick={() => handleScrollToQuestion(idx)}
                       className={`rounded-full w-10 h-10 text-sm font-semibold border transition-all ${isActive
-                        ? "border-cyan-400 bg-cyan-500/20 text-cyan-300"
-                        : isAnswered
-                          ? "bg-green-500/20 border-green-400 text-green-300"
-                          : "bg-white/5 border-white/20 hover:border-cyan-400/40"
+                          ? "border-cyan-400 bg-cyan-500/20 text-cyan-300"
+                          : isAnswered
+                            ? "bg-green-500/20 border-green-400 text-green-300"
+                            : "bg-white/5 border-white/20 hover:border-cyan-400/40"
                         }`}
                     >
                       {idx + 1}
@@ -458,11 +457,20 @@ export default function MockTestPage({ type }: MockTestPageProps) {
 
       {/* Question Area */}
       <main className="flex-1 flex flex-col justify-between overflow-hidden p-6 lg:p-10 pt-16 lg:pt-10 pb-28 lg:pb-10">
-        <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden mb-6">
+        {/* Progress bar */}
+        <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden mb-2">
           <div
             className="h-full bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-600 transition-all duration-500"
             style={{ width: `${progress}%` }}
           ></div>
+        </div>
+
+        {/* 👇 Mobile timer just below progress bar */}
+        <div className="flex items-center justify-center gap-2 mb-4 lg:hidden w-full">
+          <Clock className="w-4 h-4" />
+          <span className={`font-mono text-base ${timerColor}`}>
+            {formatTime(timeLeft)}
+          </span>
         </div>
 
         <div className="flex-1 flex justify-center items-center">
@@ -493,8 +501,8 @@ export default function MockTestPage({ type }: MockTestPageProps) {
                     <label
                       key={opt.id}
                       className={`flex items-center gap-2 p-2 rounded-lg border cursor-pointer transition-all ${answers[currentQuestion.id] === opt.id
-                        ? "border-cyan-400 bg-cyan-500/10"
-                        : "border-white/10 hover:border-cyan-400/30"
+                          ? "border-cyan-400 bg-cyan-500/10"
+                          : "border-white/10 hover:border-cyan-400/30"
                         }`}
                     >
                       <input
