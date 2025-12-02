@@ -5,6 +5,7 @@ import type { Course } from "@/types/course";
 import { Calendar, Clock, Globe, Layers, Users, Star } from "lucide-react";
 import { AuthContext } from "@/context/AuthContext";
 import Login from "@/components/Login";
+import { CourseEnrollCard } from "@/components/CourseEnrollCard";
 
 export default function CourseDetails() {
   const { id } = useParams();
@@ -138,35 +139,12 @@ export default function CourseDetails() {
           )}
         </div>
 
-        {/* RIGHT: Sidebar */}
-        <aside className="lg:sticky lg:top-28 bg-white/10 backdrop-blur-md p-6 rounded-2xl border border-white/10 shadow-lg space-y-5 h-fit">
-          {/* ✅ Hide price if logged in */}
-          {!user && (
-            <div className="flex flex-col items-center">
-              <span className="text-gray-300 text-sm">Course Price</span>
-              <h3 className="text-4xl font-bold text-cyan-300 mb-2">
-                ₹{course.price}
-              </h3>
-            </div>
-          )}
-
-          <button
-            onClick={handleButtonClick}
-            className={`w-full px-6 py-3 rounded-lg font-semibold text-white transition-all shadow-md ${
-              isEnrolled
-                ? "bg-green-600 hover:bg-green-500"
-                : "bg-cyan-600 hover:bg-cyan-500"
-            }`}
-          >
-            {isEnrolled ? "Continue learning 🚀" : "Enroll Now 🚀"}
-          </button>
-
-          <p className="text-center text-gray-400 text-sm">
-            {isEnrolled
-              ? "You're already enrolled! Continue learning and explore new modules."
-              : "Learn. Create. Showcase. • Guided lessons • Join our creative community"}
-          </p>
-        </aside>
+        {/* RIGHT: Enrollment Card */}
+        <CourseEnrollCard
+          course={course}
+          isEnrolled={isEnrolled}
+          onEnrolledChange={setIsEnrolled}
+        />
       </div>
 
       <Login open={loginOpen} onOpenChange={setLoginOpen} />
