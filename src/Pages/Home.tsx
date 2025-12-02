@@ -5,6 +5,7 @@ import type { Course, CourseResponse } from "@/types/course";
 import { useNavigate } from "react-router-dom";
 import type { StudentArtwork, StudentArtworkResponse } from "@/types/studentArtwork";
 import { motion } from "framer-motion";
+import NotificationsSection from "@/components/NotificationsSection";
 
 
 // Reasons Section 
@@ -416,6 +417,9 @@ function Home() {
           </div>
         )}
       </section>
+
+       {/* 🔔 Notifications Section (using public API) */}
+       <NotificationsSection />
 
       {/* ---------------- Why Artistic Vickey Section ---------------- */}
       <section className="py-12 px-6 bg-gradient-to-b from-white via-purple-50 to-white">
