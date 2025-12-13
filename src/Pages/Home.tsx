@@ -136,7 +136,7 @@ function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-50 via-white to-white text-gray-800 scroll-smooth mt-14">
       {/* ---------------- Hero Section ---------------- */}
-      <section className="relative flex flex-col justify-center items-center h-[85vh] text-center text-white overflow-hidden">
+      <section className="relative flex flex-col justify-center items-center h-[60vh] lg:h-[85vh]  text-center text-white overflow-hidden">
 
         {/* 🔹 Static gradient background */}
         <div className="absolute inset-0 bg-gradient-to-br from-[#050816] via-[#10194f] to-[#1e3a8a]" />
