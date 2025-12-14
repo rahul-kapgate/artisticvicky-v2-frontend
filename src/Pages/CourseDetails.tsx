@@ -140,23 +140,49 @@ export default function CourseDetails() {
 
         {/* RIGHT: Sidebar */}
         <aside className="lg:sticky lg:top-28 bg-white/10 backdrop-blur-md p-6 rounded-2xl border border-white/10 shadow-lg space-y-5 h-fit">
-          {/* ✅ Hide price if logged in */}
-          {!user && (
-            <div className="flex flex-col items-center">
+          {/* ✅ Show price when: not logged in OR logged in but NOT enrolled */}
+          {(!user || !isEnrolled) && (
+            <div className="flex flex-col items-center text-center">
               <span className="text-gray-300 text-sm">Course Price</span>
-              <h3 className="text-4xl font-bold text-emerald-400 mb-2">
-                ₹{course.price}
-              </h3>
+
+              <div className="mt-2 flex items-end justify-center gap-3">
+                <h3 className="text-4xl font-extrabold text-emerald-400 leading-none">
+                  ₹{course.price}
+                </h3>
+
+                {course.price_without_discount &&
+                  course.price_without_discount > course.price && (
+                    <span className="text-lg text-gray-300 line-through">
+                      ₹{course.price_without_discount}
+                    </span>
+                  )}
+              </div>
+
+              {course.price_without_discount && course.price_without_discount > course.price && (
+                <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-emerald-500/15 px-3 py-1 text-sm text-emerald-200 border border-emerald-400/20">
+                  <span className="font-semibold">
+                    Save{" "}
+                    {Math.round(
+                      ((course.price_without_discount - course.price) /
+                        course.price_without_discount) *
+                      100
+                    )}
+                    %
+                  </span>
+                  <span className="text-emerald-100/70">•</span>
+                  <span>₹{course.price_without_discount - course.price} off</span>
+                </div>
+              )}
             </div>
           )}
 
+
           <button
             onClick={handleButtonClick}
-            className={`w-full px-6 py-3 rounded-lg font-semibold text-white transition-all shadow-md ${
-              isEnrolled
+            className={`w-full px-6 py-3 rounded-lg font-semibold text-white transition-all shadow-md ${isEnrolled
                 ? "bg-green-600 hover:bg-green-500"
                 : "bg-cyan-600 hover:bg-cyan-500"
-            }`}
+              }`}
           >
             {isEnrolled ? "Continue learning 🚀" : "Enroll Now 🚀"}
           </button>

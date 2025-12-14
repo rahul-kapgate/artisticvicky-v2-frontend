@@ -401,7 +401,20 @@ function Home() {
                   <p className="text-gray-300 mb-3 line-clamp-3">{course.description}</p>
                   <div className="flex justify-between text-sm text-gray-300 mb-3">
                     <span>{course.category || "—"}</span>
-                    <span className="text-emerald-400 font-semibold">₹{course.price}</span>
+                    <span className="text-right">
+                      {course.price_without_discount &&
+                        course.price_without_discount > course.price ? (
+                        <span className="flex flex-col items-end leading-tight">
+                          <span className="text-xs text-gray-300 line-through">
+                            ₹{course.price_without_discount}
+                          </span>
+                          <span className="text-emerald-400 font-semibold">₹{course.price}</span>
+                        </span>
+                      ) : (
+                        <span className="text-emerald-400 font-semibold">₹{course.price}</span>
+                      )}
+                    </span>
+
                   </div>
                   <button
                     onClick={() => navigate(`/courses/${course.id}`)}
@@ -416,8 +429,8 @@ function Home() {
         )}
       </section>
 
-       {/* 🔔 Notifications Section (using public API) */}
-       <NotificationsSection />
+      {/* 🔔 Notifications Section (using public API) */}
+      <NotificationsSection />
 
       {/* ---------------- Why Artistic Vickey Section ---------------- */}
       <section className="py-12 px-6 bg-gradient-to-b from-white via-purple-50 to-white">

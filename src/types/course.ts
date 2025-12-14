@@ -14,6 +14,8 @@ export interface Course {
     rating: number;
     tags: string[] | null;
     created_at: string;
+    price_without_discount: number;
+
   }
   
   export interface CourseResponse {
