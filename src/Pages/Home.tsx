@@ -215,7 +215,7 @@ function Home() {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-10">
             <h2 className="text-4xl font-bold mb-3">
-              🖼️ Student <span className="text-cyan-300">Artwork</span>
+              🖼️ Students <span className="text-cyan-300">Artworks</span>
             </h2>
             <p className="text-gray-300 max-w-2xl mx-auto">
               Explore beautiful creations made by students of Artistic Vickey from
@@ -401,9 +401,7 @@ function Home() {
                   <p className="text-gray-300 mb-3 line-clamp-3">{course.description}</p>
                   <div className="flex justify-between text-sm text-gray-300 mb-3">
                     <span>{course.category || "—"}</span>
-                    <span className={`${cardStyles.accent.split(" ")[0]} font-medium`}>
-                      ₹{course.price}
-                    </span>
+                    <span className="text-emerald-400 font-semibold">₹{course.price}</span>
                   </div>
                   <button
                     onClick={() => navigate(`/courses/${course.id}`)}
