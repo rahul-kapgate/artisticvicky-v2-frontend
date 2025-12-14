@@ -405,7 +405,7 @@ function Home() {
                       {course.price_without_discount &&
                         course.price_without_discount > course.price ? (
                         <span className="flex flex-col items-end leading-tight">
-                          <span className="text-xs text-gray-300 line-through">
+                          <span className="text-xs text-red-500 line-through">
                             ₹{course.price_without_discount}
                           </span>
                           <span className="text-emerald-400 font-semibold">₹{course.price}</span>

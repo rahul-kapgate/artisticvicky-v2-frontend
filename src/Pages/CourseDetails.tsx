@@ -152,7 +152,7 @@ export default function CourseDetails() {
 
                 {course.price_without_discount &&
                   course.price_without_discount > course.price && (
-                    <span className="text-lg text-gray-300 line-through">
+                    <span className="text-lg text-red-500 line-through">
                       ₹{course.price_without_discount}
                     </span>
                   )}
