@@ -144,7 +144,7 @@ export default function CourseDetails() {
           {!user && (
             <div className="flex flex-col items-center">
               <span className="text-gray-300 text-sm">Course Price</span>
-              <h3 className="text-4xl font-bold text-cyan-300 mb-2">
+              <h3 className="text-4xl font-bold text-emerald-400 mb-2">
                 ₹{course.price}
               </h3>
             </div>
