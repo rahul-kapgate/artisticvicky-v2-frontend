@@ -452,8 +452,10 @@ function Home() {
                     <article
                       key={course.id}
                       ref={index === 0 ? courseFirstCardRef : undefined}
-                      className={`snap-start flex-shrink-0 w-[260px] sm:w-[320px] md:w-[360px] rounded-2xl shadow-lg p-5 transition-all duration-300 hover:scale-[1.02] bg-gradient-to-br ${cardStyles.gradient} border ${cardStyles.border} group`}
-                    >
+                      className={`snap-start flex-shrink-0 w-[260px] sm:w-[320px] md:w-[360px]
+                        rounded-2xl shadow-lg p-5 transition-all duration-300 hover:scale-[1.02]
+                        bg-gradient-to-br ${cardStyles.gradient} border ${cardStyles.border} group
+                        flex flex-col`}>
                       <img
                         src={course.image}
                         alt={course.course_name}
@@ -488,7 +490,8 @@ function Home() {
 
                       <button
                         onClick={() => navigate(`/courses/${course.id}`)}
-                        className={`w-full py-2 rounded-lg font-semibold border ${cardStyles.accent} text-white/90 hover:text-white transition-all duration-300`}
+                        className={`mt-auto w-full py-2 rounded-lg font-semibold border ${cardStyles.accent}
+      text-white/90 hover:text-white transition-all duration-300`}  // ✅ add mt-auto
                       >
                         Enroll Now ✨
                       </button>
