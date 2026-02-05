@@ -1,17 +1,23 @@
 import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
+import { FaWhatsapp } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
 type WhatsAppWidgetProps = {
-  /** phone in international format, digits only. Example: "919820779554" */
-  phone: string;
-  /** title in the dialog */
+  phone: string; // digits only, e.g. "919820779554"
   title?: string;
-  /** small description text */
   description?: string;
-  /** prefilled message (will be URL-encoded) */
   message?: string;
-  /** open WhatsApp in new tab */
   newTab?: boolean;
+
+  /** left or right side */
+  side?: "left" | "right";
+
+  /** show footer line */
+  showFooter?: boolean;
+
+  /** internal route for privacy policy */
+  privacyPath?: string;
 };
 
 function buildWhatsAppLink(phone: string, text?: string) {
@@ -22,21 +28,18 @@ function buildWhatsAppLink(phone: string, text?: string) {
 
 export default function WhatsAppWidget({
   phone,
-  title = "Technical Support",
-  description = "Interested in our courses? Chat with us on WhatsApp to learn more about admissions, batches, and workshops!",
-  message,
+  title = "Artistic Vickey",
+  description = `Interested in our art or design courses?
+Chat with us on WhatsApp to learn more about admissions, batches, and workshops!`,
+  message = "Hi, I’m interested in admissions. Please share details.",
   newTab = true,
+  side = "left",
+  showFooter = true,
+  privacyPath = "/privacy-policy",
 }: WhatsAppWidgetProps) {
   const [open, setOpen] = useState(false);
 
-  const prefilled = useMemo(() => {
-    return message ?? "Hi! I want to know more.";
-  }, [message]);
-
-  const waLink = useMemo(
-    () => buildWhatsAppLink(phone, prefilled),
-    [phone, prefilled]
-  );
+  const waLink = useMemo(() => buildWhatsAppLink(phone, message), [phone, message]);
 
   // Close on ESC
   useEffect(() => {
@@ -48,26 +51,24 @@ export default function WhatsAppWidget({
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [open]);
 
+  const sideBtn = side === "left" ? "left-6" : "right-6";
+  const sidePanel = side === "left" ? "left-6" : "right-6";
+
   return (
     <>
-      {/* Floating button (LEFT) */}
+      {/* Floating WhatsApp button (better icon + WhatsApp green) */}
       <button
         type="button"
         onClick={() => setOpen(true)}
         aria-label="Open WhatsApp support"
-        className="fixed bottom-6 left-6 z-50 grid h-14 w-14 place-items-center rounded-full shadow-lg border border-black/10 bg-white hover:scale-[1.02] active:scale-[0.98] transition"
+        className={[
+          "fixed bottom-6 z-50 grid h-14 w-14 place-items-center rounded-full",
+          "bg-[#25D366] text-white shadow-lg",
+          "hover:brightness-95 active:scale-95 transition",
+          sideBtn,
+        ].join(" ")}
       >
-        {/* Simple WhatsApp-like icon (SVG) */}
-        <svg width="26" height="26" viewBox="0 0 32 32" aria-hidden="true">
-          <path
-            d="M19.11 17.3c-.3-.15-1.77-.87-2.05-.97-.28-.1-.48-.15-.68.15-.2.3-.78.97-.95 1.17-.17.2-.35.23-.65.08-.3-.15-1.26-.46-2.4-1.48-.89-.79-1.49-1.77-1.67-2.07-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.38-.02-.53-.08-.15-.68-1.64-.93-2.25-.24-.58-.49-.5-.68-.5h-.58c-.2 0-.53.08-.8.38-.28.3-1.05 1.02-1.05 2.49s1.08 2.89 1.23 3.09c.15.2 2.12 3.24 5.14 4.54.72.31 1.29.5 1.73.64.73.23 1.39.2 1.91.12.58-.09 1.77-.72 2.02-1.42.25-.7.25-1.3.17-1.42-.08-.12-.28-.2-.58-.35z"
-            fill="#22c55e"
-          />
-          <path
-            d="M16 3C9.37 3 4 8.37 4 15c0 2.33.67 4.5 1.83 6.33L4.6 29l7.86-1.19A11.9 11.9 0 0 0 16 27c6.63 0 12-5.37 12-12S22.63 3 16 3zm0 21.8c-1.95 0-3.76-.56-5.29-1.53l-.38-.24-4.66.71.74-4.53-.25-.39A9.76 9.76 0 0 1 6.2 15C6.2 9.62 10.62 5.2 16 5.2S25.8 9.62 25.8 15 21.38 24.8 16 24.8z"
-            fill="#16a34a"
-          />
-        </svg>
+        <FaWhatsapp className="h-7 w-7" />
       </button>
 
       {/* Dialog */}
@@ -82,34 +83,67 @@ export default function WhatsAppWidget({
               aria-label="Close dialog"
             />
 
-            {/* panel (LEFT) */}
-            <div className="absolute bottom-24 left-6 w-[320px] rounded-2xl bg-white shadow-xl border border-black/10 overflow-hidden">
-              <div className="p-4">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <h3 className="text-base font-semibold">{title}</h3>
-                    <p className="mt-1 text-sm text-black/70">{description}</p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setOpen(false)}
-                    className="rounded-lg px-2 py-1 text-sm hover:bg-black/5"
-                    aria-label="Close"
-                  >
-                    ✕
-                  </button>
-                </div>
+            {/* panel */}
+            <div
+              className={[
+                "absolute bottom-24 w-[380px] max-w-[92vw]",
+                "rounded-2xl overflow-hidden shadow-2xl border border-black/10",
+                sidePanel,
+              ].join(" ")}
+              role="dialog"
+              aria-modal="true"
+            >
+              {/* header */}
+              <div className="bg-[#075E54] px-5 py-4 flex items-center justify-between">
+                <h3 className="text-white font-semibold text-lg leading-none">
+                  {title}
+                </h3>
+                <button
+                  type="button"
+                  onClick={() => setOpen(false)}
+                  aria-label="Close"
+                  className="text-white/90 hover:text-white rounded-md px-2 py-1"
+                >
+                  ✕
+                </button>
+              </div>
 
+              {/* chat area */}
+              <div className="bg-[#ECE5DD] px-5 py-5 min-h-[320px]">
+                <div className="max-w-[300px] rounded-xl bg-[#DCF8C6] px-4 py-4 text-[15px] leading-7 text-black/80 shadow-sm">
+                  {description.split("\n").map((line, i) => (
+                    <p key={i}>{line}</p>
+                  ))}
+                </div>
+              </div>
+
+              {/* bottom area */}
+              <div className="bg-white px-6 py-6">
                 <a
                   href={waLink}
                   target={newTab ? "_blank" : undefined}
                   rel={newTab ? "noopener noreferrer" : undefined}
-                  className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-green-600 px-4 py-2.5 text-white font-medium hover:bg-green-700"
                   onClick={() => setOpen(false)}
+                  className="w-full inline-flex items-center justify-center gap-3 rounded-full bg-[#25D366] text-white font-semibold text-lg py-3 shadow-sm hover:brightness-95"
                 >
+                  <FaWhatsapp className="h-6 w-6" />
                   WhatsApp Us
                 </a>
 
+                {showFooter && (
+                  <div className="mt-4 flex items-center justify-center gap-2 text-sm text-black/60">
+                    <span className="inline-block h-3 w-3 rounded-full bg-[#25D366] shadow-[0_0_0_2px_rgba(37,211,102,0.15)]" />
+                    <span>Online</span>
+                    <span>|</span>
+                    <Link
+                      to={privacyPath}
+                      className="hover:underline text-black/60"
+                      onClick={() => setOpen(false)}
+                    >
+                      Privacy policy
+                    </Link>
+                  </div>
+                )}
               </div>
             </div>
           </div>,

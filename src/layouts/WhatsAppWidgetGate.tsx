@@ -21,8 +21,8 @@ export default function WhatsAppWidgetGate() {
   return (
     <WhatsAppWidget
       phone="9325217691"
-      title="Artistic Vickey Technical Support"
-      description="Interested in our courses? Chat with our team on WhatsApp to learn more!"
+      title="Artistic Vickey"
+      description="Interested in our courses? Chat with us on WhatsApp to learn more!"
       message="Hi, I’m interested in admissions. Please share details."
       newTab
     />
