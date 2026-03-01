@@ -258,8 +258,160 @@ function Home() {
         <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-black/50 to-transparent" />
       </section>
 
-      {/* ---------------- Student Artwork Section ---------------- */}
-      <section className="py-16 px-6 bg-gradient-to-b from-[#020617] via-[#020617] to-[#0b1120] text-gray-100">
+      {/* ---------------- Courses Section ---------------- */}
+      <section
+        id="courses"
+        className="py-16 px-6 bg-gradient-to-b from-[#10194f] via-[#132060] to-[#1a237e] text-gray-100"
+      >
+        <div className="text-center mb-12">
+          <h2 className="text-4xl font-bold mb-3">
+            🎨 Explore <span className="text-cyan-300">Courses</span>
+          </h2>
+          <p className="text-gray-300 max-w-2xl mx-auto">
+            Learn, create, and master your artistic skills through immersive and guided lessons.
+          </p>
+        </div>
+
+        {!loading && courses.length === 0 && (
+          <p className="text-center text-gray-300 mt-6">No courses available yet.</p>
+        )}
+
+        {loading ? (
+          // ✅ 1-line skeleton strip
+          <div className="flex gap-6 overflow-hidden max-w-6xl mx-auto animate-pulse">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div
+                key={i}
+                className="flex-shrink-0 w-[260px] sm:w-[320px] md:w-[360px] rounded-2xl bg-[#2b1a4a]/40 h-80 border border-white/10"
+              />
+            ))}
+          </div>
+        ) : error ? (
+          <p className="text-center text-red-400">Failed to load courses: {error}</p>
+        ) : (
+          <div className="relative max-w-6xl mx-auto">
+            {/* Left/Right Step Buttons */}
+            <button
+              type="button"
+              onClick={() => scrollCoursesByStep("left")}
+              className="hidden md:flex items-center justify-center absolute -left-12 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-black/30 border border-white/15 hover:bg-black/45 transition"
+              aria-label="Scroll courses left"
+            >
+              <ChevronLeft className="w-5 h-5 text-white" />
+            </button>
+
+            <button
+              type="button"
+              onClick={() => scrollCoursesByStep("right")}
+              className="hidden md:flex items-center justify-center absolute -right-12 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-black/30 border border-white/15 hover:bg-black/45 transition"
+              aria-label="Scroll courses right"
+            >
+              <ChevronRight className="w-5 h-5 text-white" />
+            </button>
+
+            {/* ✅ 1-line step scroller (snap) */}
+            <div
+              ref={courseScrollRef}
+              className="overflow-x-auto scroll-smooth pb-4 snap-x snap-mandatory [-ms-overflow-style:none] [scrollbar-width:none]"
+              onWheel={(e) => {
+                // nice desktop behavior: vertical wheel scrolls horizontally
+                if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+                  e.currentTarget.scrollLeft += e.deltaY;
+                }
+              }}
+            >
+              <div className="flex gap-6">
+                {courses.map((course, index) => {
+                  const cardStyles = [
+                    {
+                      gradient: "from-[#2b1a4a] via-[#3c1e65] to-[#472181]",
+                      border: "border-pink-400/30",
+                      accent: "text-pink-300 border-pink-400 hover:bg-pink-500",
+                    },
+                    {
+                      gradient: "from-[#0f1b3d]/90 via-[#152a52]/90 to-[#1c3d6e]/90",
+                      border: "border-cyan-400/30",
+                      accent: "text-cyan-300 border-cyan-400 hover:bg-cyan-500",
+                    },
+                    {
+                      gradient: "from-[#1b1335]/90 via-[#2c1e5c]/90 to-[#3a2780]/90",
+                      border: "border-violet-400/30",
+                      accent: "text-violet-300 border-violet-400 hover:bg-violet-500",
+                    },
+                  ][index % 3];
+
+                  return (
+                    <article
+                      key={course.id}
+                      ref={index === 0 ? courseFirstCardRef : undefined}
+                      className={`snap-start flex-shrink-0 w-[260px] sm:w-[320px] md:w-[360px]
+                        rounded-2xl shadow-lg p-5 transition-all duration-300 hover:scale-[1.02]
+                        bg-gradient-to-br ${cardStyles.gradient} border ${cardStyles.border} group
+                        flex flex-col`}
+                    >
+                      <img
+                        src={getStaticImage(index) || course.image}
+                        alt={course.course_name}
+                        className="rounded-xl mb-4 h-48 w-full object-cover border border-white/10 group-hover:border-white/30 transition-all duration-300"
+                        onError={(e) => {
+                          e.currentTarget.onerror = null;
+                          e.currentTarget.src = getStaticImage(index) || course.image;
+                        }}
+                      />
+
+                      <h3
+                        className={`text-xl font-semibold ${cardStyles.accent.split(" ")[0]} mb-2`}
+                      >
+                        {course.course_name}
+                      </h3>
+
+                      <p className="text-gray-300 mb-3 line-clamp-3">{course.description}</p>
+
+                      <div className="flex justify-between text-sm text-gray-300 mb-3">
+                        <span>{course.category || "—"}</span>
+
+                        <span className="text-right">
+                          {course.price_without_discount &&
+                            course.price_without_discount > course.price ? (
+                            <span className="flex flex-col items-end leading-tight">
+                              <span className="text-xs text-red-500 line-through">
+                                ₹{course.price_without_discount}
+                              </span>
+                              <span className="text-emerald-400 font-semibold">
+                                ₹{course.price}
+                              </span>
+                            </span>
+                          ) : (
+                            <span className="text-emerald-400 font-semibold">
+                              ₹{course.price}
+                            </span>
+                          )}
+                        </span>
+                      </div>
+
+                      <button
+                        onClick={() => navigate(`/courses/${course.id}`)}
+                        className={`mt-auto w-full py-2 rounded-lg font-semibold border ${cardStyles.accent}
+      text-white/90 hover:text-white transition-all duration-300`}
+                      >
+                        Enroll Now ✨
+                      </button>
+                    </article>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* hide scrollbar (webkit) */}
+            <style>{`
+              div::-webkit-scrollbar { display: none; }
+            `}</style>
+          </div>
+        )}
+      </section>
+
+        {/* ---------------- Student Artwork Section ---------------- */}
+        <section className="py-16 px-6 bg-gradient-to-b from-[#020617] via-[#020617] to-[#0b1120] text-gray-100">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-10">
             <h2 className="text-4xl font-bold mb-3">
@@ -376,302 +528,6 @@ function Home() {
             </div>
           )}
         </div>
-      </section>
-
-
-      {/* ---------------- Courses Section ---------------- */}
-      {/* <section
-        id="courses"
-        className="py-16 px-6 bg-gradient-to-b from-[#10194f] via-[#132060] to-[#1a237e] text-gray-100"
-      >
-        <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold mb-3">
-            🎨 Explore <span className="text-cyan-300">Courses</span>
-          </h2>
-          <p className="text-gray-300 max-w-2xl mx-auto">
-            Learn, create, and master your artistic skills through immersive and guided lessons.
-          </p>
-        </div>
-
-        {!loading && courses.length === 0 && (
-          <p className="text-center text-gray-300 mt-6">No courses available yet.</p>
-        )}
-
-        {loading ? (
-          // ✅ 1-line skeleton strip
-          <div className="flex gap-6 overflow-hidden max-w-6xl mx-auto animate-pulse">
-            {Array.from({ length: 3 }).map((_, i) => (
-              <div
-                key={i}
-                className="flex-shrink-0 w-[260px] sm:w-[320px] md:w-[360px] rounded-2xl bg-[#2b1a4a]/40 h-80 border border-white/10"
-              />
-            ))}
-          </div>
-        ) : error ? (
-          <p className="text-center text-red-400">Failed to load courses: {error}</p>
-        ) : (
-          <div className="relative max-w-6xl mx-auto">
-           // Left/Right Step Buttons
-            <button
-              type="button"
-              onClick={() => scrollCoursesByStep("left")}
-              className="hidden md:flex items-center justify-center absolute -left-12 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-black/30 border border-white/15 hover:bg-black/45 transition"
-              aria-label="Scroll courses left"
-            >
-              <ChevronLeft className="w-5 h-5 text-white" />
-            </button>
-
-            <button
-              type="button"
-              onClick={() => scrollCoursesByStep("right")}
-              className="hidden md:flex items-center justify-center absolute -right-12 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-black/30 border border-white/15 hover:bg-black/45 transition"
-              aria-label="Scroll courses right"
-            >
-              <ChevronRight className="w-5 h-5 text-white" />
-            </button>
-
-           // ✅ 1-line step scroller (snap)
-            <div
-              ref={courseScrollRef}
-              className="overflow-x-auto scroll-smooth pb-4 snap-x snap-mandatory [-ms-overflow-style:none] [scrollbar-width:none]"
-              onWheel={(e) => {
-                // nice desktop behavior: vertical wheel scrolls horizontally
-                if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
-                  e.currentTarget.scrollLeft += e.deltaY;
-                }
-              }}
-            >
-              <div className="flex gap-6">
-                {courses.map((course, index) => {
-                  const cardStyles = [
-                    {
-                      gradient: "from-[#2b1a4a] via-[#3c1e65] to-[#472181]",
-                      border: "border-pink-400/30",
-                      accent: "text-pink-300 border-pink-400 hover:bg-pink-500",
-                    },
-                    {
-                      gradient: "from-[#0f1b3d]/90 via-[#152a52]/90 to-[#1c3d6e]/90",
-                      border: "border-cyan-400/30",
-                      accent: "text-cyan-300 border-cyan-400 hover:bg-cyan-500",
-                    },
-                    {
-                      gradient: "from-[#1b1335]/90 via-[#2c1e5c]/90 to-[#3a2780]/90",
-                      border: "border-violet-400/30",
-                      accent: "text-violet-300 border-violet-400 hover:bg-violet-500",
-                    },
-                  ][index % 3];
-
-                  return (
-                    <article
-                      key={course.id}
-                      ref={index === 0 ? courseFirstCardRef : undefined}
-                      className={`snap-start flex-shrink-0 w-[260px] sm:w-[320px] md:w-[360px]
-                        rounded-2xl shadow-lg p-5 transition-all duration-300 hover:scale-[1.02]
-                        bg-gradient-to-br ${cardStyles.gradient} border ${cardStyles.border} group
-                        flex flex-col`}>
-                      <img
-                        src={course.image}
-                        alt={course.course_name}
-                        className="rounded-xl mb-4 h-48 w-full object-cover border border-white/10 group-hover:border-white/30 transition-all duration-300"
-                      />
-
-                      <h3 className={`text-xl font-semibold ${cardStyles.accent.split(" ")[0]} mb-2`}>
-                        {course.course_name}
-                      </h3>
-
-                      <p className="text-gray-300 mb-3 line-clamp-3">{course.description}</p>
-
-                      <div className="flex justify-between text-sm text-gray-300 mb-3">
-                        <span>{course.category || "—"}</span>
-
-                        <span className="text-right">
-                          {course.price_without_discount &&
-                            course.price_without_discount > course.price ? (
-                            <span className="flex flex-col items-end leading-tight">
-                              <span className="text-xs text-red-500 line-through">
-                                ₹{course.price_without_discount}
-                              </span>
-                              <span className="text-emerald-400 font-semibold">
-                                ₹{course.price}
-                              </span>
-                            </span>
-                          ) : (
-                            <span className="text-emerald-400 font-semibold">₹{course.price}</span>
-                          )}
-                        </span>
-                      </div>
-
-                      <button
-                        onClick={() => navigate(`/courses/${course.id}`)}
-                        className={`mt-auto w-full py-2 rounded-lg font-semibold border ${cardStyles.accent}
-      text-white/90 hover:text-white transition-all duration-300`}  // ✅ add mt-auto
-                      >
-                        Enroll Now ✨
-                      </button>
-                    </article>
-                  );
-                })}
-              </div>
-            </div>
-
-           // hide scrollbar (webkit)
-            <style>{`
-              div::-webkit-scrollbar { display: none; }
-            `}</style>
-          </div>
-        )}
-      </section> */}
-
-      {/* ---------------- Courses Section ---------------- */}
-      <section
-        id="courses"
-        className="py-16 px-6 bg-gradient-to-b from-[#10194f] via-[#132060] to-[#1a237e] text-gray-100"
-      >
-        <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold mb-3">
-            🎨 Explore <span className="text-cyan-300">Courses</span>
-          </h2>
-          <p className="text-gray-300 max-w-2xl mx-auto">
-            Learn, create, and master your artistic skills through immersive and guided lessons.
-          </p>
-        </div>
-
-        {!loading && courses.length === 0 && (
-          <p className="text-center text-gray-300 mt-6">No courses available yet.</p>
-        )}
-
-        {loading ? (
-          // ✅ 1-line skeleton strip
-          <div className="flex gap-6 overflow-hidden max-w-6xl mx-auto animate-pulse">
-            {Array.from({ length: 3 }).map((_, i) => (
-              <div
-                key={i}
-                className="flex-shrink-0 w-[260px] sm:w-[320px] md:w-[360px] rounded-2xl bg-[#2b1a4a]/40 h-80 border border-white/10"
-              />
-            ))}
-          </div>
-        ) : error ? (
-          <p className="text-center text-red-400">Failed to load courses: {error}</p>
-        ) : (
-          <div className="relative max-w-6xl mx-auto">
-            {/* Left/Right Step Buttons */}
-            <button
-              type="button"
-              onClick={() => scrollCoursesByStep("left")}
-              className="hidden md:flex items-center justify-center absolute -left-12 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-black/30 border border-white/15 hover:bg-black/45 transition"
-              aria-label="Scroll courses left"
-            >
-              <ChevronLeft className="w-5 h-5 text-white" />
-            </button>
-
-            <button
-              type="button"
-              onClick={() => scrollCoursesByStep("right")}
-              className="hidden md:flex items-center justify-center absolute -right-12 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-black/30 border border-white/15 hover:bg-black/45 transition"
-              aria-label="Scroll courses right"
-            >
-              <ChevronRight className="w-5 h-5 text-white" />
-            </button>
-
-            {/* ✅ 1-line step scroller (snap) */}
-            <div
-              ref={courseScrollRef}
-              className="overflow-x-auto scroll-smooth pb-4 snap-x snap-mandatory [-ms-overflow-style:none] [scrollbar-width:none]"
-              onWheel={(e) => {
-                // nice desktop behavior: vertical wheel scrolls horizontally
-                if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
-                  e.currentTarget.scrollLeft += e.deltaY;
-                }
-              }}
-            >
-              <div className="flex gap-6">
-                {courses.map((course, index) => {
-                  const cardStyles = [
-                    {
-                      gradient: "from-[#2b1a4a] via-[#3c1e65] to-[#472181]",
-                      border: "border-pink-400/30",
-                      accent: "text-pink-300 border-pink-400 hover:bg-pink-500",
-                    },
-                    {
-                      gradient: "from-[#0f1b3d]/90 via-[#152a52]/90 to-[#1c3d6e]/90",
-                      border: "border-cyan-400/30",
-                      accent: "text-cyan-300 border-cyan-400 hover:bg-cyan-500",
-                    },
-                    {
-                      gradient: "from-[#1b1335]/90 via-[#2c1e5c]/90 to-[#3a2780]/90",
-                      border: "border-violet-400/30",
-                      accent: "text-violet-300 border-violet-400 hover:bg-violet-500",
-                    },
-                  ][index % 3];
-
-                  return (
-                    <article
-                      key={course.id}
-                      ref={index === 0 ? courseFirstCardRef : undefined}
-                      className={`snap-start flex-shrink-0 w-[260px] sm:w-[320px] md:w-[360px]
-                        rounded-2xl shadow-lg p-5 transition-all duration-300 hover:scale-[1.02]
-                        bg-gradient-to-br ${cardStyles.gradient} border ${cardStyles.border} group
-                        flex flex-col`}
-                    >
-                      <img
-                        src={getStaticImage(index)}
-                        alt={course.course_name}
-                        className="rounded-xl mb-4 h-48 w-full object-cover border border-white/10 group-hover:border-white/30 transition-all duration-300"
-                        onError={(e) => {
-                          e.currentTarget.onerror = null;
-                          e.currentTarget.src = getStaticImage(index);
-                        }}
-                      />
-
-                      <h3
-                        className={`text-xl font-semibold ${cardStyles.accent.split(" ")[0]} mb-2`}
-                      >
-                        {course.course_name}
-                      </h3>
-
-                      <p className="text-gray-300 mb-3 line-clamp-3">{course.description}</p>
-
-                      <div className="flex justify-between text-sm text-gray-300 mb-3">
-                        <span>{course.category || "—"}</span>
-
-                        <span className="text-right">
-                          {course.price_without_discount &&
-                            course.price_without_discount > course.price ? (
-                            <span className="flex flex-col items-end leading-tight">
-                              <span className="text-xs text-red-500 line-through">
-                                ₹{course.price_without_discount}
-                              </span>
-                              <span className="text-emerald-400 font-semibold">
-                                ₹{course.price}
-                              </span>
-                            </span>
-                          ) : (
-                            <span className="text-emerald-400 font-semibold">
-                              ₹{course.price}
-                            </span>
-                          )}
-                        </span>
-                      </div>
-
-                      <button
-                        onClick={() => navigate(`/courses/${course.id}`)}
-                        className={`mt-auto w-full py-2 rounded-lg font-semibold border ${cardStyles.accent}
-      text-white/90 hover:text-white transition-all duration-300`}
-                      >
-                        Enroll Now ✨
-                      </button>
-                    </article>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* hide scrollbar (webkit) */}
-            <style>{`
-              div::-webkit-scrollbar { display: none; }
-            `}</style>
-          </div>
-        )}
       </section>
 
       {/* 🔔 Notifications Section (using public API) */}
