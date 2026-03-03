@@ -13,6 +13,8 @@ import Course03 from "/course-03.jpg"
 import Course04 from "/course-04.jpg"
 import Course05 from "/course-05.jpg"
 
+import Vicky from "/vicky.jpg";
+
 
 // Reasons Section 
 const reasons = [
@@ -587,7 +589,7 @@ function Home() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <div className="flex justify-center">
               <img
-                src="https://jofgujxmsxubscczjimz.supabase.co/storage/v1/object/public/course-images/courses/IMG_5525.JPG"
+                src={Vicky}
                 alt="Artist at work"
                 className="rounded-2xl shadow-xl w-full max-w-md h-[42vh] object-cover object-center hover:scale-105 transition-transform duration-300"
               />
