@@ -126,7 +126,7 @@ function Home() {
 
     if (!container || !firstRow) return;
 
-    const speed = 0.7; // pixels per frame – tweak for faster/slower
+    const speed = 0.9;
     let animationFrameId: number;
 
     const step = () => {
@@ -258,6 +258,126 @@ function Home() {
         {/* Gradient fades for smooth blending */}
         <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-black/40 to-transparent" />
         <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-black/50 to-transparent" />
+      </section>
+
+       {/* ---------------- Student Artwork Section ---------------- */}
+        <section className="py-16 px-6 bg-gradient-to-b from-[#020617] via-[#020617] to-[#0b1120] text-gray-100">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-10">
+            <h2 className="text-4xl font-bold mb-3">
+              🖼️ Students <span className="text-cyan-300">Artworks</span>
+            </h2>
+            <p className="text-gray-300 max-w-2xl mx-auto">
+              Explore beautiful creations made by students of Artistic Vickey from
+              different cities and backgrounds.
+            </p>
+          </div>
+
+          {artworkLoading ? (
+            // ✅ Skeleton shimmer while loading
+            <div className="flex gap-6 overflow-hidden max-w-[90vw] mx-auto animate-pulse">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="min-w-[260px] sm:min-w-[320px] h-64 rounded-2xl bg-slate-800/40 border border-slate-700/60"
+                />
+              ))}
+            </div>
+          ) : artworkError ? (
+            <p className="text-center text-red-400">
+              Failed to load student artwork: {artworkError}
+            </p>
+          ) : studentArtworks.length === 0 ? (
+            <p className="text-center text-gray-400 mt-4">
+              No student artwork shared yet. Stay tuned! ✨
+            </p>
+          ) : (
+            <div className="relative max-w-[90vw] mx-auto">
+              {/* Horizontal scroll container */}
+              <div
+                id="studentArtworkScroll"
+                ref={scrollContainerRef}
+                className="overflow-x-hidden pb-4 art-scrollbar"
+              >
+                <div className="flex gap-6">
+                  {/* 🔹 First set (used for measuring width) */}
+                  <div className="flex gap-6" ref={firstRowRef}>
+                    {studentArtworks.map((art) => (
+                      <div
+                        key={`first-${art.id}`}
+                        className="min-w-[260px] sm:min-w-[320px] bg-gradient-to-br from-[#0f172a] via-[#020617] to-[#1e293b] rounded-2xl border border-cyan-400/20 shadow-lg overflow-hidden group"
+                      >
+                        <div className="relative h-56 w-full overflow-hidden">
+                          <img
+                            src={art.image}
+                            alt={art.title}
+                            className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent opacity-90" />
+                          <div className="absolute bottom-3 left-4 right-4">
+                            <h3 className="text-lg font-semibold text-white mb-1 line-clamp-1">
+                              {art.title || "Untitled Artwork"}
+                            </h3>
+                            <p className="text-sm text-gray-200">
+                              by <span className="font-medium">{art.student_name}</span>
+                              {art.city && (
+                                <span className="text-xs text-gray-300 ml-2">
+                                  • {art.city}
+                                </span>
+                              )}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="px-4 py-3 flex items-center justify-between text-xs text-gray-300 bg-slate-900/70">
+                          <span className="uppercase tracking-wide text-cyan-300">
+                            Student Artwork
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* 🔹 Second set (for seamless looping after the first 5) */}
+                  <div className="flex gap-6">
+                    {studentArtworks.map((art) => (
+                      <div
+                        key={`second-${art.id}`}
+                        className="min-w-[260px] sm:min-w-[320px] bg-gradient-to-br from-[#0f172a] via-[#020617] to-[#1e293b] rounded-2xl border border-cyan-400/20 shadow-lg overflow-hidden group"
+                      >
+                        <div className="relative h-56 w-full overflow-hidden">
+                          <img
+                            src={art.image}
+                            alt={art.title}
+                            className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent opacity-90" />
+                          <div className="absolute bottom-3 left-4 right-4">
+                            <h3 className="text-lg font-semibold text-white mb-1 line-clamp-1">
+                              {art.title || "Untitled Artwork"}
+                            </h3>
+                            <p className="text-sm text-gray-200">
+                              by <span className="font-medium">{art.student_name}</span>
+                              {art.city && (
+                                <span className="text-xs text-gray-300 ml-2">
+                                  • {art.city}
+                                </span>
+                              )}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="px-4 py-3 flex items-center justify-between text-xs text-gray-300 bg-slate-900/70">
+                          <span className="uppercase tracking-wide text-cyan-300">
+                            Student Artwork
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
       </section>
 
       {/* ---------------- Courses Section ---------------- */}
@@ -410,126 +530,6 @@ function Home() {
             `}</style>
           </div>
         )}
-      </section>
-
-        {/* ---------------- Student Artwork Section ---------------- */}
-        <section className="py-16 px-6 bg-gradient-to-b from-[#020617] via-[#020617] to-[#0b1120] text-gray-100">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-10">
-            <h2 className="text-4xl font-bold mb-3">
-              🖼️ Students <span className="text-cyan-300">Artworks</span>
-            </h2>
-            <p className="text-gray-300 max-w-2xl mx-auto">
-              Explore beautiful creations made by students of Artistic Vickey from
-              different cities and backgrounds.
-            </p>
-          </div>
-
-          {artworkLoading ? (
-            // ✅ Skeleton shimmer while loading
-            <div className="flex gap-6 overflow-hidden max-w-[90vw] mx-auto animate-pulse">
-              {Array.from({ length: 4 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="min-w-[260px] sm:min-w-[320px] h-64 rounded-2xl bg-slate-800/40 border border-slate-700/60"
-                />
-              ))}
-            </div>
-          ) : artworkError ? (
-            <p className="text-center text-red-400">
-              Failed to load student artwork: {artworkError}
-            </p>
-          ) : studentArtworks.length === 0 ? (
-            <p className="text-center text-gray-400 mt-4">
-              No student artwork shared yet. Stay tuned! ✨
-            </p>
-          ) : (
-            <div className="relative max-w-[90vw] mx-auto">
-              {/* Horizontal scroll container */}
-              <div
-                id="studentArtworkScroll"
-                ref={scrollContainerRef}
-                className="overflow-x-hidden pb-4 art-scrollbar"
-              >
-                <div className="flex gap-6">
-                  {/* 🔹 First set (used for measuring width) */}
-                  <div className="flex gap-6" ref={firstRowRef}>
-                    {studentArtworks.map((art) => (
-                      <div
-                        key={`first-${art.id}`}
-                        className="min-w-[260px] sm:min-w-[320px] bg-gradient-to-br from-[#0f172a] via-[#020617] to-[#1e293b] rounded-2xl border border-cyan-400/20 shadow-lg overflow-hidden group"
-                      >
-                        <div className="relative h-56 w-full overflow-hidden">
-                          <img
-                            src={art.image}
-                            alt={art.title}
-                            className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent opacity-90" />
-                          <div className="absolute bottom-3 left-4 right-4">
-                            <h3 className="text-lg font-semibold text-white mb-1 line-clamp-1">
-                              {art.title || "Untitled Artwork"}
-                            </h3>
-                            <p className="text-sm text-gray-200">
-                              by <span className="font-medium">{art.student_name}</span>
-                              {art.city && (
-                                <span className="text-xs text-gray-300 ml-2">
-                                  • {art.city}
-                                </span>
-                              )}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="px-4 py-3 flex items-center justify-between text-xs text-gray-300 bg-slate-900/70">
-                          <span className="uppercase tracking-wide text-cyan-300">
-                            Student Artwork
-                          </span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* 🔹 Second set (for seamless looping after the first 5) */}
-                  <div className="flex gap-6">
-                    {studentArtworks.map((art) => (
-                      <div
-                        key={`second-${art.id}`}
-                        className="min-w-[260px] sm:min-w-[320px] bg-gradient-to-br from-[#0f172a] via-[#020617] to-[#1e293b] rounded-2xl border border-cyan-400/20 shadow-lg overflow-hidden group"
-                      >
-                        <div className="relative h-56 w-full overflow-hidden">
-                          <img
-                            src={art.image}
-                            alt={art.title}
-                            className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent opacity-90" />
-                          <div className="absolute bottom-3 left-4 right-4">
-                            <h3 className="text-lg font-semibold text-white mb-1 line-clamp-1">
-                              {art.title || "Untitled Artwork"}
-                            </h3>
-                            <p className="text-sm text-gray-200">
-                              by <span className="font-medium">{art.student_name}</span>
-                              {art.city && (
-                                <span className="text-xs text-gray-300 ml-2">
-                                  • {art.city}
-                                </span>
-                              )}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="px-4 py-3 flex items-center justify-between text-xs text-gray-300 bg-slate-900/70">
-                          <span className="uppercase tracking-wide text-cyan-300">
-                            Student Artwork
-                          </span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
       </section>
 
       {/* 🔔 Notifications Section (using public API) */}
