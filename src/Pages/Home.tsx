@@ -1,13 +1,26 @@
 import { useEffect, useState, useRef } from "react";
-import { Palette, Heart, Globe, Star, Layers, Brush } from "lucide-react";
+import {
+  Palette,
+  Heart,
+  Globe,
+  Star,
+  Layers,
+  Brush,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import { apiClient } from "@/utils/axiosConfig";
 import type { Course, CourseResponse } from "@/types/course";
 import { useNavigate } from "react-router-dom";
-import type { StudentArtwork, StudentArtworkResponse } from "@/types/studentArtwork";
+import type {
+  StudentArtwork,
+  StudentArtworkResponse,
+} from "@/types/studentArtwork";
 import { motion } from "framer-motion";
+import NotificationsSection from "@/components/NotificationsSection";
+import Vicky from "/vicky.jpg";
 
-
-// Reasons Section 
+// Reasons Section
 const reasons = [
   {
     icon: <Star className="w-8 h-8 text-pink-500" />,
@@ -54,11 +67,17 @@ function Home() {
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const firstRowRef = useRef<HTMLDivElement | null>(null);
 
+  // ✅ Course step scroller refs
+  const courseScrollRef = useRef<HTMLDivElement | null>(null);
+  const courseFirstCardRef = useRef<HTMLElement | null>(null);
+  const [courseStep, setCourseStep] = useState(0);
 
   // Fetch all courses
   const fetchCourses = async () => {
     try {
-      const res = await apiClient.get<CourseResponse>("/api/course/all-courses");
+      const res = await apiClient.get<CourseResponse>(
+        "/api/course/all-courses",
+      );
       if (res.data.success) {
         setCourses(res.data.data);
       } else {
@@ -76,7 +95,7 @@ function Home() {
   const fetchStudentArtworks = async () => {
     try {
       const res = await apiClient.get<StudentArtworkResponse>(
-        "/api/student-artwork/all"
+        "/api/student-artwork/all",
       );
 
       if (res.data.success) {
@@ -106,7 +125,7 @@ function Home() {
 
     if (!container || !firstRow) return;
 
-    const speed = 0.7; // pixels per frame – tweak for faster/slower
+    const speed = 0.9;
     let animationFrameId: number;
 
     const step = () => {
@@ -130,13 +149,42 @@ function Home() {
     return () => cancelAnimationFrame(animationFrameId);
   }, [artworkLoading, studentArtworks.length]);
 
+  useEffect(() => {
+    if (loading || courses.length === 0) return;
 
+    const first = courseFirstCardRef.current;
+    if (!first) return;
+
+    const GAP = 24; // gap-6 = 24px
+
+    const updateStep = () => {
+      setCourseStep(first.offsetWidth + GAP);
+    };
+
+    updateStep();
+
+    const ro = new ResizeObserver(updateStep);
+    ro.observe(first);
+
+    window.addEventListener("resize", updateStep);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", updateStep);
+    };
+  }, [loading, courses.length]);
+
+  const scrollCoursesByStep = (dir: "left" | "right") => {
+    const el = courseScrollRef.current;
+    if (!el) return;
+
+    const step = courseStep || Math.floor(el.clientWidth * 0.9);
+    el.scrollBy({ left: dir === "left" ? -step : step, behavior: "smooth" });
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-50 via-white to-white text-gray-800 scroll-smooth mt-14">
       {/* ---------------- Hero Section ---------------- */}
-      <section className="relative flex flex-col justify-center items-center h-[85vh] text-center text-white overflow-hidden">
-
+      <section className="relative flex flex-col justify-center items-center h-[60vh] lg:h-[85vh]  text-center text-white overflow-hidden">
         {/* 🔹 Static gradient background */}
         <div className="absolute inset-0 bg-gradient-to-br from-[#050816] via-[#10194f] to-[#1e3a8a]" />
 
@@ -214,11 +262,11 @@ function Home() {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-10">
             <h2 className="text-4xl font-bold mb-3">
-              🖼️ Student <span className="text-cyan-300">Artwork</span>
+              🖼️ Students <span className="text-cyan-300">Artworks</span>
             </h2>
             <p className="text-gray-300 max-w-2xl mx-auto">
-              Explore beautiful creations made by students of Artistic Vickey from
-              different cities and backgrounds.
+              Explore beautiful creations made by students of Artistic Vickey
+              from different cities and backgrounds.
             </p>
           </div>
 
@@ -268,7 +316,10 @@ function Home() {
                               {art.title || "Untitled Artwork"}
                             </h3>
                             <p className="text-sm text-gray-200">
-                              by <span className="font-medium">{art.student_name}</span>
+                              by{" "}
+                              <span className="font-medium">
+                                {art.student_name}
+                              </span>
                               {art.city && (
                                 <span className="text-xs text-gray-300 ml-2">
                                   • {art.city}
@@ -305,7 +356,10 @@ function Home() {
                               {art.title || "Untitled Artwork"}
                             </h3>
                             <p className="text-sm text-gray-200">
-                              by <span className="font-medium">{art.student_name}</span>
+                              by{" "}
+                              <span className="font-medium">
+                                {art.student_name}
+                              </span>
                               {art.city && (
                                 <span className="text-xs text-gray-300 ml-2">
                                   • {art.city}
@@ -329,7 +383,6 @@ function Home() {
         </div>
       </section>
 
-
       {/* ---------------- Courses Section ---------------- */}
       <section
         id="courses"
@@ -340,82 +393,160 @@ function Home() {
             🎨 Explore <span className="text-cyan-300">Courses</span>
           </h2>
           <p className="text-gray-300 max-w-2xl mx-auto">
-            Learn, create, and master your artistic skills through immersive and guided lessons.
+            Learn, create, and master your artistic skills through immersive and
+            guided lessons.
           </p>
         </div>
 
         {!loading && courses.length === 0 && (
-          <p className="text-center text-gray-300 mt-6">No courses available yet.</p>
+          <p className="text-center text-gray-300 mt-6">
+            No courses available yet.
+          </p>
         )}
 
         {loading ? (
-          // ✅ Only skeleton inside the same section
-          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-10 max-w-6xl mx-auto animate-pulse">
+          // ✅ 1-line skeleton strip
+          <div className="flex gap-6 overflow-hidden max-w-6xl mx-auto animate-pulse">
             {Array.from({ length: 3 }).map((_, i) => (
               <div
                 key={i}
-                className="rounded-2xl bg-[#2b1a4a]/40 h-80 border border-white/10"
+                className="flex-shrink-0 w-[260px] sm:w-[320px] md:w-[360px] rounded-2xl bg-[#2b1a4a]/40 h-80 border border-white/10"
               />
             ))}
           </div>
         ) : error ? (
-          <p className="text-center text-red-400">Failed to load courses: {error}</p>
+          <p className="text-center text-red-400">
+            Failed to load courses: {error}
+          </p>
         ) : (
-          // ✅ Actual course cards
-          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-10 max-w-6xl mx-auto">
-            {courses.map((course, index) => {
-              const cardStyles = [
-                {
-                  gradient: "from-[#2b1a4a] via-[#3c1e65] to-[#472181]",
-                  border: "border-pink-400/30",
-                  accent: "text-pink-300 border-pink-400 hover:bg-pink-500",
-                },
-                {
-                  gradient: "from-[#0f1b3d]/90 via-[#152a52]/90 to-[#1c3d6e]/90",
-                  border: "border-cyan-400/30",
-                  accent: "text-cyan-300 border-cyan-400 hover:bg-cyan-500",
-                },
-                {
-                  gradient: "from-[#1b1335]/90 via-[#2c1e5c]/90 to-[#3a2780]/90",
-                  border: "border-violet-400/30",
-                  accent: "text-violet-300 border-violet-400 hover:bg-violet-500",
-                },
-              ][index % 3];
+          <div className="relative max-w-6xl mx-auto">
+            {/* Left/Right Step Buttons */}
+            <button
+              type="button"
+              onClick={() => scrollCoursesByStep("left")}
+              className="hidden md:flex items-center justify-center absolute -left-12 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-black/30 border border-white/15 hover:bg-black/45 transition"
+              aria-label="Scroll courses left"
+            >
+              <ChevronLeft className="w-5 h-5 text-white" />
+            </button>
 
-              return (
-                <article
-                  key={course.id}
-                  className={`rounded-2xl shadow-lg p-5 transition-all duration-300 hover:scale-105 bg-gradient-to-br ${cardStyles.gradient} border ${cardStyles.border} group`}
-                >
-                  <img
-                    src={course.image}
-                    alt={course.course_name}
-                    className="rounded-xl mb-4 h-48 w-full object-cover border border-white/10 group-hover:border-white/30 transition-all duration-300"
-                  />
-                  <h3
-                    className={`text-xl font-semibold ${cardStyles.accent.split(" ")[0]} mb-2`}
-                  >
-                    {course.course_name}
-                  </h3>
-                  <p className="text-gray-300 mb-3 line-clamp-3">{course.description}</p>
-                  <div className="flex justify-between text-sm text-gray-300 mb-3">
-                    <span>{course.category || "—"}</span>
-                    <span className={`${cardStyles.accent.split(" ")[0]} font-medium`}>
-                      ₹{course.price}
-                    </span>
-                  </div>
-                  <button
-                    onClick={() => navigate(`/courses/${course.id}`)}
-                    className={`w-full py-2 rounded-lg font-semibold border ${cardStyles.accent} text-white/90 hover:text-white transition-all duration-300`}
-                  >
-                    Enroll Now ✨
-                  </button>
-                </article>
-              );
-            })}
+            <button
+              type="button"
+              onClick={() => scrollCoursesByStep("right")}
+              className="hidden md:flex items-center justify-center absolute -right-12 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-black/30 border border-white/15 hover:bg-black/45 transition"
+              aria-label="Scroll courses right"
+            >
+              <ChevronRight className="w-5 h-5 text-white" />
+            </button>
+
+            {/* ✅ 1-line step scroller (snap) */}
+            <div
+              ref={courseScrollRef}
+              className="overflow-x-auto scroll-smooth pb-4 snap-x snap-mandatory [-ms-overflow-style:none] [scrollbar-width:none]"
+              onWheel={(e) => {
+                // nice desktop behavior: vertical wheel scrolls horizontally
+                if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+                  e.currentTarget.scrollLeft += e.deltaY;
+                }
+              }}
+            >
+              <div className="flex gap-6">
+                {courses.map((course, index) => {
+                  const cardStyles = [
+                    {
+                      gradient: "from-[#2b1a4a] via-[#3c1e65] to-[#472181]",
+                      border: "border-pink-400/30",
+                      accent: "text-pink-300 border-pink-400 hover:bg-pink-500",
+                    },
+                    {
+                      gradient:
+                        "from-[#0f1b3d]/90 via-[#152a52]/90 to-[#1c3d6e]/90",
+                      border: "border-cyan-400/30",
+                      accent: "text-cyan-300 border-cyan-400 hover:bg-cyan-500",
+                    },
+                    {
+                      gradient:
+                        "from-[#1b1335]/90 via-[#2c1e5c]/90 to-[#3a2780]/90",
+                      border: "border-violet-400/30",
+                      accent:
+                        "text-violet-300 border-violet-400 hover:bg-violet-500",
+                    },
+                  ][index % 3];
+
+                  return (
+                    <article
+                      key={course.id}
+                      ref={index === 0 ? courseFirstCardRef : undefined}
+                      className={`snap-start flex-shrink-0 w-[260px] sm:w-[320px] md:w-[360px]
+                        rounded-2xl shadow-lg p-5 transition-all duration-300 hover:scale-[1.02]
+                        bg-gradient-to-br ${cardStyles.gradient} border ${cardStyles.border} group
+                        flex flex-col`}
+                    >
+                      <img
+                        src={course.image}
+                        alt={course.course_name}
+                        className="rounded-xl mb-4 h-48 w-full object-cover border border-white/10 group-hover:border-white/30 transition-all duration-300"
+                        onError={(e) => {
+                          e.currentTarget.onerror = null;
+                          e.currentTarget.src = course.image;
+                        }}
+                      />
+
+                      <h3
+                        className={`text-xl font-semibold ${cardStyles.accent.split(" ")[0]} mb-2`}
+                      >
+                        {course.course_name}
+                      </h3>
+
+                      <p className="text-gray-300 mb-3 line-clamp-3">
+                        {course.description}
+                      </p>
+
+                      <div className="flex justify-between text-sm text-gray-300 mb-3">
+                        <span>{course.category || "—"}</span>
+
+                        <span className="text-right">
+                          {course.price_without_discount &&
+                          course.price_without_discount > course.price ? (
+                            <span className="flex flex-col items-end leading-tight">
+                              <span className="text-xs text-red-500 line-through">
+                                ₹{course.price_without_discount}
+                              </span>
+                              <span className="text-emerald-400 font-semibold">
+                                ₹{course.price}
+                              </span>
+                            </span>
+                          ) : (
+                            <span className="text-emerald-400 font-semibold">
+                              ₹{course.price}
+                            </span>
+                          )}
+                        </span>
+                      </div>
+
+                      <button
+                        onClick={() => navigate(`/courses/${course.id}`)}
+                        className={`mt-auto w-full py-2 rounded-lg font-semibold border ${cardStyles.accent}
+      text-white/90 hover:text-white transition-all duration-300`}
+                      >
+                        Enroll Now ✨
+                      </button>
+                    </article>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* hide scrollbar (webkit) */}
+            <style>{`
+              div::-webkit-scrollbar { display: none; }
+            `}</style>
           </div>
         )}
       </section>
+
+      {/* 🔔 Notifications Section (using public API) */}
+      <NotificationsSection />
 
       {/* ---------------- Why Artistic Vickey Section ---------------- */}
       <section className="py-12 px-6 bg-gradient-to-b from-white via-purple-50 to-white">
@@ -471,7 +602,7 @@ function Home() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <div className="flex justify-center">
               <img
-                src="https://jofgujxmsxubscczjimz.supabase.co/storage/v1/object/public/course-images/courses/IMG_5525.JPG"
+                src={Vicky}
                 alt="Artist at work"
                 className="rounded-2xl shadow-xl w-full max-w-md h-[42vh] object-cover object-center hover:scale-105 transition-transform duration-300"
               />

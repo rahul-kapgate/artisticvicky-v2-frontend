@@ -28,10 +28,15 @@ import AttemptTestReview from "@/Pages/AttemptTestReview";
 // Video Lectures
 import VideoLectures from "./Pages/VideoLectures";
 
+import WhatsAppWidgetGate from "@/layouts/WhatsAppWidgetGate";
+
 function App() {
   return (
     <Router>
       <ScrollToTop />
+
+      <WhatsAppWidgetGate />
+      
       <Routes>
         {/* ✅ All pages wrapped in Layout */}
         <Route path="/" element={<Layout />}>
