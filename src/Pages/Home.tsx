@@ -1,22 +1,26 @@
 import { useEffect, useState, useRef } from "react";
-import { Palette, Heart, Globe, Star, Layers, Brush, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  Palette,
+  Heart,
+  Globe,
+  Star,
+  Layers,
+  Brush,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import { apiClient } from "@/utils/axiosConfig";
 import type { Course, CourseResponse } from "@/types/course";
 import { useNavigate } from "react-router-dom";
-import type { StudentArtwork, StudentArtworkResponse } from "@/types/studentArtwork";
+import type {
+  StudentArtwork,
+  StudentArtworkResponse,
+} from "@/types/studentArtwork";
 import { motion } from "framer-motion";
 import NotificationsSection from "@/components/NotificationsSection";
-
-import Course01 from "/course-01.jpg"
-import Course02 from "/course-02.jpg"
-import Course03 from "/course-03.jpg"
-import Course04 from "/course-04.jpg"
-import Course05 from "/course-05.jpg"
-
 import Vicky from "/vicky.jpg";
 
-
-// Reasons Section 
+// Reasons Section
 const reasons = [
   {
     icon: <Star className="w-8 h-8 text-pink-500" />,
@@ -71,7 +75,9 @@ function Home() {
   // Fetch all courses
   const fetchCourses = async () => {
     try {
-      const res = await apiClient.get<CourseResponse>("/api/course/all-courses");
+      const res = await apiClient.get<CourseResponse>(
+        "/api/course/all-courses",
+      );
       if (res.data.success) {
         setCourses(res.data.data);
       } else {
@@ -85,18 +91,11 @@ function Home() {
     }
   };
 
-//static image function
-  const staticImages = [Course01, Course02, Course03, Course04, Course05];
-
-  const getStaticImage = (index: number) => {
-    return staticImages[index % staticImages.length];
-  };
-
   // fetch artworks
   const fetchStudentArtworks = async () => {
     try {
       const res = await apiClient.get<StudentArtworkResponse>(
-        "/api/student-artwork/all"
+        "/api/student-artwork/all",
       );
 
       if (res.data.success) {
@@ -150,7 +149,6 @@ function Home() {
     return () => cancelAnimationFrame(animationFrameId);
   }, [artworkLoading, studentArtworks.length]);
 
-
   useEffect(() => {
     if (loading || courses.length === 0) return;
 
@@ -187,7 +185,6 @@ function Home() {
     <div className="min-h-screen bg-gradient-to-b from-purple-50 via-white to-white text-gray-800 scroll-smooth mt-14">
       {/* ---------------- Hero Section ---------------- */}
       <section className="relative flex flex-col justify-center items-center h-[60vh] lg:h-[85vh]  text-center text-white overflow-hidden">
-
         {/* 🔹 Static gradient background */}
         <div className="absolute inset-0 bg-gradient-to-br from-[#050816] via-[#10194f] to-[#1e3a8a]" />
 
@@ -260,16 +257,16 @@ function Home() {
         <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-black/50 to-transparent" />
       </section>
 
-       {/* ---------------- Student Artwork Section ---------------- */}
-        <section className="py-16 px-6 bg-gradient-to-b from-[#020617] via-[#020617] to-[#0b1120] text-gray-100">
+      {/* ---------------- Student Artwork Section ---------------- */}
+      <section className="py-16 px-6 bg-gradient-to-b from-[#020617] via-[#020617] to-[#0b1120] text-gray-100">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-10">
             <h2 className="text-4xl font-bold mb-3">
               🖼️ Students <span className="text-cyan-300">Artworks</span>
             </h2>
             <p className="text-gray-300 max-w-2xl mx-auto">
-              Explore beautiful creations made by students of Artistic Vickey from
-              different cities and backgrounds.
+              Explore beautiful creations made by students of Artistic Vickey
+              from different cities and backgrounds.
             </p>
           </div>
 
@@ -319,7 +316,10 @@ function Home() {
                               {art.title || "Untitled Artwork"}
                             </h3>
                             <p className="text-sm text-gray-200">
-                              by <span className="font-medium">{art.student_name}</span>
+                              by{" "}
+                              <span className="font-medium">
+                                {art.student_name}
+                              </span>
                               {art.city && (
                                 <span className="text-xs text-gray-300 ml-2">
                                   • {art.city}
@@ -356,7 +356,10 @@ function Home() {
                               {art.title || "Untitled Artwork"}
                             </h3>
                             <p className="text-sm text-gray-200">
-                              by <span className="font-medium">{art.student_name}</span>
+                              by{" "}
+                              <span className="font-medium">
+                                {art.student_name}
+                              </span>
                               {art.city && (
                                 <span className="text-xs text-gray-300 ml-2">
                                   • {art.city}
@@ -390,12 +393,15 @@ function Home() {
             🎨 Explore <span className="text-cyan-300">Courses</span>
           </h2>
           <p className="text-gray-300 max-w-2xl mx-auto">
-            Learn, create, and master your artistic skills through immersive and guided lessons.
+            Learn, create, and master your artistic skills through immersive and
+            guided lessons.
           </p>
         </div>
 
         {!loading && courses.length === 0 && (
-          <p className="text-center text-gray-300 mt-6">No courses available yet.</p>
+          <p className="text-center text-gray-300 mt-6">
+            No courses available yet.
+          </p>
         )}
 
         {loading ? (
@@ -409,7 +415,9 @@ function Home() {
             ))}
           </div>
         ) : error ? (
-          <p className="text-center text-red-400">Failed to load courses: {error}</p>
+          <p className="text-center text-red-400">
+            Failed to load courses: {error}
+          </p>
         ) : (
           <div className="relative max-w-6xl mx-auto">
             {/* Left/Right Step Buttons */}
@@ -451,14 +459,17 @@ function Home() {
                       accent: "text-pink-300 border-pink-400 hover:bg-pink-500",
                     },
                     {
-                      gradient: "from-[#0f1b3d]/90 via-[#152a52]/90 to-[#1c3d6e]/90",
+                      gradient:
+                        "from-[#0f1b3d]/90 via-[#152a52]/90 to-[#1c3d6e]/90",
                       border: "border-cyan-400/30",
                       accent: "text-cyan-300 border-cyan-400 hover:bg-cyan-500",
                     },
                     {
-                      gradient: "from-[#1b1335]/90 via-[#2c1e5c]/90 to-[#3a2780]/90",
+                      gradient:
+                        "from-[#1b1335]/90 via-[#2c1e5c]/90 to-[#3a2780]/90",
                       border: "border-violet-400/30",
-                      accent: "text-violet-300 border-violet-400 hover:bg-violet-500",
+                      accent:
+                        "text-violet-300 border-violet-400 hover:bg-violet-500",
                     },
                   ][index % 3];
 
@@ -472,12 +483,12 @@ function Home() {
                         flex flex-col`}
                     >
                       <img
-                        src={getStaticImage(index) || course.image}
+                        src={course.image}
                         alt={course.course_name}
                         className="rounded-xl mb-4 h-48 w-full object-cover border border-white/10 group-hover:border-white/30 transition-all duration-300"
                         onError={(e) => {
                           e.currentTarget.onerror = null;
-                          e.currentTarget.src = getStaticImage(index) || course.image;
+                          e.currentTarget.src = course.image;
                         }}
                       />
 
@@ -487,14 +498,16 @@ function Home() {
                         {course.course_name}
                       </h3>
 
-                      <p className="text-gray-300 mb-3 line-clamp-3">{course.description}</p>
+                      <p className="text-gray-300 mb-3 line-clamp-3">
+                        {course.description}
+                      </p>
 
                       <div className="flex justify-between text-sm text-gray-300 mb-3">
                         <span>{course.category || "—"}</span>
 
                         <span className="text-right">
                           {course.price_without_discount &&
-                            course.price_without_discount > course.price ? (
+                          course.price_without_discount > course.price ? (
                             <span className="flex flex-col items-end leading-tight">
                               <span className="text-xs text-red-500 line-through">
                                 ₹{course.price_without_discount}
