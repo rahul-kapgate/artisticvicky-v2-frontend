@@ -19,6 +19,7 @@ import type {
 import { motion } from "framer-motion";
 import NotificationsSection from "@/components/NotificationsSection";
 import Vicky from "/vicky.jpg";
+import FreeMockPopup from "@/components/FreeMockPopup";
 
 // Reasons Section
 const reasons = [
@@ -183,6 +184,7 @@ function Home() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-50 via-white to-white text-gray-800 scroll-smooth mt-14">
+       <FreeMockPopup />
       {/* ---------------- Hero Section ---------------- */}
       <section className="relative flex flex-col justify-center items-center h-[60vh] lg:h-[85vh]  text-center text-white overflow-hidden">
         {/* 🔹 Static gradient background */}
