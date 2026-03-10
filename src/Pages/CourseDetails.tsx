@@ -2,17 +2,10 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState, useContext } from "react";
 import { apiClient } from "@/utils/axiosConfig";
 import type { Course } from "@/types/course";
-import {
-  Calendar,
-  Clock,
-  Globe,
-  Layers,
-  Users,
-  Star,
-  FileText,
-} from "lucide-react";
+import { Calendar, Clock, Globe, Layers, Users, Star } from "lucide-react";
 import { AuthContext } from "@/context/AuthContext";
 import Login from "@/components/Login";
+import Register from "@/components/Register";
 
 const FREE_MOCK_COURSE_ID = "12";
 const TOTAL_FREE_MOCK_TESTS = 3;
@@ -33,6 +26,7 @@ export default function CourseDetails() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [loginOpen, setLoginOpen] = useState(false);
+  const [registerOpen, setRegisterOpen] = useState(false);
   const [isEnrolled, setIsEnrolled] = useState(false);
 
   const [freeMockTestsLeft, setFreeMockTestsLeft] = useState(
@@ -76,9 +70,7 @@ export default function CourseDetails() {
             );
 
             const attempts: MockAttempt[] = attemptsRes.data?.data || [];
-
             const used = attempts.length;
-            console.log("Used free mock attempts:", used);
             const left = Math.max(TOTAL_FREE_MOCK_TESTS - used, 0);
 
             setUsedMockTests(used);
@@ -392,7 +384,16 @@ export default function CourseDetails() {
         </aside>
       </div>
 
-      <Login open={loginOpen} onOpenChange={setLoginOpen} />
+      <Login
+        open={loginOpen}
+        onOpenChange={setLoginOpen}
+        onOpenRegister={() => {
+          setLoginOpen(false);
+          setRegisterOpen(true);
+        }}
+      />
+
+      <Register open={registerOpen} onOpenChange={setRegisterOpen} />
     </section>
   );
 }
