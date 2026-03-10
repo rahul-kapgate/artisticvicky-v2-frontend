@@ -48,6 +48,37 @@ function Header() {
     return () => document.removeEventListener("click", handleClickOutside);
   }, []);
 
+    useEffect(() => {
+    const handleOpenAuthModal = (
+      e: Event,
+    ) => {
+      const customEvent = e as CustomEvent<{
+        mode?: "login" | "register" | "forgot";
+      }>;
+
+      const mode = customEvent.detail?.mode || "login";
+
+      setIsOpen(false);
+      setIsProfileOpen(false);
+
+      setLoginOpen(mode === "login");
+      setRegisterOpen(mode === "register");
+      setForgotOpen(mode === "forgot");
+    };
+
+    window.addEventListener(
+      "open-auth-modal",
+      handleOpenAuthModal as EventListener,
+    );
+
+    return () => {
+      window.removeEventListener(
+        "open-auth-modal",
+        handleOpenAuthModal as EventListener,
+      );
+    };
+  }, []);
+
   // Smooth scroll to section
   const handleNavClick = (id: string) => {
     if (location.pathname !== "/") {
