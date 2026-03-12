@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import CustomWarningDialog from "@/components/CustomWarningDialog";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 interface Option {
   id: number;
@@ -75,6 +75,24 @@ export default function MockTestPage({ type }: MockTestPageProps) {
   const navigate = useNavigate();
   const params = useParams();
   const id = params.id;
+  const location = useLocation();
+
+  const shouldShowFreeMockPromo =
+    type === "mock" && location.state?.source === "free-mock";
+
+  const whatsappNumber = "9325217691";
+
+  const bfaCourseMessage = encodeURIComponent(
+    `Hi, I just completed the free mock test and scored ${result?.score ?? 0}/${result?.totalQuestions ?? 0}. I’m interested in joining the MAH AAC CET Entrance Exam Preparation Course. Please share the details.`,
+  );
+
+  const paidMockTestMessage = encodeURIComponent(
+    `Hi, I just completed the free mock test and scored ${result?.score ?? 0}/${result?.totalQuestions ?? 0}. I’m interested in joining the Paid Mock Test for better evaluation. Please share the details.`,
+  );
+
+  const openWhatsApp = (message: string) => {
+    window.open(`https://wa.me/${whatsappNumber}?text=${message}`, "_blank");
+  };
 
   // 🚨 Warn user on refresh / back
   useEffect(() => {
@@ -115,9 +133,10 @@ export default function MockTestPage({ type }: MockTestPageProps) {
             ? `/api/mock-test/${1}/questions`
             : `/api/pyq-mock-test/paper/${id}/questions`;
 
-        const { data } = await apiClient.get<{ success: boolean; data: Question[] }>(
-          endpoint
-        );
+        const { data } = await apiClient.get<{
+          success: boolean;
+          data: Question[];
+        }>(endpoint);
 
         if (data.success) {
           setQuestions(data.data);
@@ -177,11 +196,13 @@ export default function MockTestPage({ type }: MockTestPageProps) {
         ([question_id, selected_option_id]) => ({
           question_id: Number(question_id),
           selected_option_id: Number(selected_option_id),
-        })
+        }),
       );
 
       const endpoint =
-        type === "mock" ? "/api/mock-test/submit" : "/api/pyq-mock-test/attempt/submit";
+        type === "mock"
+          ? "/api/mock-test/submit"
+          : "/api/pyq-mock-test/attempt/submit";
 
       const payload =
         type === "mock"
@@ -251,8 +272,13 @@ export default function MockTestPage({ type }: MockTestPageProps) {
                   You will have <strong>1 hour</strong> to complete the test.
                 </li>
                 <li>Each question carries equal marks.</li>
-                <li>You can review and modify your answers anytime before submitting.</li>
-                <li>Switching tabs or closing the window may auto-submit the test.</li>
+                <li>
+                  You can review and modify your answers anytime before
+                  submitting.
+                </li>
+                <li>
+                  Switching tabs or closing the window may auto-submit the test.
+                </li>
                 <li>Ensure a stable internet connection throughout.</li>
               </ul>
 
@@ -305,36 +331,137 @@ export default function MockTestPage({ type }: MockTestPageProps) {
       </div>
     );
 
-  if (result)
-    return (
-      <div className="min-h-screen flex flex-col justify-center items-center text-center bg-gradient-to-b from-[#0f1b3d] via-[#152a52] to-[#1a237e] text-gray-100 px-4">
-        <Trophy className="w-14 h-14 text-yellow-400 mb-4 animate-bounce" />
-        <h1 className="text-3xl font-bold mb-2">
-          🎯 {type === "mock" ? "Mock" : "PYQ"} Test Completed!
-        </h1>
-        <p className="text-lg mb-6">
-          You scored{" "}
-          <span className="text-cyan-300 font-semibold">{result.score}</span> /{" "}
-          {result.totalQuestions}
-        </p>
-        <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 w-full max-w-md mx-auto">
-          <Button
-            onClick={() => navigate(-2)}
-            className="flex-1 bg-gradient-to-r from-purple-500 via-indigo-600 to-blue-700 hover:opacity-90 rounded-xl px-6 py-3 text-sm sm:text-base"
-          >
-            <ArrowLeftSquare />
-            Back
-          </Button>
+  if (result) {
+    if (shouldShowFreeMockPromo) {
+      return (
+        <div className="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#111827] to-[#1e293b] text-white px-4 py-10">
+          <div className="max-w-3xl mx-auto">
+            <Card className="bg-white/10 border-white/20 backdrop-blur-xl rounded-3xl p-8 text-center shadow-2xl">
+              <h1 className="text-3xl sm:text-4xl font-extrabold bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-400 bg-clip-text text-transparent">
+                Mock Test Completed!
+              </h1>
 
-          <Button
-            onClick={() => navigate("/profile")}
-            className="flex-1 bg-gradient-to-r from-purple-500 via-indigo-600 to-blue-700 hover:opacity-90 rounded-xl px-6 py-3 text-sm sm:text-base"
-          >
-            View Detailed Results
-          </Button>
+              <p className="mt-4 text-lg sm:text-xl text-gray-200">
+                You scored{" "}
+                <span className="font-bold text-cyan-300">
+                  {result.score} / {result.totalQuestions}
+                </span>
+              </p>
+
+              <div className="mt-8 rounded-2xl border border-cyan-400/30 bg-white/5 p-6 text-left shadow-lg">
+                <p className="text-lg font-semibold text-green-300">
+                  Excellent try! 👏
+                </p>
+
+                <p className="mt-2 text-gray-200 leading-7">
+                  You can improve even more, so consider joining our{" "}
+                  <span className="font-semibold text-cyan-300">
+                    BFA Entrance Exam Preparation Course
+                  </span>{" "}
+                  for complete guidance! 🚀
+                </p>
+
+                <div className="mt-5">
+                  <p className="font-semibold text-white mb-3">
+                    What will you get? 📚
+                  </p>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm sm:text-base text-gray-200">
+                    <div>🔴 Live Classes (Real-time learning)</div>
+                    <div>🎥 Video Lectures (In-depth concepts)</div>
+                    <div>📼 Recorded Videos (Watch anytime, anywhere)</div>
+                    <div>📖 E-Books (Digital study material)</div>
+                    <div>📝 Mock Tests (Real exam feel)</div>
+                    <div>✍️ Practical Questions (Hands-on practice)</div>
+                    <div>📊 Test Series (Track your progress)</div>
+                    <div>📜 PYQs (Previous Year Question papers)</div>
+                  </div>
+                </div>
+
+                <div className="mt-5 rounded-xl bg-cyan-500/10 border border-cyan-400/20 p-4">
+                  <p className="text-gray-100 font-medium">
+                    Looking for a quick assessment? 🤔
+                  </p>
+                  <p className="mt-1 text-gray-300">
+                    Join our{" "}
+                    <span className="font-semibold text-cyan-300">
+                      Paid Mock Test
+                    </span>{" "}
+                    for better evaluation! 📝✅
+                  </p>
+                </div>
+
+                <div className="mt-6 flex flex-col sm:flex-row gap-3">
+                  <Button
+                    onClick={() => openWhatsApp(bfaCourseMessage)}
+                    className="flex-1 bg-gradient-to-r from-pink-500 to-red-600 hover:opacity-90 rounded-xl"
+                  >
+                    Join MAH AAC CET Course
+                  </Button>
+
+                  <Button
+                    onClick={() => openWhatsApp(paidMockTestMessage)}
+                    variant="outline"
+                    className="flex-1 rounded-xl border-cyan-400/40 bg-transparent text-white hover:bg-white/10"
+                  >
+                    Join Paid Mock Test
+                  </Button>
+                </div>
+              </div>
+
+              <div className="mt-8 flex flex-col sm:flex-row gap-4">
+                <Button
+                  onClick={() => navigate(-2)}
+                  className="flex-1 bg-gradient-to-r from-purple-500 via-indigo-600 to-blue-700 hover:opacity-90 rounded-xl px-6 py-3 text-sm sm:text-base"
+                >
+                  Back
+                </Button>
+
+                <Button
+                  onClick={() => navigate("/profile")}
+                  className="flex-1 bg-gradient-to-r from-purple-500 via-indigo-600 to-blue-700 hover:opacity-90 rounded-xl px-6 py-3 text-sm sm:text-base"
+                >
+                  View Detailed Results
+                </Button>
+              </div>
+            </Card>
+          </div>
         </div>
-      </div>
+      );
+    }
+
+    return (
+      <>
+        <div className="min-h-screen flex flex-col justify-center items-center text-center bg-gradient-to-b from-[#0f1b3d] via-[#152a52] to-[#1a237e] text-gray-100 px-4">
+          <Trophy className="w-14 h-14 text-yellow-400 mb-4 animate-bounce" />
+          <h1 className="text-3xl font-bold mb-2">
+            🎯 {type === "mock" ? "Mock" : "PYQ"} Test Completed!
+          </h1>
+          <p className="text-lg mb-6">
+            You scored{" "}
+            <span className="text-cyan-300 font-semibold">{result.score}</span>{" "}
+            / {result.totalQuestions}
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 w-full max-w-md mx-auto">
+            <Button
+              onClick={() => navigate(-2)}
+              className="flex-1 bg-gradient-to-r from-purple-500 via-indigo-600 to-blue-700 hover:opacity-90 rounded-xl px-6 py-3 text-sm sm:text-base"
+            >
+              <ArrowLeftSquare />
+              Back
+            </Button>
+
+            <Button
+              onClick={() => navigate("/profile")}
+              className="flex-1 bg-gradient-to-r from-purple-500 via-indigo-600 to-blue-700 hover:opacity-90 rounded-xl px-6 py-3 text-sm sm:text-base"
+            >
+              View Detailed Results
+            </Button>
+          </div>
+        </div>
+      </>
     );
+  }
 
   const currentQuestion = questions[currentIndex];
   const progress = ((currentIndex + 1) / questions.length) * 100;
@@ -362,12 +489,13 @@ export default function MockTestPage({ type }: MockTestPageProps) {
                 <button
                   key={idx}
                   onClick={() => handleScrollToQuestion(idx)}
-                  className={`rounded-full w-10 h-10 text-sm font-semibold border transition-all duration-200 ${isActive
+                  className={`rounded-full w-10 h-10 text-sm font-semibold border transition-all duration-200 ${
+                    isActive
                       ? "border-cyan-400 bg-cyan-500/20 text-cyan-300"
                       : isAnswered
                         ? "bg-green-500/20 border-green-400 text-green-300"
                         : "bg-white/5 border-white/20 hover:border-cyan-400/40"
-                    }`}
+                  }`}
                 >
                   {idx + 1}
                 </button>
@@ -392,7 +520,6 @@ export default function MockTestPage({ type }: MockTestPageProps) {
       >
         <ListChecks className="w-5 h-5" />
       </button>
-
 
       <AnimatePresence>
         {trackerOpen && (
@@ -428,12 +555,13 @@ export default function MockTestPage({ type }: MockTestPageProps) {
                     <button
                       key={idx}
                       onClick={() => handleScrollToQuestion(idx)}
-                      className={`rounded-full w-10 h-10 text-sm font-semibold border transition-all ${isActive
+                      className={`rounded-full w-10 h-10 text-sm font-semibold border transition-all ${
+                        isActive
                           ? "border-cyan-400 bg-cyan-500/20 text-cyan-300"
                           : isAnswered
                             ? "bg-green-500/20 border-green-400 text-green-300"
                             : "bg-white/5 border-white/20 hover:border-cyan-400/40"
-                        }`}
+                      }`}
                     >
                       {idx + 1}
                     </button>
@@ -500,16 +628,19 @@ export default function MockTestPage({ type }: MockTestPageProps) {
                   {currentQuestion.options.map((opt) => (
                     <label
                       key={opt.id}
-                      className={`flex items-center gap-2 p-2 rounded-lg border cursor-pointer transition-all ${answers[currentQuestion.id] === opt.id
+                      className={`flex items-center gap-2 p-2 rounded-lg border cursor-pointer transition-all ${
+                        answers[currentQuestion.id] === opt.id
                           ? "border-cyan-400 bg-cyan-500/10"
                           : "border-white/10 hover:border-cyan-400/30"
-                        }`}
+                      }`}
                     >
                       <input
                         type="radio"
                         name={`question-${currentQuestion.id}`}
                         checked={answers[currentQuestion.id] === opt.id}
-                        onChange={() => handleSelect(currentQuestion.id, opt.id)}
+                        onChange={() =>
+                          handleSelect(currentQuestion.id, opt.id)
+                        }
                         className="accent-cyan-400 w-4 h-4"
                       />
                       <span>{opt.text}</span>
