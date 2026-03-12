@@ -73,13 +73,26 @@ export default function MockTestPage({ type }: MockTestPageProps) {
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [warningOpen, setWarningOpen] = useState(false);
   const navigate = useNavigate();
+  const params = useParams();
+  const id = params.id;
   const location = useLocation();
 
   const shouldShowFreeMockPromo =
     type === "mock" && location.state?.source === "free-mock";
 
-  const params = useParams();
-  const id = params.id;
+  const whatsappNumber = "9325217691";
+
+  const bfaCourseMessage = encodeURIComponent(
+    `Hi, I just completed the free mock test and scored ${result?.score ?? 0}/${result?.totalQuestions ?? 0}. I’m interested in joining the MAH AAC CET Entrance Exam Preparation Course. Please share the details.`,
+  );
+
+  const paidMockTestMessage = encodeURIComponent(
+    `Hi, I just completed the free mock test and scored ${result?.score ?? 0}/${result?.totalQuestions ?? 0}. I’m interested in joining the Paid Mock Test for better evaluation. Please share the details.`,
+  );
+
+  const openWhatsApp = (message: string) => {
+    window.open(`https://wa.me/${whatsappNumber}?text=${message}`, "_blank");
+  };
 
   // 🚨 Warn user on refresh / back
   useEffect(() => {
@@ -318,37 +331,23 @@ export default function MockTestPage({ type }: MockTestPageProps) {
       </div>
     );
 
-  const whatsappNumber = "9325217691";
+  if (result) {
+    if (shouldShowFreeMockPromo) {
+      return (
+        <div className="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#111827] to-[#1e293b] text-white px-4 py-10">
+          <div className="max-w-3xl mx-auto">
+            <Card className="bg-white/10 border-white/20 backdrop-blur-xl rounded-3xl p-8 text-center shadow-2xl">
+              <h1 className="text-3xl sm:text-4xl font-extrabold bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-400 bg-clip-text text-transparent">
+                Mock Test Completed!
+              </h1>
 
-  const bfaCourseMessage = encodeURIComponent(
-    "Hi, I just completed the free mock test and I’m interested in joining the MAH AAC CET Entrance Exam Preparation Course. Please share the details.",
-  );
+              <p className="mt-4 text-lg sm:text-xl text-gray-200">
+                You scored{" "}
+                <span className="font-bold text-cyan-300">
+                  {result.score} / {result.totalQuestions}
+                </span>
+              </p>
 
-  const paidMockTestMessage = encodeURIComponent(
-    "Hi, I just completed the free mock test and I’m interested in joining the Paid Mock Test for better evaluation. Please share the details.",
-  );
-
-  const openWhatsApp = (message: string) => {
-    window.open(`https://wa.me/${whatsappNumber}?text=${message}`, "_blank");
-  };
-
-  if (result)
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#111827] to-[#1e293b] text-white px-4 py-10">
-        <div className="max-w-3xl mx-auto">
-          <Card className="bg-white/10 border-white/20 backdrop-blur-xl rounded-3xl p-8 text-center shadow-2xl">
-            <h1 className="text-3xl sm:text-4xl font-extrabold bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-400 bg-clip-text text-transparent">
-              {type === "mock" ? "Mock" : "PYQ"} Test Completed!
-            </h1>
-
-            <p className="mt-4 text-lg sm:text-xl text-gray-200">
-              You scored{" "}
-              <span className="font-bold text-cyan-300">
-                {result.score} / {result.totalQuestions}
-              </span>
-            </p>
-
-            {shouldShowFreeMockPromo && (
               <div className="mt-8 rounded-2xl border border-cyan-400/30 bg-white/5 p-6 text-left shadow-lg">
                 <p className="text-lg font-semibold text-green-300">
                   Excellent try! 👏
@@ -409,27 +408,60 @@ export default function MockTestPage({ type }: MockTestPageProps) {
                   </Button>
                 </div>
               </div>
-            )}
 
-            <div className="mt-8 flex flex-col sm:flex-row gap-4">
-              <Button
-                onClick={() => navigate(-2)}
-                className="flex-1 bg-gradient-to-r from-purple-500 via-indigo-600 to-blue-700 hover:opacity-90 rounded-xl px-6 py-3 text-sm sm:text-base"
-              >
-                Back
-              </Button>
+              <div className="mt-8 flex flex-col sm:flex-row gap-4">
+                <Button
+                  onClick={() => navigate(-2)}
+                  className="flex-1 bg-gradient-to-r from-purple-500 via-indigo-600 to-blue-700 hover:opacity-90 rounded-xl px-6 py-3 text-sm sm:text-base"
+                >
+                  Back
+                </Button>
 
-              <Button
-                onClick={() => navigate("/profile")}
-                className="flex-1 bg-gradient-to-r from-purple-500 via-indigo-600 to-blue-700 hover:opacity-90 rounded-xl px-6 py-3 text-sm sm:text-base"
-              >
-                View Detailed Results
-              </Button>
-            </div>
-          </Card>
+                <Button
+                  onClick={() => navigate("/profile")}
+                  className="flex-1 bg-gradient-to-r from-purple-500 via-indigo-600 to-blue-700 hover:opacity-90 rounded-xl px-6 py-3 text-sm sm:text-base"
+                >
+                  View Detailed Results
+                </Button>
+              </div>
+            </Card>
+          </div>
         </div>
-      </div>
+      );
+    }
+
+    return (
+      <>
+        <div className="min-h-screen flex flex-col justify-center items-center text-center bg-gradient-to-b from-[#0f1b3d] via-[#152a52] to-[#1a237e] text-gray-100 px-4">
+          <Trophy className="w-14 h-14 text-yellow-400 mb-4 animate-bounce" />
+          <h1 className="text-3xl font-bold mb-2">
+            🎯 {type === "mock" ? "Mock" : "PYQ"} Test Completed!
+          </h1>
+          <p className="text-lg mb-6">
+            You scored{" "}
+            <span className="text-cyan-300 font-semibold">{result.score}</span>{" "}
+            / {result.totalQuestions}
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 w-full max-w-md mx-auto">
+            <Button
+              onClick={() => navigate(-2)}
+              className="flex-1 bg-gradient-to-r from-purple-500 via-indigo-600 to-blue-700 hover:opacity-90 rounded-xl px-6 py-3 text-sm sm:text-base"
+            >
+              <ArrowLeftSquare />
+              Back
+            </Button>
+
+            <Button
+              onClick={() => navigate("/profile")}
+              className="flex-1 bg-gradient-to-r from-purple-500 via-indigo-600 to-blue-700 hover:opacity-90 rounded-xl px-6 py-3 text-sm sm:text-base"
+            >
+              View Detailed Results
+            </Button>
+          </div>
+        </div>
+      </>
     );
+  }
 
   const currentQuestion = questions[currentIndex];
   const progress = ((currentIndex + 1) / questions.length) * 100;
