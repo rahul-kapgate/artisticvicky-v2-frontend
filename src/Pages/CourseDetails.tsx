@@ -147,7 +147,12 @@ export default function CourseDetails() {
       return;
     }
 
-    navigate(`/my-courses/${course.id}/mock-test`);
+    navigate(`/my-courses/${course.id}/mock-test`, {
+      state: {
+        source: "free-mock",
+        courseId: course.id,
+      },
+    });
   };
 
   const handleMainButton = () => {
