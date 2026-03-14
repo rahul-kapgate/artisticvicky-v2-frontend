@@ -184,7 +184,7 @@ function Home() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-50 via-white to-white text-gray-800 scroll-smooth mt-14">
-       <FreeMockPopup />
+      <FreeMockPopup />
       {/* ---------------- Hero Section ---------------- */}
       <section className="relative flex flex-col justify-center items-center h-[60vh] lg:h-[85vh]  text-center text-white overflow-hidden">
         {/* 🔹 Static gradient background */}
@@ -454,6 +454,7 @@ function Home() {
             >
               <div className="flex gap-6">
                 {courses.map((course, index) => {
+                  const isMasterclass = course.course_type === "masterclass";
                   const cardStyles = [
                     {
                       gradient: "from-[#2b1a4a] via-[#3c1e65] to-[#472181]",
@@ -505,7 +506,11 @@ function Home() {
                       </p>
 
                       <div className="flex justify-between text-sm text-gray-300 mb-3">
-                        <span>{course.category || "—"}</span>
+                        <span>
+                          {isMasterclass
+                            ? "🎓 Masterclass"
+                            : course.category || "—"}
+                        </span>
 
                         <span className="text-right">
                           {course.price_without_discount &&
@@ -531,7 +536,7 @@ function Home() {
                         className={`mt-auto w-full py-2 rounded-lg font-semibold border ${cardStyles.accent}
       text-white/90 hover:text-white transition-all duration-300`}
                       >
-                        Enroll Now ✨
+                        {isMasterclass ? "View Masterclass ✨" : "Enroll Now ✨"}
                       </button>
                     </article>
                   );
