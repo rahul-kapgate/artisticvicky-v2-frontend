@@ -10,8 +10,6 @@ import {
   Users,
   Star,
   Video,
-  FileText,
-  ShieldCheck,
 } from "lucide-react";
 import { AuthContext } from "@/context/AuthContext";
 import Login from "@/components/Login";
