@@ -2,7 +2,17 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState, useContext } from "react";
 import { apiClient } from "@/utils/axiosConfig";
 import type { Course } from "@/types/course";
-import { Calendar, Clock, Globe, Layers, Users, Star } from "lucide-react";
+import {
+  Calendar,
+  Clock,
+  Globe,
+  Layers,
+  Users,
+  Star,
+  Video,
+  FileText,
+  ShieldCheck,
+} from "lucide-react";
 import { AuthContext } from "@/context/AuthContext";
 import Login from "@/components/Login";
 import Register from "@/components/Register";
@@ -58,10 +68,11 @@ export default function CourseDetails() {
           setIsEnrolled(false);
         }
 
-        if (
+        const isFreeMockCourse =
           String(fetchedCourse?.id) === FREE_MOCK_COURSE_ID &&
-          currentUser?.id
-        ) {
+          fetchedCourse?.course_type !== "masterclass";
+
+        if (isFreeMockCourse && currentUser?.id) {
           setAttemptsLoading(true);
 
           try {
@@ -117,16 +128,76 @@ export default function CourseDetails() {
     return <p className="text-center text-gray-300 mt-10">Course not found.</p>;
   }
 
-  const createdDate = new Date(course.created_at).toLocaleDateString("en-IN", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
+  const createdDate = course.created_at
+    ? new Date(course.created_at).toLocaleDateString("en-IN", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      })
+    : "N/A";
 
-  const isFreeMockCourse = String(course.id) === FREE_MOCK_COURSE_ID;
+  const isMasterclass = course.course_type === "masterclass";
+  const masterclass = course.masterclass_details;
+
+  const isFreeMockCourse =
+    String(course.id) === FREE_MOCK_COURSE_ID && !isMasterclass;
+
   const showFreeMockCard = isFreeMockCourse && !isEnrolled;
-
   const isMockButtonDisabled = !!currentUser && freeMockTestsLeft <= 0;
+
+  const formatDateTime = (value?: string | null) => {
+    if (!value) return "N/A";
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return "N/A";
+
+    return date.toLocaleString("en-IN", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
+  const isMeetingVisible = () => {
+    if (!isMasterclass || !masterclass?.masterclass_start_at) return false;
+
+    const start = new Date(masterclass.masterclass_start_at).getTime();
+    const beforeMinutes = masterclass.meeting_visible_before_minutes ?? 15;
+    const visibleAt = start - beforeMinutes * 60 * 1000;
+
+    return Date.now() >= visibleAt;
+  };
+
+  const getMainButtonText = () => {
+    if (isMasterclass) {
+      if (isEnrolled && isMeetingVisible() && masterclass?.meeting_url) {
+        return "Join Masterclass 🚀";
+      }
+      if (isEnrolled) {
+        return "View Masterclass 🚀";
+      }
+      return "Book Masterclass 🚀";
+    }
+
+    return isEnrolled ? "Continue learning 🚀" : "Enroll Now 🚀";
+  };
+
+  const getSidebarNote = () => {
+    if (isMasterclass) {
+      if (isEnrolled && isMeetingVisible() && masterclass?.meeting_url) {
+        return "Your meeting link is now available.";
+      }
+      if (isEnrolled) {
+        return "You are enrolled in this masterclass. Meeting link will be available before start time.";
+      }
+      return "Reserve your seat and join this live masterclass experience.";
+    }
+
+    return isEnrolled
+      ? "You're already enrolled! Continue learning and explore new modules."
+      : "Learn. Create. Showcase. • Guided lessons • Join our creative community";
+  };
 
   const handleEnrollNow = () => {
     if (!currentUser) {
@@ -161,6 +232,21 @@ export default function CourseDetails() {
       return;
     }
 
+    if (isMasterclass) {
+      if (!isEnrolled) {
+        window.open("https://wa.me/9325217691", "_blank");
+        return;
+      }
+
+      if (isMeetingVisible() && masterclass?.meeting_url) {
+        window.open(masterclass.meeting_url, "_blank");
+        return;
+      }
+
+      navigate(`/my-courses/${course.id}`);
+      return;
+    }
+
     if (isEnrolled) {
       navigate(`/my-courses/${course.id}`);
     } else {
@@ -178,7 +264,9 @@ export default function CourseDetails() {
         />
         <div className="absolute inset-0 bg-black/40 flex flex-col justify-end p-8 md:p-12">
           <span className="text-cyan-300 uppercase tracking-wide text-sm mb-2">
-            {course.category || "Uncategorized"}
+            {isMasterclass
+              ? "Live Masterclass"
+              : course.category || "Uncategorized"}
           </span>
           <h1 className="text-4xl md:text-5xl font-extrabold leading-tight text-white mb-3">
             {course.course_name}
@@ -194,34 +282,67 @@ export default function CourseDetails() {
           <div className="grid sm:grid-cols-2 gap-5 bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/10">
             <MetaItem
               icon={<Layers className="w-5 h-5 text-cyan-400" />}
-              label="Category"
-              value={course.category || "N/A"}
+              label={isMasterclass ? "Type" : "Category"}
+              value={isMasterclass ? "Masterclass" : course.category || "N/A"}
             />
+
             <MetaItem
               icon={<Clock className="w-5 h-5 text-cyan-400" />}
               label="Duration"
               value={course.duration || "N/A"}
             />
+
             <MetaItem
               icon={<Globe className="w-5 h-5 text-cyan-400" />}
               label="Language"
               value={course.language || "N/A"}
             />
+
             <MetaItem
               icon={<Users className="w-5 h-5 text-cyan-400" />}
               label="Students Enrolled"
               value={course.students_enrolled?.length ?? 0}
             />
-            <MetaItem
-              icon={<Star className="w-5 h-5 text-yellow-400" />}
-              label="Rating"
-              value={`${course.rating || 0} ⭐`}
-            />
+
+            {!isMasterclass ? (
+              <MetaItem
+                icon={<Star className="w-5 h-5 text-yellow-400" />}
+                label="Rating"
+                value={`${course.rating || 0} ⭐`}
+              />
+            ) : (
+              <MetaItem
+                icon={<Video className="w-5 h-5 text-cyan-400" />}
+                label="Meeting Provider"
+                value={
+                  masterclass?.meeting_provider
+                    ? masterclass.meeting_provider.replace("_", " ")
+                    : "N/A"
+                }
+              />
+            )}
+
             <MetaItem
               icon={<Calendar className="w-5 h-5 text-cyan-400" />}
               label="Created On"
               value={createdDate}
             />
+
+            {isMasterclass && (
+              <>
+                <MetaItem
+                  icon={<Calendar className="w-5 h-5 text-cyan-400" />}
+                  label="Starts At"
+                  value={formatDateTime(masterclass?.masterclass_start_at)}
+                />
+
+                <MetaItem
+                  icon={<Calendar className="w-5 h-5 text-cyan-400" />}
+                  label="Ends At"
+                  value={formatDateTime(masterclass?.masterclass_end_at)}
+                />
+              </>
+            )}
           </div>
 
           <div>
@@ -332,7 +453,7 @@ export default function CourseDetails() {
             <>
               {(!currentUser || !isEnrolled) && !isFreeMockCourse && (
                 <div className="flex flex-col items-center text-center">
-                  <span className="text-gray-300 text-sm">Course Price</span>
+                  <span className="text-gray-300 text-sm">  {isMasterclass ? "Masterclass Price" : "Course Price"}</span>
 
                   <div className="mt-2 flex items-end justify-center gap-3">
                     <h3 className="text-4xl font-extrabold text-emerald-400 leading-none">
@@ -376,13 +497,11 @@ export default function CourseDetails() {
                     : "bg-cyan-600 hover:bg-cyan-500"
                 }`}
               >
-                {isEnrolled ? "Continue learning 🚀" : "Enroll Now 🚀"}
+                {getMainButtonText()}
               </button>
 
               <p className="text-center text-gray-400 text-sm">
-                {isEnrolled
-                  ? "You're already enrolled! Continue learning and explore new modules."
-                  : "Learn. Create. Showcase. • Guided lessons • Join our creative community"}
+              {getSidebarNote()}
               </p>
             </>
           )}
