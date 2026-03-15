@@ -1,5 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useState, useContext, useMemo } from "react";
+import type { ReactNode } from "react";
 import { apiClient } from "@/utils/axiosConfig";
 import type { Course } from "@/types/course";
 import {
@@ -10,6 +11,8 @@ import {
   Users,
   Star,
   Video,
+  Presentation,
+  ExternalLink,
 } from "lucide-react";
 import { AuthContext } from "@/context/AuthContext";
 import Login from "@/components/Login";
@@ -26,11 +29,43 @@ type MockAttempt = {
   submitted_at: string;
 };
 
+type MasterclassDetails = {
+  id: number;
+  course_id: number;
+  masterclass_start_at: string;
+  masterclass_end_at: string;
+  meeting_provider: "zoom" | "google_meet" | "custom" | null;
+  meeting_url: string | null;
+  meeting_visible_before_minutes: number;
+  approval_required: boolean;
+  ppt_file_url: string | null;
+  ppt_file_name: string | null;
+  masterclass_status: "draft" | "published" | "completed" | "cancelled";
+  created_at: string;
+  updated_at: string;
+};
+
+type CourseWithMasterclass = Course & {
+  course_type?: "course" | "masterclass";
+  masterclass_details?: MasterclassDetails | null;
+  students_enrolled?: number[];
+  tags?: string[];
+  rating?: number;
+  price_without_discount?: number;
+  created_at?: string;
+  category?: string;
+  duration?: string;
+  language?: string;
+  image?: string;
+  description?: string;
+  price?: number;
+};
+
 export default function CourseDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const [course, setCourse] = useState<Course | null>(null);
+  const [course, setCourse] = useState<CourseWithMasterclass | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [loginOpen, setLoginOpen] = useState(false);
@@ -45,27 +80,35 @@ export default function CourseDetails() {
 
   const { user } = useContext(AuthContext);
 
-  const storedUser = JSON.parse(localStorage.getItem("user") || "null");
+  // Read fallback user from localStorage
+  const storedUser = useMemo(() => {
+    try {
+      return JSON.parse(localStorage.getItem("user") || "null");
+    } catch {
+      return null;
+    }
+  }, []);
+
   const currentUser = user || storedUser;
 
   useEffect(() => {
     const fetchCourseAndAttempts = async () => {
       try {
         setLoading(true);
+        setError(null);
 
+        // Fetch course details from backend
         const { data } = await apiClient.get(`/api/course/${id}`);
-        const fetchedCourse = data.data;
+        const fetchedCourse: CourseWithMasterclass = data?.data;
         setCourse(fetchedCourse);
 
-        if (currentUser && fetchedCourse?.students_enrolled) {
-          const userEnrolled = fetchedCourse.students_enrolled.includes(
-            currentUser.id,
-          );
-          setIsEnrolled(userEnrolled);
-        } else {
-          setIsEnrolled(false);
-        }
+        // Check enrollment state
+        const enrolledList = fetchedCourse?.students_enrolled || [];
+        const userEnrolled =
+          !!currentUser?.id && enrolledList.includes(Number(currentUser.id));
+        setIsEnrolled(userEnrolled);
 
+        // Free mock logic applies only to normal course, not masterclass
         const isFreeMockCourse =
           String(fetchedCourse?.id) === FREE_MOCK_COURSE_ID &&
           fetchedCourse?.course_type !== "masterclass";
@@ -95,24 +138,27 @@ export default function CourseDetails() {
           setUsedMockTests(0);
           setFreeMockTestsLeft(TOTAL_FREE_MOCK_TESTS);
         }
-      } catch {
+      } catch (fetchErr) {
+        console.error("Failed to load course details:", fetchErr);
         setError("Failed to load course details");
       } finally {
         setLoading(false);
       }
     };
 
-    if (id) fetchCourseAndAttempts();
-  }, [id, user]);
+    if (id) {
+      fetchCourseAndAttempts();
+    }
+  }, [id, currentUser?.id]);
 
   if (loading) {
     return (
       <section className="pt-28 pb-12 px-6 bg-gradient-to-b from-[#0f1b3d] to-[#1a237e] text-gray-100">
         <div className="max-w-4xl mx-auto animate-pulse">
-          <div className="w-full h-80 bg-gray-700 rounded-xl mb-6"></div>
-          <div className="h-8 bg-gray-700 rounded w-2/3 mb-4"></div>
-          <div className="h-4 bg-gray-700 rounded w-full mb-3"></div>
-          <div className="h-4 bg-gray-700 rounded w-5/6 mb-6"></div>
+          <div className="w-full h-80 bg-gray-700 rounded-xl mb-6" />
+          <div className="h-8 bg-gray-700 rounded w-2/3 mb-4" />
+          <div className="h-4 bg-gray-700 rounded w-full mb-3" />
+          <div className="h-4 bg-gray-700 rounded w-5/6 mb-6" />
         </div>
       </section>
     );
@@ -135,7 +181,7 @@ export default function CourseDetails() {
     : "N/A";
 
   const isMasterclass = course.course_type === "masterclass";
-  const masterclass = course.masterclass_details;
+  const masterclass = course.masterclass_details || null;
 
   const isFreeMockCourse =
     String(course.id) === FREE_MOCK_COURSE_ID && !isMasterclass;
@@ -145,6 +191,7 @@ export default function CourseDetails() {
 
   const formatDateTime = (value?: string | null) => {
     if (!value) return "N/A";
+
     const date = new Date(value);
     if (Number.isNaN(date.getTime())) return "N/A";
 
@@ -157,6 +204,14 @@ export default function CourseDetails() {
     });
   };
 
+  const formatProvider = (value?: string | null) => {
+    if (!value) return "N/A";
+    return value
+      .replace(/_/g, " ")
+      .replace(/\b\w/g, (char) => char.toUpperCase());
+  };
+
+  // Meeting link becomes visible only X minutes before start time
   const isMeetingVisible = () => {
     if (!isMasterclass || !masterclass?.masterclass_start_at) return false;
 
@@ -167,34 +222,48 @@ export default function CourseDetails() {
     return Date.now() >= visibleAt;
   };
 
+  // PPT should be shown after completion
+  const isPptVisible = () => {
+    return (
+      isMasterclass &&
+      isEnrolled &&
+      masterclass?.masterclass_status === "completed" &&
+      !!masterclass?.ppt_file_url
+    );
+  };
+
   const getMainButtonText = () => {
     if (isMasterclass) {
       if (isEnrolled && isMeetingVisible() && masterclass?.meeting_url) {
         return "Join Masterclass 🚀";
       }
+
       if (isEnrolled) {
         return "View Masterclass 🚀";
       }
+
       return "Book Masterclass 🚀";
     }
 
-    return isEnrolled ? "Continue learning 🚀" : "Enroll Now 🚀";
+    return isEnrolled ? "Continue Learning 🚀" : "Enroll Now 🚀";
   };
 
   const getSidebarNote = () => {
     if (isMasterclass) {
       if (isEnrolled && isMeetingVisible() && masterclass?.meeting_url) {
-        return "Your meeting link is now available.";
+        return "Your live session link is now available.";
       }
+
       if (isEnrolled) {
-        return "You are enrolled in this masterclass. Meeting link will be available before start time.";
+        return "You are enrolled in this masterclass. The meeting link will appear shortly before the session starts.";
       }
+
       return "Reserve your seat and join this live masterclass experience.";
     }
 
     return isEnrolled
-      ? "You're already enrolled! Continue learning and explore new modules."
-      : "Learn. Create. Showcase. • Guided lessons • Join our creative community";
+      ? "You're already enrolled. Continue learning and explore new modules."
+      : "Learn. Create. Showcase. Guided lessons and a creative community.";
   };
 
   const handleEnrollNow = () => {
@@ -231,16 +300,19 @@ export default function CourseDetails() {
     }
 
     if (isMasterclass) {
+      // Not enrolled => redirect to WhatsApp / booking flow
       if (!isEnrolled) {
         window.open("https://wa.me/9325217691", "_blank");
         return;
       }
 
+      // Enrolled + meeting visible => open meeting
       if (isMeetingVisible() && masterclass?.meeting_url) {
         window.open(masterclass.meeting_url, "_blank");
         return;
       }
 
+      // Otherwise go to enrolled course page
       navigate(`/my-courses/${course.id}`);
       return;
     }
@@ -254,21 +326,25 @@ export default function CourseDetails() {
 
   return (
     <section className="pt-24 pb-16 bg-gradient-to-b from-[#0f1b3d] to-[#1a237e] text-gray-100">
+      {/* Hero banner */}
       <div className="relative w-full h-[400px] md:h-[500px] overflow-hidden rounded-b-3xl shadow-lg">
         <img
-          src={course.image}
+          src={course.image || ""}
           alt={course.course_name}
           className="w-full h-full object-cover brightness-75"
         />
+
         <div className="absolute inset-0 bg-black/40 flex flex-col justify-end p-8 md:p-12">
           <span className="text-cyan-300 uppercase tracking-wide text-sm mb-2">
             {isMasterclass
               ? "Live Masterclass"
               : course.category || "Uncategorized"}
           </span>
+
           <h1 className="text-4xl md:text-5xl font-extrabold leading-tight text-white mb-3">
             {course.course_name}
           </h1>
+
           <p className="text-gray-200 max-w-2xl text-lg">
             {course.description}
           </p>
@@ -276,6 +352,7 @@ export default function CourseDetails() {
       </div>
 
       <div className="max-w-6xl mx-auto mt-10 px-6 grid lg:grid-cols-3 gap-10">
+        {/* Left content */}
         <div className="lg:col-span-2 space-y-8">
           <div className="grid sm:grid-cols-2 gap-5 bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/10">
             <MetaItem
@@ -312,11 +389,7 @@ export default function CourseDetails() {
               <MetaItem
                 icon={<Video className="w-5 h-5 text-cyan-400" />}
                 label="Meeting Provider"
-                value={
-                  masterclass?.meeting_provider
-                    ? masterclass.meeting_provider.replace("_", " ")
-                    : "N/A"
-                }
+                value={formatProvider(masterclass?.meeting_provider)}
               />
             )}
 
@@ -343,6 +416,7 @@ export default function CourseDetails() {
             )}
           </div>
 
+          {/* Description */}
           <div>
             <h2 className="text-2xl font-bold text-cyan-300 mb-3">
               About this course
@@ -353,6 +427,7 @@ export default function CourseDetails() {
             </p>
           </div>
 
+          {/* Tags */}
           {course.tags && course.tags.length > 0 && (
             <div>
               <h3 className="text-xl font-semibold text-cyan-300 mb-2">Tags</h3>
@@ -368,8 +443,40 @@ export default function CourseDetails() {
               </div>
             </div>
           )}
+
+          {/* PPT card for completed masterclass */}
+          {isPptVisible() && (
+            <div className="rounded-2xl border border-cyan-400/20 bg-white/10 backdrop-blur-md p-6 shadow-lg">
+              <div className="flex items-start gap-4">
+                <div className="rounded-xl bg-cyan-500/15 p-3 border border-cyan-400/20">
+                  <Presentation className="w-6 h-6 text-cyan-300" />
+                </div>
+
+                <div className="flex-1">
+                  <h3 className="text-xl font-bold text-cyan-300">
+                    Masterclass Presentation
+                  </h3>
+                  <p className="mt-2 text-gray-200">
+                    The session is completed. You can now access the
+                    presentation file shared for this masterclass.
+                  </p>
+
+                  <a
+                    href={masterclass?.ppt_file_url || "#"}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="mt-4 inline-flex items-center gap-2 rounded-xl bg-cyan-600 px-4 py-2 font-semibold text-white transition hover:bg-cyan-500"
+                  >
+                    <ExternalLink className="w-4 h-4" />
+                    {masterclass?.ppt_file_name || "Open PPT"}
+                  </a>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
+        {/* Right sidebar */}
         <aside className="lg:sticky lg:top-28 bg-white/10 backdrop-blur-md p-6 rounded-2xl border border-white/10 shadow-lg space-y-5 h-fit">
           {showFreeMockCard ? (
             <div className="relative overflow-hidden rounded-3xl border border-cyan-400/20 bg-gradient-to-br from-cyan-500/15 via-sky-500/10 to-indigo-500/15 p-6 shadow-[0_12px_40px_rgba(0,0,0,0.25)]">
@@ -452,7 +559,6 @@ export default function CourseDetails() {
               {(!currentUser || !isEnrolled) && !isFreeMockCourse && (
                 <div className="flex flex-col items-center text-center">
                   <span className="text-gray-300 text-sm">
-                    {" "}
                     {isMasterclass ? "Masterclass Price" : "Course Price"}
                   </span>
 
@@ -462,7 +568,7 @@ export default function CourseDetails() {
                     </h3>
 
                     {course.price_without_discount &&
-                      course.price_without_discount > course.price && (
+                      course.price_without_discount > (course.price || 0) && (
                         <span className="text-lg text-red-500 line-through">
                           ₹{course.price_without_discount}
                         </span>
@@ -470,12 +576,13 @@ export default function CourseDetails() {
                   </div>
 
                   {course.price_without_discount &&
-                    course.price_without_discount > course.price && (
+                    course.price_without_discount > (course.price || 0) && (
                       <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-emerald-500/15 px-3 py-1 text-sm text-emerald-200 border border-emerald-400/20">
                         <span className="font-semibold">
                           Save{" "}
                           {Math.round(
-                            ((course.price_without_discount - course.price) /
+                            ((course.price_without_discount -
+                              (course.price || 0)) /
                               course.price_without_discount) *
                               100,
                           )}
@@ -483,7 +590,8 @@ export default function CourseDetails() {
                         </span>
                         <span className="text-emerald-100/70">•</span>
                         <span>
-                          ₹{course.price_without_discount - course.price} off
+                          ₹{course.price_without_discount - (course.price || 0)}{" "}
+                          off
                         </span>
                       </div>
                     )}
@@ -528,7 +636,7 @@ function MetaItem({
   label,
   value,
 }: {
-  icon: React.ReactNode;
+  icon: ReactNode;
   label: string;
   value: string | number;
 }) {
