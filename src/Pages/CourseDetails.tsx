@@ -451,7 +451,10 @@ export default function CourseDetails() {
             <>
               {(!currentUser || !isEnrolled) && !isFreeMockCourse && (
                 <div className="flex flex-col items-center text-center">
-                  <span className="text-gray-300 text-sm">  {isMasterclass ? "Masterclass Price" : "Course Price"}</span>
+                  <span className="text-gray-300 text-sm">
+                    {" "}
+                    {isMasterclass ? "Masterclass Price" : "Course Price"}
+                  </span>
 
                   <div className="mt-2 flex items-end justify-center gap-3">
                     <h3 className="text-4xl font-extrabold text-emerald-400 leading-none">
@@ -499,7 +502,7 @@ export default function CourseDetails() {
               </button>
 
               <p className="text-center text-gray-400 text-sm">
-              {getSidebarNote()}
+                {getSidebarNote()}
               </p>
             </>
           )}
