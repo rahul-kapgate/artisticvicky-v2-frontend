@@ -154,15 +154,28 @@ export default function CourseLearning() {
     }
   };
 
-  // 🔹 Join masterclass when link becomes visible
-  const handleJoinMasterclass = () => {
-    if (isMeetingVisible() && masterclass?.meeting_url) {
-      window.open(masterclass.meeting_url, "_blank");
-      return;
-    }
+  const normalizeExternalUrl = (url?: string | null) => {
+  if (!url) return "";
 
-    toast.info("Meeting link is not visible yet.");
-  };
+  const trimmed = url.trim();
+  if (!trimmed) return "";
+
+  return /^https?:\/\//i.test(trimmed)
+    ? trimmed
+    : `https://${trimmed}`;
+};
+
+  // Join masterclass when link becomes visible
+  const handleJoinMasterclass = () => {
+  const safeMeetingUrl = normalizeExternalUrl(masterclass?.meeting_url);
+
+  if (isMeetingVisible() && safeMeetingUrl) {
+    window.open(safeMeetingUrl, "_blank", "noopener,noreferrer");
+    return;
+  }
+
+  toast.info("Meeting link is not visible yet.");
+};
 
   if (loading) {
     return (
