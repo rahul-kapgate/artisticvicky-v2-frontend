@@ -252,7 +252,7 @@ Current price: ₹${currentPrice}${
   const getMainButtonText = () => {
     if (isMasterclass) {
       if (isEnrolled && isMeetingVisible() && masterclass?.meeting_url) {
-        return "Join Masterclass 🚀";
+        return "View Masterclass 🚀";
       }
 
       if (isEnrolled) {
@@ -310,36 +310,18 @@ Current price: ₹${currentPrice}${
     });
   };
 
-  const handleMainButton = () => {
-    if (!currentUser) {
-      setLoginOpen(true);
-      return;
-    }
+ const handleMainButton = () => {
+  if (!currentUser) {
+    setLoginOpen(true);
+    return;
+  }
 
-    if (isMasterclass) {
-      // Not enrolled => redirect to WhatsApp / booking flow
-      if (!isEnrolled) {
-        openWhatsAppForCourse();
-        return;
-      }
-
-      // Enrolled + meeting visible => open meeting
-      if (isMeetingVisible() && masterclass?.meeting_url) {
-        window.open(masterclass.meeting_url, "_blank");
-        return;
-      }
-
-      // Otherwise go to enrolled course page
-      navigate(`/my-courses/${course.id}`);
-      return;
-    }
-
-    if (isEnrolled) {
-      navigate(`/my-courses/${course.id}`);
-    } else {
-      openWhatsAppForCourse();
-    }
-  };
+  if (isEnrolled) {
+    navigate(`/my-courses/${course.id}`);
+  } else {
+    openWhatsAppForCourse();
+  }
+};
 
   return (
     <section className="pt-24 pb-16 bg-gradient-to-b from-[#0f1b3d] to-[#1a237e] text-gray-100">
