@@ -155,27 +155,27 @@ export default function CourseLearning() {
   };
 
   const normalizeExternalUrl = (url?: string | null) => {
-  if (!url) return "";
+    if (!url) return "";
 
-  const trimmed = url.trim();
-  if (!trimmed) return "";
+    const trimmed = url.trim();
+    if (!trimmed) return "";
 
-  return /^https?:\/\//i.test(trimmed)
-    ? trimmed
-    : `https://${trimmed}`;
-};
+    return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+  };
 
   // Join masterclass when link becomes visible
   const handleJoinMasterclass = () => {
-  const safeMeetingUrl = normalizeExternalUrl(masterclass?.meeting_url);
+    const safeMeetingUrl = normalizeExternalUrl(masterclass?.meeting_url);
 
-  if (isMeetingVisible() && safeMeetingUrl) {
-    window.open(safeMeetingUrl, "_blank", "noopener,noreferrer");
-    return;
-  }
+    if (isMeetingVisible() && safeMeetingUrl) {
+      window.open(safeMeetingUrl, "_blank", "noopener,noreferrer");
+      return;
+    }
 
-  toast.info("Meeting link is not visible yet.");
-};
+    toast.info("Meeting link is not visible yet.");
+  };
+
+  const safeRecordingUrl = normalizeExternalUrl(masterclass?.recording_link);
 
   if (loading) {
     return (
@@ -240,9 +240,9 @@ export default function CourseLearning() {
               </h2>
 
               <p className="mt-2 text-sm md:text-base text-gray-300 max-w-2xl mx-auto leading-relaxed">
-                Keep this page bookmarked. The join button will activate when the
-                meeting link becomes available, and the revision file will appear
-                here after the session ends.
+                Keep this page bookmarked. The join button will activate when
+                the meeting link becomes available, and the revision file will
+                appear here after the session ends.
               </p>
             </div>
 
@@ -286,8 +286,8 @@ export default function CourseLearning() {
                       Meeting Link Visibility
                     </p>
                     <p className="text-lg font-semibold text-white">
-                      {masterclass?.meeting_visible_before_minutes ?? 15} minutes
-                      before start
+                      {masterclass?.meeting_visible_before_minutes ?? 15}{" "}
+                      minutes before start
                     </p>
                     <p className="mt-1 text-xs text-gray-400">
                       The join button will automatically become active at that
@@ -304,14 +304,14 @@ export default function CourseLearning() {
                     <p className="text-sm text-gray-400">Revision Material</p>
                     <p className="text-lg font-semibold text-white">
                       {isMasterclassCompleted()
-                        ? masterclass?.ppt_file_url
+                        ? masterclass?.ppt_file_url || safeRecordingUrl
                           ? "Now available"
                           : "No file uploaded yet"
                         : "Available after completion"}
                     </p>
                     <p className="mt-1 text-xs text-gray-400">
-                      Notes or PPT link will appear here after the masterclass is
-                      done.
+                      Notes, PPT link, or recording link will appear here after
+                      the masterclass is done.
                     </p>
                   </div>
                 </div>
@@ -360,9 +360,7 @@ export default function CourseLearning() {
                   <div className="flex items-start gap-3">
                     <FileText className="w-5 h-5 text-cyan-300 mt-1" />
                     <div>
-                      <p className="text-sm text-cyan-200">
-                        Revision Material
-                      </p>
+                      <p className="text-sm text-cyan-200">Revision Material</p>
                       <p className="text-lg font-semibold text-white">
                         {masterclass?.ppt_file_name || "Open file"}
                       </p>
@@ -381,6 +379,37 @@ export default function CourseLearning() {
                   >
                     <LinkIcon className="w-4 h-4" />
                     Open Revision File
+                  </a>
+                </div>
+              </div>
+            )}
+
+            {isMasterclassCompleted() && safeRecordingUrl && (
+              <div className="mt-5 rounded-2xl border border-purple-400/20 bg-purple-500/10 p-5">
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                  <div className="flex items-start gap-3">
+                    <Video className="w-5 h-5 text-purple-300 mt-1" />
+                    <div>
+                      <p className="text-sm text-purple-200">
+                        Masterclass Recording
+                      </p>
+                      <p className="text-lg font-semibold text-white">
+                        Watch Recording
+                      </p>
+                      <p className="mt-1 text-sm text-gray-300">
+                        You can watch the recorded masterclass session here.
+                      </p>
+                    </div>
+                  </div>
+
+                  <a
+                    href={safeRecordingUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-purple-600 hover:bg-purple-500 px-5 py-3 text-sm font-medium text-white transition"
+                  >
+                    <PlayCircle className="w-4 h-4" />
+                    Open Recording
                   </a>
                 </div>
               </div>
