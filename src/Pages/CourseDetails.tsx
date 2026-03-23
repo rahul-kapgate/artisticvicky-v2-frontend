@@ -232,6 +232,23 @@ export default function CourseDetails() {
     );
   };
 
+  const openWhatsAppForCourse = () => {
+  if (!course) return;
+
+  const currentPrice = course.price ?? 0;
+  const originalPrice = course.price_without_discount;
+
+  const message = `Hi, I am interested in "${course.course_name}".
+Current price: ₹${currentPrice}${
+    originalPrice && originalPrice > currentPrice
+      ? `\nOriginal price: ₹${originalPrice}`
+      : ""
+  }`;
+
+  const whatsappUrl = `https://wa.me/9325217691?text=${encodeURIComponent(message)}`;
+  window.open(whatsappUrl, "_blank");
+};
+
   const getMainButtonText = () => {
     if (isMasterclass) {
       if (isEnrolled && isMeetingVisible() && masterclass?.meeting_url) {
@@ -272,7 +289,7 @@ export default function CourseDetails() {
       return;
     }
 
-    window.open("https://wa.me/9325217691", "_blank");
+    openWhatsAppForCourse();
   };
 
   const handleTakeMockTest = () => {
@@ -302,7 +319,7 @@ export default function CourseDetails() {
     if (isMasterclass) {
       // Not enrolled => redirect to WhatsApp / booking flow
       if (!isEnrolled) {
-        window.open("https://wa.me/9325217691", "_blank");
+        openWhatsAppForCourse();
         return;
       }
 
@@ -320,7 +337,7 @@ export default function CourseDetails() {
     if (isEnrolled) {
       navigate(`/my-courses/${course.id}`);
     } else {
-      window.open("https://wa.me/9325217691", "_blank");
+      openWhatsAppForCourse();
     }
   };
 
