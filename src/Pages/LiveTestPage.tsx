@@ -208,12 +208,12 @@ export default function LiveTestPage() {
             ) {
               setSubmitted(true);
               setSubmitMessage(
-                "You have already submitted this live test. Results are visible to admin only."
+                "You have already submitted this live test. Results will be announced shortly."
               );
             } else if (data.data.status === "expired") {
               setSubmitted(true);
               setSubmitMessage(
-                "This live test session has expired. Results are visible to admin only."
+                "This live test session has expired. Results will be announced shortly."
               );
             } else {
               setTestStarted(true);
@@ -473,7 +473,7 @@ export default function LiveTestPage() {
         <h1 className="text-3xl font-bold mb-3">Live Test Submitted</h1>
         <p className="text-lg text-gray-200 max-w-2xl mb-2">{submitMessage}</p>
         <p className="text-sm text-gray-400 mb-8">
-          Results are visible to admin only.
+          Results will be announced shortly.
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 w-full max-w-md mx-auto">
@@ -585,7 +585,7 @@ export default function LiveTestPage() {
                 <li>The test automatically closes at the scheduled end time.</li>
                 <li>Your test can auto-submit when the server-side time expires.</li>
                 <li>
-                  Results are visible to <strong>admin only</strong>.
+                  Results will be announced shortly <strong>shortly</strong>.
                 </li>
               </ul>
 
