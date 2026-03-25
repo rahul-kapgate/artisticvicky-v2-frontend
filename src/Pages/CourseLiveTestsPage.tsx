@@ -14,6 +14,11 @@ import {
   PlayCircle,
 } from "lucide-react";
 
+/* =========================
+   Types
+========================= */
+
+// Single live test item coming from public API
 type PublicLiveTestItem = {
   id: number;
   title: string;
@@ -26,24 +31,36 @@ type PublicLiveTestItem = {
   end_at?: string | null;
 };
 
+// API response shape
 type PublicLiveTestListResponse = {
   success: boolean;
   message?: string;
   data: PublicLiveTestItem[];
 };
 
+// State of a live test based on current time
 type WindowState = "upcoming" | "live" | "ended";
+
 
 export default function CourseLiveTestsPage() {
   const navigate = useNavigate();
   const { id } = useParams();
 
+  // Current course id from route: /my-courses/:id/live-test
   const courseId = Number(id);
 
   const [loading, setLoading] = useState(true);
   const [tests, setTests] = useState<PublicLiveTestItem[]>([]);
+
+  // Used for real-time countdown updates
   const [nowMs, setNowMs] = useState(Date.now());
 
+  /* =========================
+     Timer tick for countdowns
+     Updates every second so
+     "Starts In" / "Ends In"
+     stays live on screen
+  ========================= */
   useEffect(() => {
     const interval = setInterval(() => {
       setNowMs(Date.now());
@@ -52,6 +69,11 @@ export default function CourseLiveTestsPage() {
     return () => clearInterval(interval);
   }, []);
 
+  /* =========================
+     Fetch public live tests
+     - only published tests come from backend
+     - then filter by course_id on frontend
+  ========================= */
   useEffect(() => {
     const fetchLiveTests = async () => {
       try {
@@ -66,6 +88,7 @@ export default function CourseLiveTestsPage() {
           return;
         }
 
+        // Keep only tests for current course
         const filtered = (data.data || []).filter(
           (item) => Number(item.course_id) === Number(courseId)
         );
@@ -81,14 +104,38 @@ export default function CourseLiveTestsPage() {
       }
     };
 
-    if (courseId) fetchLiveTests();
+    if (courseId) {
+      fetchLiveTests();
+    }
   }, [courseId]);
 
-  const formatDateTime = (value?: string | null) => {
-    if (!value) return "—";
-    return new Date(value).toLocaleString();
-  };
+  /* =========================
+     Helpers
+  ========================= */
 
+  // Format date/time nicely for UI
+function formatDateTime(dateString?: string | null) {
+  if (!dateString) return "--";
+
+  const date = new Date(dateString);
+
+  if (isNaN(date.getTime())) return "--";
+
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const year = date.getFullYear();
+
+  let hours = date.getHours();
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  const ampm = hours >= 12 ? "PM" : "AM";
+
+  hours = hours % 12 || 12;
+
+  return `${day}/${month}/${year}, ${String(hours).padStart(2, "0")}:${minutes} ${ampm}`;
+}
+
+
+  // Format seconds into HH:MM:SS
   const formatTime = (sec: number) => {
     const h = Math.floor(sec / 3600);
     const m = Math.floor((sec % 3600) / 60);
@@ -99,6 +146,7 @@ export default function CourseLiveTestsPage() {
       .padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
   };
 
+  // Decide whether test is upcoming, live, or ended
   const getWindowState = (test: PublicLiveTestItem): WindowState => {
     const start = test.start_at ? new Date(test.start_at).getTime() : null;
     const end = test.end_at ? new Date(test.end_at).getTime() : null;
@@ -108,6 +156,9 @@ export default function CourseLiveTestsPage() {
     return "live";
   };
 
+  // Returns countdown seconds:
+  // - upcoming => time until start
+  // - live => time until end
   const getRemainingSeconds = (test: PublicLiveTestItem) => {
     const state = getWindowState(test);
     const start = test.start_at ? new Date(test.start_at).getTime() : null;
@@ -124,33 +175,59 @@ export default function CourseLiveTestsPage() {
     return 0;
   };
 
+  /* =========================
+     Hide ended tests from UI
+     Backend should already hide them,
+     but this gives extra safety
+  ========================= */
   const visibleTests = useMemo(
     () => tests.filter((test) => getWindowState(test) !== "ended"),
     [tests, nowMs]
   );
 
+  /* =========================
+     Dynamic grid classes
+     - 1 card => center in middle
+     - 2 cards => center in middle
+     - 3+ cards => normal 3-column layout
+  ========================= */
+  const gridClassName = useMemo(() => {
+    if (visibleTests.length === 1) {
+      return "grid grid-cols-1 gap-6 mx-auto max-w-md";
+    }
+
+    if (visibleTests.length === 2) {
+      return "grid grid-cols-1 md:grid-cols-2 gap-6 mx-auto max-w-4xl";
+    }
+
+    return "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mx-auto max-w-6xl";
+  }, [visibleTests.length]);
+
   return (
     <section className="min-h-screen bg-gradient-to-b from-[#0f1b3d] to-[#1a237e] text-gray-100 pt-24 pb-16 px-6">
       <div className="max-w-6xl mx-auto">
+        {/* Back button */}
         <div className="flex items-center justify-between gap-4 mb-8">
           <Button
             onClick={() => navigate(-1)}
             className="flex items-center gap-2 bg-gradient-to-r from-gray-600 via-gray-700 to-gray-800 hover:opacity-90 text-sm px-4 py-2 rounded-lg"
           >
-            <ArrowLeft className="w-4 h-4" /> Back
+            <ArrowLeft className="w-4 h-4" />
+            Back
           </Button>
         </div>
 
+        {/* Page heading */}
         <div className="text-center mb-10">
           <h1 className="text-3xl md:text-4xl font-bold text-cyan-300 mb-3">
             Live Tests
           </h1>
           <p className="text-gray-400 max-w-2xl mx-auto">
-            If a live test is published, it will appear here. Before the start time,
-            you can see the countdown. Once the test goes live, you can start it.
+            Live tests for this course will appear here when published. Before the test starts, a countdown will be displayed. When the live window opens, you can start the test.
           </p>
         </div>
 
+        {/* Loading state */}
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
             {Array.from({ length: 3 }).map((_, i) => (
@@ -158,12 +235,14 @@ export default function CourseLiveTestsPage() {
             ))}
           </div>
         ) : visibleTests.length === 0 ? (
+          /* Empty state */
           <div className="flex flex-col items-center justify-center py-20 text-gray-300">
             <AlertCircle className="w-10 h-10 mb-3 text-gray-400" />
             <p className="text-sm">No live test available right now.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          /* Live test cards */
+          <div className={gridClassName}>
             {visibleTests.map((test) => {
               const state = getWindowState(test);
               const remainingSeconds = getRemainingSeconds(test);
@@ -171,8 +250,9 @@ export default function CourseLiveTestsPage() {
               return (
                 <Card
                   key={test.id}
-                  className="bg-white/10 backdrop-blur-lg border border-white/10 rounded-3xl p-6 shadow-md"
+                  className="w-full bg-white/10 backdrop-blur-lg border border-white/10 rounded-3xl p-6 shadow-md"
                 >
+                  {/* Header */}
                   <div className="flex items-start justify-between gap-3 mb-4">
                     <div>
                       <h2 className="text-xl font-semibold text-white mb-2">
@@ -194,6 +274,7 @@ export default function CourseLiveTestsPage() {
                     </span>
                   </div>
 
+                  {/* Details */}
                   <div className="space-y-3 text-sm text-gray-300 mb-6">
                     <div className="flex items-center gap-2">
                       <Clock className="w-4 h-4 text-cyan-300" />
@@ -202,14 +283,15 @@ export default function CourseLiveTestsPage() {
 
                     <div className="flex items-center gap-2">
                       <CalendarDays className="w-4 h-4 text-cyan-300" />
-                      <span>Starts: {formatDateTime(test.start_at)}</span>
+                      <span>Starts: {test.start_at ? formatDateTime(test.start_at) : "Not scheduled"}</span>
                     </div>
 
                     <div className="flex items-center gap-2">
                       <TimerReset className="w-4 h-4 text-cyan-300" />
-                      <span>Ends: {formatDateTime(test.end_at)}</span>
+                      <span>Ends: {test.end_at ? formatDateTime(test.end_at) : "Not scheduled"}</span>
                     </div>
 
+                    {/* Countdown box */}
                     <div className="rounded-xl border border-white/10 bg-white/5 px-3 py-2">
                       <p className="text-xs text-gray-400">
                         {state === "upcoming" ? "Starts In" : "Ends In"}
@@ -220,6 +302,7 @@ export default function CourseLiveTestsPage() {
                     </div>
                   </div>
 
+                  {/* CTA button */}
                   <Button
                     onClick={() => navigate(`/live-test/${test.id}`)}
                     disabled={state !== "live"}
