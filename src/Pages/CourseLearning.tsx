@@ -15,7 +15,12 @@ import { apiClient } from "@/utils/axiosConfig";
 import { toast } from "sonner";
 import React from "react";
 
-type SectionKey = "resources" | "videos" | "mock-test" | "pyq-mock-test";
+type SectionKey =
+  | "resources"
+  | "videos"
+  | "mock-test"
+  | "pyq-mock-test"
+  | "live-test";
 
 interface SectionCard {
   title: string;
@@ -90,6 +95,13 @@ export default function CourseLearning() {
         icon: <History className="w-10 h-10 text-cyan-300" />,
         gradient: "from-amber-500/20 to-orange-700/20",
         path: "pyq-mock-test",
+      },
+      "live-test": {
+        title: "Live Test",
+        desc: "Join scheduled live tests with a server-based timer and real exam experience.",
+        icon: <Clock className="w-10 h-10 text-cyan-300" />,
+        gradient: "from-rose-500/20 to-red-700/20",
+        path: "live-test",
       },
     }),
     [],

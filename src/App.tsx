@@ -28,17 +28,23 @@ import AttemptTestReview from "@/Pages/AttemptTestReview";
 // Video Lectures
 import VideoLectures from "./Pages/VideoLectures";
 
+// Live Test
+import LiveTestPage from "./Pages/LiveTestPage";
+import CourseLiveTestsPage from "./Pages/CourseLiveTestsPage";
+
 import WhatsAppWidgetGate from "@/layouts/WhatsAppWidgetGate";
 
 function App() {
   return (
     <Router>
       <ScrollToTop />
-
       <WhatsAppWidgetGate />
-      
+
       <Routes>
-        {/* ✅ All pages wrapped in Layout */}
+        {/* ✅ Full-screen route WITHOUT header/footer */}
+        <Route path="/live-test/:id" element={<LiveTestPage />} />
+
+        {/* ✅ All normal pages WITH header/footer */}
         <Route path="/" element={<Layout />}>
           {/* 🏠 Public Pages */}
           <Route index element={<Home />} />
@@ -54,6 +60,7 @@ function App() {
           <Route path="my-courses" element={<MyCourses />} />
           <Route path="my-courses/:id" element={<CourseLearning />} />
           <Route path="my-courses/:id/resources" element={<Resources />} />
+          <Route path="my-courses/:id/videos" element={<VideoLectures />} />
 
           {/* 🧩 Tests & Reviews */}
           <Route
@@ -73,8 +80,11 @@ function App() {
             element={<AttemptTestReview />}
           />
 
-          {/* 🧑 Video Lectures */}
-          <Route path="my-courses/:id/videos" element={<VideoLectures />} />
+          {/* ✅ Live Test list page WITH layout */}
+          <Route
+            path="my-courses/:id/live-test"
+            element={<CourseLiveTestsPage />}
+          />
 
           {/* 🧑‍🎓 User */}
           <Route path="profile" element={<UserProfile />} />
