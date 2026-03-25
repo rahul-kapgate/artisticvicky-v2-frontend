@@ -29,6 +29,8 @@ import AttemptTestReview from "@/Pages/AttemptTestReview";
 import VideoLectures from "./Pages/VideoLectures";
 
 import WhatsAppWidgetGate from "@/layouts/WhatsAppWidgetGate";
+import LiveTestPage from "./Pages/LiveTestPage";
+import CourseLiveTestsPage from "./Pages/CourseLiveTestsPage";
 
 function App() {
   return (
@@ -75,6 +77,10 @@ function App() {
 
           {/* 🧑 Video Lectures */}
           <Route path="my-courses/:id/videos" element={<VideoLectures />} />
+
+          {/* live test */}
+          <Route path="my-courses/:id/live-test" element={<CourseLiveTestsPage />} />
+          <Route path="live-test/:id" element={<LiveTestPage />} />
 
           {/* 🧑‍🎓 User */}
           <Route path="profile" element={<UserProfile />} />
