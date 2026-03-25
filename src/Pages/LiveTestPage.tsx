@@ -13,9 +13,7 @@ import {
   Info,
   AlertTriangle,
   ArrowLeftSquare,
-  CalendarDays,
   CheckCircle2,
-  TimerReset,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -121,7 +119,7 @@ export default function LiveTestPage() {
   const [meta, setMeta] = useState<PublicLiveTestItem | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const [submitMessage, setSubmitMessage] = useState(
-    "Your response has been submitted successfully."
+    "Your response has been submitted successfully.",
   );
 
   const [timeLeft, setTimeLeft] = useState(0);
@@ -132,10 +130,7 @@ export default function LiveTestPage() {
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const autoSubmitTriggeredRef = useRef(false);
 
-  const attemptedCount = useMemo(
-    () => Object.keys(answers).length,
-    [answers]
-  );
+  const attemptedCount = useMemo(() => Object.keys(answers).length, [answers]);
 
   const applySessionData = (session: LiveTestSessionData) => {
     setQuestions(session.test.questions || []);
@@ -159,7 +154,7 @@ export default function LiveTestPage() {
     setExpiresAt(session.expires_at);
     setTimeLeft(session.remaining_seconds || 0);
     setServerOffsetMs(
-      new Date(session.server_now).getTime() - new Date().getTime()
+      new Date(session.server_now).getTime() - new Date().getTime(),
     );
   };
 
@@ -167,14 +162,16 @@ export default function LiveTestPage() {
     if (!id) return;
 
     const { data } = await apiClient.get<PublicLiveTestListResponse>(
-      "/api/live-test/public"
+      "/api/live-test/public",
     );
 
     if (!data?.success) {
       throw new Error(data?.message || "Failed to load live test");
     }
 
-    const found = (data.data || []).find((item) => Number(item.id) === Number(id));
+    const found = (data.data || []).find(
+      (item) => Number(item.id) === Number(id),
+    );
 
     if (!found) {
       throw new Error("Live test not found");
@@ -196,7 +193,7 @@ export default function LiveTestPage() {
 
         try {
           const { data } = await apiClient.get<LiveTestSessionResponse>(
-            `/api/live-test/${id}/session`
+            `/api/live-test/${id}/session`,
           );
 
           if (data?.success) {
@@ -208,12 +205,12 @@ export default function LiveTestPage() {
             ) {
               setSubmitted(true);
               setSubmitMessage(
-                "You have already submitted this live test. Results will be announced shortly."
+                "You have already submitted this live test. Results will be announced shortly.",
               );
             } else if (data.data.status === "expired") {
               setSubmitted(true);
               setSubmitMessage(
-                "This live test session has expired. Results will be announced shortly."
+                "This live test session has expired. Results will be announced shortly.",
               );
             } else {
               setTestStarted(true);
@@ -233,7 +230,9 @@ export default function LiveTestPage() {
       } catch (error: any) {
         console.error(error);
         setFetchError(
-          error?.response?.data?.message || error?.message || "Failed to load live test."
+          error?.response?.data?.message ||
+            error?.message ||
+            "Failed to load live test.",
         );
       } finally {
         setLoading(false);
@@ -260,7 +259,7 @@ export default function LiveTestPage() {
       const serverNow = Date.now() + serverOffsetMs;
       const diff = Math.max(
         0,
-        Math.floor((new Date(expiresAt).getTime() - serverNow) / 1000)
+        Math.floor((new Date(expiresAt).getTime() - serverNow) / 1000),
       );
 
       setTimeLeft(diff);
@@ -311,10 +310,26 @@ export default function LiveTestPage() {
       .padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
   };
 
-  const formatDateTime = (value?: string | null) => {
-    if (!value) return "—";
-    return new Date(value).toLocaleString();
-  };
+  // Format date/time nicely for UI
+  function formatDateTime(dateString?: string | null) {
+    if (!dateString) return "--";
+
+    const date = new Date(dateString);
+
+    if (isNaN(date.getTime())) return "--";
+
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = date.getFullYear();
+
+    let hours = date.getHours();
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    const ampm = hours >= 12 ? "PM" : "AM";
+
+    hours = hours % 12 || 12;
+
+    return `${day}/${month}/${year}, ${String(hours).padStart(2, "0")}:${minutes} ${ampm}`;
+  }
 
   const startAtMs = meta?.start_at ? new Date(meta.start_at).getTime() : null;
   const endAtMs = meta?.end_at ? new Date(meta.end_at).getTime() : null;
@@ -353,7 +368,7 @@ export default function LiveTestPage() {
       setStarting(true);
 
       const { data } = await apiClient.post<LiveTestSessionResponse>(
-        `/api/live-test/${id}/start`
+        `/api/live-test/${id}/start`,
       );
 
       if (!data?.success) {
@@ -370,7 +385,7 @@ export default function LiveTestPage() {
     } catch (error: any) {
       console.error(error);
       toast.error(
-        error?.response?.data?.message || "Failed to start live test"
+        error?.response?.data?.message || "Failed to start live test",
       );
     } finally {
       setStarting(false);
@@ -387,12 +402,12 @@ export default function LiveTestPage() {
         ([question_id, selected_option_id]) => ({
           question_id: Number(question_id),
           selected_option_id: Number(selected_option_id),
-        })
+        }),
       );
 
       const { data } = await apiClient.post<SubmitLiveTestResponse>(
         `/api/live-test/${id}/submit`,
-        { answers: formattedAnswers }
+        { answers: formattedAnswers },
       );
 
       if (!data?.success) {
@@ -408,16 +423,16 @@ export default function LiveTestPage() {
         data.message ||
           (isAutoSubmit
             ? "Time expired. Your live test was auto-submitted."
-            : "Your live test has been submitted successfully.")
+            : "Your live test has been submitted successfully."),
       );
 
       toast.success(
-        isAutoSubmit ? "Time expired. Auto-submitted." : "Live test submitted!"
+        isAutoSubmit ? "Time expired. Auto-submitted." : "Live test submitted!",
       );
     } catch (error: any) {
       console.error(error);
       toast.error(
-        error?.response?.data?.message || "Failed to submit live test."
+        error?.response?.data?.message || "Failed to submit live test.",
       );
     } finally {
       setSubmitting(false);
@@ -428,8 +443,8 @@ export default function LiveTestPage() {
     timeLeft <= 300
       ? "text-red-400"
       : timeLeft <= 900
-      ? "text-yellow-400"
-      : "text-cyan-300";
+        ? "text-yellow-400"
+        : "text-cyan-300";
 
   if (loading) {
     return (
@@ -445,7 +460,9 @@ export default function LiveTestPage() {
       <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-[#0f1b3d] via-[#152a52] to-[#1a237e] text-gray-100 px-4 py-10">
         <div className="max-w-xl w-full bg-[#0f1b3d]/70 border border-white/10 rounded-2xl p-8 text-center">
           <AlertTriangle className="w-10 h-10 text-red-400 mx-auto mb-3" />
-          <h1 className="text-2xl font-semibold mb-2">Unable to load live test</h1>
+          <h1 className="text-2xl font-semibold mb-2">
+            Unable to load live test
+          </h1>
           <p className="text-gray-300 mb-6">{fetchError}</p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Button
@@ -525,45 +542,13 @@ export default function LiveTestPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 mb-6">
-                <Card className="bg-white/5 border-white/10 p-4 rounded-xl">
-                  <p className="text-xs text-gray-400">Questions</p>
-                  <p className="text-lg font-semibold text-white mt-1">
-                    {meta.total_questions}
-                  </p>
-                </Card>
-
-                <Card className="bg-white/5 border-white/10 p-4 rounded-xl">
-                  <p className="text-xs text-gray-400">Duration</p>
-                  <p className="text-lg font-semibold text-white mt-1">
-                    {meta.duration_minutes} min
-                  </p>
-                </Card>
-
-                <Card className="bg-white/5 border-white/10 p-4 rounded-xl">
-                  <p className="text-xs text-gray-400">Start At</p>
-                  <p className="text-sm font-semibold text-white mt-1 flex items-center gap-2">
-                    <CalendarDays className="w-4 h-4 text-cyan-300" />
-                    {formatDateTime(meta.start_at)}
-                  </p>
-                </Card>
-
-                <Card className="bg-white/5 border-white/10 p-4 rounded-xl">
-                  <p className="text-xs text-gray-400">End At</p>
-                  <p className="text-sm font-semibold text-white mt-1 flex items-center gap-2">
-                    <TimerReset className="w-4 h-4 text-cyan-300" />
-                    {formatDateTime(meta.end_at)}
-                  </p>
-                </Card>
-              </div>
-
               <div className="mb-6 rounded-2xl border border-white/10 bg-white/5 p-4">
                 <p className="text-xs text-gray-400 mb-1">
                   {introState === "upcoming"
                     ? "Starts In"
                     : introState === "live"
-                    ? "Ends In"
-                    : "Status"}
+                      ? "Ends In"
+                      : "Status"}
                 </p>
 
                 {introState === "ended" ? (
@@ -582,8 +567,12 @@ export default function LiveTestPage() {
                   The timer is controlled by the <strong>server</strong>.
                 </li>
                 <li>You cannot start before the scheduled start time.</li>
-                <li>The test automatically closes at the scheduled end time.</li>
-                <li>Your test can auto-submit when the server-side time expires.</li>
+                <li>
+                  The test automatically closes at the scheduled end time.
+                </li>
+                <li>
+                  Your test can auto-submit when the server-side time expires.
+                </li>
                 <li>
                   Results will be announced shortly <strong>shortly</strong>.
                 </li>
@@ -592,14 +581,19 @@ export default function LiveTestPage() {
               {introState === "upcoming" && (
                 <div className="mb-6 rounded-xl border border-yellow-400/20 bg-yellow-500/10 px-4 py-3 text-yellow-200 text-sm">
                   This live test has not started yet. Start time:{" "}
-                  <span className="font-semibold">{formatDateTime(meta.start_at)}</span>
+                  <span className="font-semibold">
+                    {formatDateTime(meta.start_at)}
+                  </span>
                 </div>
               )}
 
               {introState === "live" && (
                 <div className="mb-6 rounded-xl border border-green-400/20 bg-green-500/10 px-4 py-3 text-green-200 text-sm">
                   This live test is now active. You can start it before{" "}
-                  <span className="font-semibold">{formatDateTime(meta.end_at)}</span>.
+                  <span className="font-semibold">
+                    {formatDateTime(meta.end_at)}
+                  </span>
+                  .
                 </div>
               )}
 
@@ -629,8 +623,8 @@ export default function LiveTestPage() {
                 Confirm Start
               </DialogTitle>
               <DialogDescription className="text-gray-300">
-                Once started, the server timer cannot be paused and the test will
-                close at the scheduled end time.
+                Once started, the server timer cannot be paused and the test
+                will close at the scheduled end time.
               </DialogDescription>
             </DialogHeader>
 
@@ -661,7 +655,9 @@ export default function LiveTestPage() {
       <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-[#10194f] to-[#1a237e]">
         <div className="text-center">
           <AlertTriangle className="w-10 h-10 text-yellow-300 mx-auto mb-3" />
-          <p className="text-gray-200">No questions available for this live test.</p>
+          <p className="text-gray-200">
+            No questions available for this live test.
+          </p>
         </div>
       </div>
     );
@@ -702,8 +698,8 @@ export default function LiveTestPage() {
                     isActive
                       ? "border-cyan-400 bg-cyan-500/20 text-cyan-300"
                       : isAnswered
-                      ? "bg-green-500/20 border-green-400 text-green-300"
-                      : "bg-white/5 border-white/20 hover:border-cyan-400/40"
+                        ? "bg-green-500/20 border-green-400 text-green-300"
+                        : "bg-white/5 border-white/20 hover:border-cyan-400/40"
                   }`}
                 >
                   {idx + 1}
@@ -773,8 +769,8 @@ export default function LiveTestPage() {
                         isActive
                           ? "border-cyan-400 bg-cyan-500/20 text-cyan-300"
                           : isAnswered
-                          ? "bg-green-500/20 border-green-400 text-green-300"
-                          : "bg-white/5 border-white/20 hover:border-cyan-400/40"
+                            ? "bg-green-500/20 border-green-400 text-green-300"
+                            : "bg-white/5 border-white/20 hover:border-cyan-400/40"
                       }`}
                     >
                       {idx + 1}
@@ -863,7 +859,9 @@ export default function LiveTestPage() {
                         type="radio"
                         name={`question-${currentQuestion.id}`}
                         checked={answers[currentQuestion.id] === opt.id}
-                        onChange={() => handleSelect(currentQuestion.id, opt.id)}
+                        onChange={() =>
+                          handleSelect(currentQuestion.id, opt.id)
+                        }
                         className="accent-cyan-400 w-4 h-4"
                       />
                       <span>{opt.text}</span>
