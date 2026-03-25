@@ -233,21 +233,21 @@ export default function CourseDetails() {
   };
 
   const openWhatsAppForCourse = () => {
-  if (!course) return;
+    if (!course) return;
 
-  const currentPrice = course.price ?? 0;
-  const originalPrice = course.price_without_discount;
+    const currentPrice = course.price ?? 0;
+    const originalPrice = course.price_without_discount;
 
-  const message = `Hi, I am interested in "${course.course_name}".
+    const message = `Hi, I am interested in "${course.course_name}".
 Current price: ₹${currentPrice}${
-    originalPrice && originalPrice > currentPrice
-      ? `\nOriginal price: ₹${originalPrice}`
-      : ""
-  }`;
+      originalPrice && originalPrice > currentPrice
+        ? `\nOriginal price: ₹${originalPrice}`
+        : ""
+    }`;
 
-  const whatsappUrl = `https://wa.me/9325217691?text=${encodeURIComponent(message)}`;
-  window.open(whatsappUrl, "_blank");
-};
+    const whatsappUrl = `https://wa.me/9325217691?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, "_blank");
+  };
 
   const getMainButtonText = () => {
     if (isMasterclass) {
@@ -310,18 +310,18 @@ Current price: ₹${currentPrice}${
     });
   };
 
- const handleMainButton = () => {
-  if (!currentUser) {
-    setLoginOpen(true);
-    return;
-  }
+  const handleMainButton = () => {
+    if (!currentUser) {
+      setLoginOpen(true);
+      return;
+    }
 
-  if (isEnrolled) {
-    navigate(`/my-courses/${course.id}`);
-  } else {
-    openWhatsAppForCourse();
-  }
-};
+    if (isEnrolled) {
+      navigate(`/my-courses/${course.id}`);
+    } else {
+      openWhatsAppForCourse();
+    }
+  };
 
   return (
     <section className="pt-24 pb-16 bg-gradient-to-b from-[#0f1b3d] to-[#1a237e] text-gray-100">
@@ -359,25 +359,21 @@ Current price: ₹${currentPrice}${
               label={isMasterclass ? "Type" : "Category"}
               value={isMasterclass ? "Masterclass" : course.category || "N/A"}
             />
-
             <MetaItem
               icon={<Clock className="w-5 h-5 text-cyan-400" />}
               label="Duration"
               value={course.duration || "N/A"}
             />
-
             <MetaItem
               icon={<Globe className="w-5 h-5 text-cyan-400" />}
               label="Language"
               value={course.language || "N/A"}
             />
-
             <MetaItem
               icon={<Users className="w-5 h-5 text-cyan-400" />}
               label="Students Enrolled"
               value={course.students_enrolled?.length ?? 0}
             />
-
             {!isMasterclass ? (
               <MetaItem
                 icon={<Star className="w-5 h-5 text-yellow-400" />}
@@ -391,13 +387,38 @@ Current price: ₹${currentPrice}${
                 value={formatProvider(masterclass?.meeting_provider)}
               />
             )}
-
             <MetaItem
               icon={<Calendar className="w-5 h-5 text-cyan-400" />}
               label="Created On"
               value={createdDate}
             />
+            {course.tags && course.tags.length > 0 && (
+              <div className="flex items-center gap-2 flex-wrap">
+                <Calendar className="w-5 h-5 text-cyan-400" />
+                <span className="text-white font-semibold">Class Days:</span>
 
+                {course.tags?.map((day, i) => (
+                  <span
+                    key={i}
+                    className="bg-cyan-800/40 text-cyan-200 px-2 py-1 rounded-md text-xs"
+                  >
+                    {day}
+                  </span>
+                ))}
+              </div>
+            )}
+            {course.tags && course.tags.length > 0 && (
+              <div className="flex items-center gap-2 flex-wrap">
+                <Clock className="w-5 h-5 text-cyan-400" />
+                <span className="text-white font-semibold">Class Time:</span>
+
+                  <span
+                    className="bg-cyan-800/40 text-cyan-200 px-2 py-1 rounded-md text-xs"
+                  >7:30 PM
+                  </span>
+              </div>
+            )}
+            
             {isMasterclass && (
               <>
                 <MetaItem
@@ -427,7 +448,7 @@ Current price: ₹${currentPrice}${
           </div>
 
           {/* Tags */}
-          {course.tags && course.tags.length > 0 && (
+          {/* {course.tags && course.tags.length > 0 && (
             <div>
               <h3 className="text-xl font-semibold text-cyan-300 mb-2">Tags</h3>
               <div className="flex flex-wrap gap-2">
@@ -441,7 +462,7 @@ Current price: ₹${currentPrice}${
                 ))}
               </div>
             </div>
-          )}
+          )} */}
 
           {/* PPT card for completed masterclass */}
           {isPptVisible() && (
