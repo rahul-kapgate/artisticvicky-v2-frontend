@@ -188,6 +188,7 @@ export default function CourseDetails() {
 
   const showFreeMockCard = isFreeMockCourse && !isEnrolled;
   const isMockButtonDisabled = !!currentUser && freeMockTestsLeft <= 0;
+  const shouldHighlightEnrollNow = !!currentUser && freeMockTestsLeft <= 0;
 
   const formatDateTime = (value?: string | null) => {
     if (!value) return "N/A";
@@ -412,13 +413,12 @@ Current price: ₹${currentPrice}${
                 <Clock className="w-5 h-5 text-cyan-400" />
                 <span className="text-white font-semibold">Class Time:</span>
 
-                  <span
-                    className="bg-cyan-800/40 text-cyan-200 px-2 py-1 rounded-md text-xs"
-                  >7:30 PM
-                  </span>
+                <span className="bg-cyan-800/40 text-cyan-200 px-2 py-1 rounded-md text-xs">
+                  7:30 PM
+                </span>
               </div>
             )}
-            
+
             {isMasterclass && (
               <>
                 <MetaItem
@@ -559,7 +559,11 @@ Current price: ₹${currentPrice}${
 
                   <button
                     onClick={handleEnrollNow}
-                    className="w-full rounded-xl border border-white/15 bg-white/10 px-4 py-3 font-semibold text-white transition hover:bg-white/15"
+                    className={`w-full rounded-xl px-4 py-3 font-semibold text-white transition shadow-md ${
+                      shouldHighlightEnrollNow
+                        ? "bg-cyan-600 hover:bg-cyan-500"
+                        : "border border-white/15 bg-white/10 hover:bg-white/15"
+                    }`}
                   >
                     Enroll Now
                   </button>
