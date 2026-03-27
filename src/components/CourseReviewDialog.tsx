@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Star, X } from "lucide-react";
 import { apiClient } from "@/utils/axiosConfig";
 import { toast } from "sonner";

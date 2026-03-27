@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import  { useEffect, useState } from "react";
 import { MessageSquareText } from "lucide-react";
 import { apiClient } from "@/utils/axiosConfig";
 import CourseReviewDialog from "@/components/CourseReviewDialog";
