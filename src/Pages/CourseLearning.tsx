@@ -14,6 +14,7 @@ import { useState, useEffect, useMemo } from "react";
 import { apiClient } from "@/utils/axiosConfig";
 import { toast } from "sonner";
 import React from "react";
+import CourseReviewGate from "@/components/CourseReviewGate";
 
 type SectionKey =
   | "resources"
@@ -461,6 +462,12 @@ export default function CourseLearning() {
               </p>
             </div>
           ))}
+        </div>
+      )}
+
+      {Number(id) > 0 && (!isMasterclass || isMasterclassCompleted()) && (
+        <div className="max-w-6xl mx-auto mt-10">
+          <CourseReviewGate courseId={Number(id)} autoOpen />
         </div>
       )}
 
