@@ -17,6 +17,7 @@ import {
 import { AuthContext } from "@/context/AuthContext";
 import Login from "@/components/Login";
 import Register from "@/components/Register";
+import CourseApprovedReviews from "@/components/CourseApprovedReviews";
 
 const FREE_MOCK_COURSE_ID = "12";
 const TOTAL_FREE_MOCK_TESTS = 3;
@@ -446,6 +447,9 @@ Current price: ₹${currentPrice}${
                 "This course provides a deep dive into the subject with practical examples and step-by-step lessons to help you master new skills."}
             </p>
           </div>
+
+          {/* Approved reviews for this particular course */}
+          <CourseApprovedReviews courseId={Number(course.id)} />
 
           {/* Tags */}
           {/* {course.tags && course.tags.length > 0 && (
