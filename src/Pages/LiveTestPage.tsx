@@ -129,8 +129,13 @@ export default function LiveTestPage() {
 
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const autoSubmitTriggeredRef = useRef(false);
+  const answersRef = useRef<Record<number, number>>({});
 
   const attemptedCount = useMemo(() => Object.keys(answers).length, [answers]);
+
+  useEffect(() => {
+    answersRef.current = answers;
+  }, [answers]);
 
   const applySessionData = (session: LiveTestSessionData) => {
     setQuestions(session.test.questions || []);
@@ -151,6 +156,8 @@ export default function LiveTestPage() {
     });
 
     setAnswers(restoredAnswers);
+    answersRef.current = restoredAnswers;
+
     setExpiresAt(session.expires_at);
     setTimeLeft(session.remaining_seconds || 0);
     setServerOffsetMs(
@@ -353,7 +360,11 @@ export default function LiveTestPage() {
   }, [introState, startAtMs, endAtMs, introNowMs]);
 
   const handleSelect = (questionId: number, optionId: number) => {
-    setAnswers((prev) => ({ ...prev, [questionId]: optionId }));
+    setAnswers((prev) => {
+      const next = { ...prev, [questionId]: optionId };
+      answersRef.current = next;
+      return next;
+    });
   };
 
   const handleScrollToQuestion = (index: number) => {
@@ -398,12 +409,12 @@ export default function LiveTestPage() {
     setSubmitting(true);
 
     try {
-      const formattedAnswers: SubmitAnswer[] = Object.entries(answers).map(
-        ([question_id, selected_option_id]) => ({
-          question_id: Number(question_id),
-          selected_option_id: Number(selected_option_id),
-        }),
-      );
+      const formattedAnswers: SubmitAnswer[] = Object.entries(
+        answersRef.current,
+      ).map(([question_id, selected_option_id]) => ({
+        question_id: Number(question_id),
+        selected_option_id: Number(selected_option_id),
+      }));
 
       const { data } = await apiClient.post<SubmitLiveTestResponse>(
         `/api/live-test/${id}/submit`,
