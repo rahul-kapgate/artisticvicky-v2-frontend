@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Palette,
   Heart,
@@ -55,6 +55,34 @@ const reasons = [
   },
 ];
 
+// Home Page Reviews Types
+interface HomePageReviewUser {
+  id: number;
+  user_name: string;
+}
+
+interface HomePageReviewCourse {
+  id: number;
+  course_name: string;
+}
+
+interface HomePageReview {
+  id: number;
+  course_id: number;
+  rating: number;
+  review_text: string | null;
+  created_at: string;
+  user: HomePageReviewUser | null;
+  course: HomePageReviewCourse | null;
+}
+
+interface HomePageReviewResponse {
+  success: boolean;
+  message?: string;
+  count?: number;
+  data: HomePageReview[];
+}
+
 function Home() {
   const navigate = useNavigate();
   const [courses, setCourses] = useState<Course[]>([]);
@@ -64,6 +92,10 @@ function Home() {
   const [studentArtworks, setStudentArtworks] = useState<StudentArtwork[]>([]);
   const [artworkLoading, setArtworkLoading] = useState(true);
   const [artworkError, setArtworkError] = useState<string | null>(null);
+
+  const [homeReviews, setHomeReviews] = useState<HomePageReview[]>([]);
+  const [homeReviewsLoading, setHomeReviewsLoading] = useState(true);
+  const [homeReviewsError, setHomeReviewsError] = useState<string | null>(null);
 
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const firstRowRef = useRef<HTMLDivElement | null>(null);
@@ -112,9 +144,32 @@ function Home() {
     }
   };
 
+  // fetch public home page reviews
+  const fetchHomePageReviews = async () => {
+    try {
+      const res = await apiClient.get<HomePageReviewResponse>(
+        "/api/course-reviews/home-page?limit=6",
+      );
+
+      if (res.data.success) {
+        setHomeReviews(res.data.data || []);
+      } else {
+        throw new Error(
+          res.data.message || "Failed to fetch home page reviews",
+        );
+      }
+    } catch (err: any) {
+      console.error("Error fetching home page reviews:", err);
+      setHomeReviewsError(err.message || "Something went wrong");
+    } finally {
+      setHomeReviewsLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchCourses();
     fetchStudentArtworks();
+    fetchHomePageReviews();
   }, []);
 
   // 🔁 Infinite auto-scroll Student Artwork strip (1..N..1..N...)
@@ -182,9 +237,58 @@ function Home() {
     el.scrollBy({ left: dir === "left" ? -step : step, behavior: "smooth" });
   };
 
+  const reviewAverage = useMemo(() => {
+    if (!homeReviews.length) return "0.0";
+    const total = homeReviews.reduce(
+      (sum, review) => sum + Number(review.rating || 0),
+      0,
+    );
+    return (total / homeReviews.length).toFixed(1);
+  }, [homeReviews]);
+
+  const featuredReview = homeReviews[0] || null;
+  const remainingReviews = homeReviews.slice(1);
+
+  const getReviewerInitials = (name?: string) => {
+    if (!name?.trim()) return "AV";
+    return name
+      .trim()
+      .split(/\s+/)
+      .slice(0, 2)
+      .map((part) => part[0]?.toUpperCase())
+      .join("");
+  };
+
+  const formatReviewDate = (date: string) => {
+    if (!date) return "Recently";
+    return new Date(date).toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+  };
+
+  const renderReviewStars = (rating: number, iconClass = "w-4 h-4") => {
+    return (
+      <div className="flex items-center gap-1">
+        {[1, 2, 3, 4, 5].map((value) => (
+          <Star
+            key={value}
+            className={`${iconClass} ${
+              value <= rating
+                ? "fill-yellow-400 text-yellow-400"
+                : "text-white/25"
+            }`}
+          />
+        ))}
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-50 via-white to-white text-gray-800 scroll-smooth mt-14">
       <FreeMockPopup />
+
       {/* ---------------- Hero Section ---------------- */}
       <section className="relative flex flex-col justify-center items-center h-[60vh] lg:h-[85vh]  text-center text-white overflow-hidden">
         {/* 🔹 Static gradient background */}
@@ -536,7 +640,9 @@ function Home() {
                         className={`mt-auto w-full py-2 rounded-lg font-semibold border ${cardStyles.accent}
       text-white/90 hover:text-white transition-all duration-300`}
                       >
-                        {isMasterclass ? "View Masterclass ✨" : "Enroll Now ✨"}
+                        {isMasterclass
+                          ? "View Masterclass ✨"
+                          : "Enroll Now ✨"}
                       </button>
                     </article>
                   );
@@ -639,6 +745,257 @@ function Home() {
               </div>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* ---------------- Student Reviews Section ---------------- */}
+      <section className="relative py-16 px-6 bg-gradient-to-b from-[#030712] via-[#0b1120] to-[#10194f] text-gray-100 overflow-hidden">
+        {/* Decorative background glow */}
+        <div className="pointer-events-none absolute inset-0 opacity-60">
+          <div className="absolute -top-24 left-10 w-72 h-72 bg-cyan-500/20 rounded-full blur-3xl" />
+          <div className="absolute top-1/3 right-10 w-72 h-72 bg-fuchsia-500/20 rounded-full blur-3xl" />
+          <div className="absolute -bottom-20 left-1/2 -translate-x-1/2 w-[26rem] h-[26rem] bg-blue-600/10 rounded-full blur-3xl" />
+        </div>
+
+        <div className="relative max-w-7xl mx-auto">
+          <div className="text-center mb-12">
+            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-cyan-400/20 bg-white/5 text-cyan-300 text-sm backdrop-blur">
+              <Star className="w-4 h-4 fill-cyan-300 text-cyan-300" />
+              Loved by students
+            </span>
+
+            <h2 className="text-4xl font-bold mt-5 mb-3">
+              What Students Say About{" "}
+              <span className="bg-gradient-to-r from-cyan-300 via-sky-300 to-fuchsia-300 bg-clip-text text-transparent">
+                Artistic Vickey
+              </span>
+            </h2>
+
+            <p className="text-gray-300 max-w-2xl mx-auto">
+              Honest feedback from students who learned, practiced, and grew
+              with our courses and masterclasses.
+            </p>
+          </div>
+
+          {homeReviewsLoading ? (
+            <div className="grid grid-cols-1 xl:grid-cols-5 gap-6 animate-pulse">
+              <div className="xl:col-span-3 rounded-3xl h-[320px] bg-white/5 border border-white/10" />
+              <div className="xl:col-span-2 grid sm:grid-cols-2 xl:grid-cols-1 gap-6">
+                <div className="rounded-2xl h-[150px] bg-white/5 border border-white/10" />
+                <div className="rounded-2xl h-[150px] bg-white/5 border border-white/10" />
+              </div>
+            </div>
+          ) : homeReviewsError ? (
+            <div className="max-w-3xl mx-auto rounded-3xl border border-red-400/20 bg-red-500/10 px-6 py-8 text-center">
+              <p className="text-red-300 font-medium">
+                Failed to load student reviews.
+              </p>
+              <p className="text-red-200/80 text-sm mt-2">{homeReviewsError}</p>
+            </div>
+          ) : homeReviews.length === 0 ? (
+            <div className="max-w-3xl mx-auto rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl px-6 py-10 text-center">
+              <h3 className="text-2xl font-semibold text-white mb-3">
+                Reviews will appear here soon ✨
+              </h3>
+              <p className="text-gray-300 max-w-xl mx-auto mb-6">
+                Once approved reviews are selected for the home page, they will
+                show up in this section as student success stories.
+              </p>
+              <button
+                onClick={() =>
+                  document
+                    .getElementById("courses")
+                    ?.scrollIntoView({ behavior: "smooth" })
+                }
+                className="px-6 py-3 rounded-full bg-gradient-to-r from-cyan-500 via-sky-500 to-fuchsia-500 text-white font-semibold hover:opacity-90 transition"
+              >
+                Explore Courses
+              </button>
+            </div>
+          ) : (
+            <>
+              <div className="grid grid-cols-1 xl:grid-cols-5 gap-6 mb-6">
+                {/* Featured Review Card */}
+                {featuredReview && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 24 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, amount: 0.25 }}
+                    transition={{ duration: 0.6 }}
+                    className="xl:col-span-3 relative rounded-3xl border border-cyan-400/20 bg-gradient-to-br from-white/10 via-white/5 to-cyan-500/10 backdrop-blur-xl p-6 md:p-8 overflow-hidden shadow-[0_20px_80px_rgba(0,0,0,0.25)]"
+                  >
+                    <div className="absolute top-5 right-5 text-7xl font-serif text-white/10 select-none">
+                      “
+                    </div>
+
+                    <div className="flex items-center gap-4 mb-6">
+                      <div className="w-14 h-14 rounded-full bg-gradient-to-br from-cyan-400 via-blue-500 to-fuchsia-500 flex items-center justify-center text-white font-bold text-lg shadow-lg">
+                        {getReviewerInitials(featuredReview.user?.user_name)}
+                      </div>
+
+                      <div>
+                        <h3 className="text-lg md:text-xl font-semibold text-white">
+                          {featuredReview.user?.user_name || "Student Review"}
+                        </h3>
+                        <div className="flex flex-wrap items-center gap-3 mt-1">
+                          {renderReviewStars(
+                            Number(featuredReview.rating || 0),
+                          )}
+                          {featuredReview.course?.course_name && (
+                            <span className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-cyan-200">
+                              {featuredReview.course.course_name}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    <p className="text-lg md:text-2xl leading-relaxed text-gray-100 max-w-3xl">
+                      “
+                      {featuredReview.review_text?.trim() ||
+                        "A wonderful learning experience with helpful guidance and inspiring lessons."}
+                      ”
+                    </p>
+
+                    <div className="mt-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                      <div className="text-sm text-gray-300">
+                        Shared on {formatReviewDate(featuredReview.created_at)}
+                      </div>
+
+                      <button
+                        onClick={() =>
+                          navigate(
+                            `/courses/${featuredReview.course?.id || featuredReview.course_id}`,
+                          )
+                        }
+                        className="w-full sm:w-auto px-5 py-2.5 rounded-full border border-cyan-400/30 bg-cyan-500/10 text-cyan-200 font-medium hover:bg-cyan-500 hover:text-white transition"
+                      >
+                        View Course
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* Social Proof Side Cards */}
+                <div className="xl:col-span-2 grid sm:grid-cols-2 xl:grid-cols-1 gap-6">
+                  <motion.div
+                    initial={{ opacity: 0, y: 24 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, amount: 0.25 }}
+                    transition={{ duration: 0.6, delay: 0.05 }}
+                    className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl p-6"
+                  >
+                    <p className="text-sm uppercase tracking-[0.2em] text-cyan-300 mb-2">
+                      Average Rating
+                    </p>
+                    <div className="flex items-end gap-3">
+                      <span className="text-4xl font-bold text-white">
+                        {reviewAverage}
+                      </span>
+                      <span className="text-gray-300 mb-1">/ 5</span>
+                    </div>
+                    <div className="mt-3">
+                      {renderReviewStars(
+                        Math.round(Number(reviewAverage)),
+                        "w-5 h-5",
+                      )}
+                    </div>
+                    <p className="text-sm text-gray-300 mt-4">
+                      Selected public reviews shown on the home page.
+                    </p>
+                  </motion.div>
+
+                  <motion.div
+                    initial={{ opacity: 0, y: 24 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, amount: 0.25 }}
+                    transition={{ duration: 0.6, delay: 0.1 }}
+                    className="rounded-2xl border border-white/10 bg-gradient-to-br from-fuchsia-500/10 via-white/5 to-cyan-500/10 backdrop-blur-xl p-6"
+                  >
+                    <p className="text-sm uppercase tracking-[0.2em] text-fuchsia-300 mb-2">
+                      Student Voices
+                    </p>
+                    <p className="text-4xl font-bold text-white">
+                      {homeReviews.length}
+                    </p>
+                    <p className="text-sm text-gray-300 mt-4 leading-relaxed">
+                      Real feedback from learners who joined Artistic Vickey’s
+                      courses and masterclasses.
+                    </p>
+
+                    <button
+                      onClick={() =>
+                        document
+                          .getElementById("courses")
+                          ?.scrollIntoView({ behavior: "smooth" })
+                      }
+                      className="mt-5 w-full rounded-xl bg-gradient-to-r from-fuchsia-500 via-purple-500 to-cyan-500 px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90 transition"
+                    >
+                      Start Your Journey
+                    </button>
+                  </motion.div>
+                </div>
+              </div>
+
+              {/* Review Grid */}
+              {remainingReviews.length > 0 && (
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                  {remainingReviews.map((review, index) => (
+                    <motion.div
+                      key={review.id}
+                      initial={{ opacity: 0, y: 24 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true, amount: 0.2 }}
+                      transition={{ duration: 0.5, delay: index * 0.05 }}
+                      className="group rounded-2xl border border-white/10 bg-white/5 hover:bg-white/[0.07] backdrop-blur-xl p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_50px_rgba(0,0,0,0.18)]"
+                    >
+                      <div className="flex items-center justify-between gap-3 mb-4">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="w-11 h-11 rounded-full bg-gradient-to-br from-cyan-400 via-blue-500 to-fuchsia-500 flex items-center justify-center text-white font-semibold shrink-0">
+                            {getReviewerInitials(review.user?.user_name)}
+                          </div>
+                          <div className="min-w-0">
+                            <h3 className="text-white font-semibold truncate">
+                              {review.user?.user_name || "Student"}
+                            </h3>
+                            <p className="text-xs text-gray-400 truncate">
+                              {review.course?.course_name || "Course Review"}
+                            </p>
+                          </div>
+                        </div>
+
+                        <span className="text-xs text-gray-400 shrink-0">
+                          {formatReviewDate(review.created_at)}
+                        </span>
+                      </div>
+
+                      <div className="mb-4">
+                        {renderReviewStars(Number(review.rating || 0))}
+                      </div>
+
+                      <p className="text-gray-200 leading-relaxed line-clamp-5">
+                        “
+                        {review.review_text?.trim() ||
+                          "Very helpful course with a supportive learning experience."}
+                        ”
+                      </p>
+
+                      <button
+                        onClick={() =>
+                          navigate(
+                            `/courses/${review.course?.id || review.course_id}`,
+                          )
+                        }
+                        className="mt-5 inline-flex items-center rounded-full border border-cyan-400/20 bg-cyan-500/10 px-4 py-2 text-sm text-cyan-200 hover:bg-cyan-500 hover:text-white transition"
+                      >
+                        View Course
+                      </button>
+                    </motion.div>
+                  ))}
+                </div>
+              )}
+            </>
+          )}
         </div>
       </section>
     </div>
