@@ -154,23 +154,25 @@ export default function CourseDetails() {
 
   if (loading) {
     return (
-      <section className="pt-28 pb-12 px-6 bg-gradient-to-b from-[#0f1b3d] to-[#1a237e] text-gray-100">
+      <section className="pt-20 sm:pt-24 md:pt-28 pb-8 sm:pb-10 md:pb-12 px-4 sm:px-6 bg-gradient-to-b from-[#0f1b3d] to-[#1a237e] text-gray-100">
         <div className="max-w-4xl mx-auto animate-pulse">
-          <div className="w-full h-80 bg-gray-700 rounded-xl mb-6" />
-          <div className="h-8 bg-gray-700 rounded w-2/3 mb-4" />
-          <div className="h-4 bg-gray-700 rounded w-full mb-3" />
-          <div className="h-4 bg-gray-700 rounded w-5/6 mb-6" />
+          <div className="w-full h-48 sm:h-64 md:h-80 bg-gray-700 rounded-xl mb-4 sm:mb-6" />
+          <div className="h-6 sm:h-8 bg-gray-700 rounded w-2/3 mb-3 sm:mb-4" />
+          <div className="h-4 bg-gray-700 rounded w-full mb-2 sm:mb-3" />
+          <div className="h-4 bg-gray-700 rounded w-5/6 mb-4 sm:mb-6" />
         </div>
       </section>
     );
   }
 
   if (error) {
-    return <p className="text-center text-red-400 mt-10">{error}</p>;
+    return <p className="text-center text-red-400 mt-10 px-4">{error}</p>;
   }
 
   if (!course) {
-    return <p className="text-center text-gray-300 mt-10">Course not found.</p>;
+    return (
+      <p className="text-center text-gray-300 mt-10 px-4">Course not found.</p>
+    );
   }
 
   const createdDate = course.created_at
@@ -326,83 +328,99 @@ Current price: ₹${currentPrice}${
   };
 
   return (
-    <section className="pt-24 pb-16 bg-gradient-to-b from-[#0f1b3d] to-[#1a237e] text-gray-100">
+    <section className="pt-16 sm:pt-20 md:pt-24 pb-10 sm:pb-12 md:pb-16 bg-gradient-to-b from-[#0f1b3d] to-[#1a237e] text-gray-100">
       {/* Hero banner */}
-      <div className="relative w-full h-[400px] md:h-[500px] overflow-hidden rounded-b-3xl shadow-lg">
+      <div className="relative w-full h-[220px] xs:h-[280px] sm:h-[350px] md:h-[400px] lg:h-[500px] overflow-hidden rounded-b-2xl sm:rounded-b-3xl shadow-lg">
         <img
           src={course.image || ""}
           alt={course.course_name}
           className="w-full h-full object-cover brightness-75"
         />
 
-        <div className="absolute inset-0 bg-black/40 flex flex-col justify-end p-8 md:p-12">
-          <span className="text-cyan-300 uppercase tracking-wide text-sm mb-2">
+        <div className="absolute inset-0 bg-black/40 flex flex-col justify-end p-4 sm:p-6 md:p-8 lg:p-12">
+          <span className="text-cyan-300 uppercase tracking-wide text-xs sm:text-sm mb-1 sm:mb-2">
             {isMasterclass
               ? "Live Masterclass"
               : course.category || "Uncategorized"}
           </span>
 
-          <h1 className="text-4xl md:text-5xl font-extrabold leading-tight text-white mb-3">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold leading-tight text-white mb-1.5 sm:mb-2 md:mb-3 line-clamp-3 sm:line-clamp-none">
             {course.course_name}
           </h1>
 
-          <p className="text-gray-200 max-w-2xl text-lg">
+          <p className="text-gray-200 max-w-2xl text-sm sm:text-base md:text-lg line-clamp-2 sm:line-clamp-3 md:line-clamp-none">
             {course.description}
           </p>
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto mt-10 px-6 grid lg:grid-cols-3 gap-10">
+      <div className="max-w-6xl mx-auto mt-6 sm:mt-8 md:mt-10 px-4 sm:px-6 grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 md:gap-10">
         {/* Left content */}
-        <div className="lg:col-span-2 space-y-8">
-          <div className="grid sm:grid-cols-2 gap-5 bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/10">
+        <div className="lg:col-span-2 space-y-6 sm:space-y-8">
+          <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 gap-3 sm:gap-4 md:gap-5 bg-white/10 backdrop-blur-md rounded-xl sm:rounded-2xl p-4 sm:p-5 md:p-6 border border-white/10">
             <MetaItem
-              icon={<Layers className="w-5 h-5 text-cyan-400" />}
+              icon={
+                <Layers className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400 shrink-0" />
+              }
               label={isMasterclass ? "Type" : "Category"}
               value={isMasterclass ? "Masterclass" : course.category || "N/A"}
             />
             <MetaItem
-              icon={<Clock className="w-5 h-5 text-cyan-400" />}
+              icon={
+                <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400 shrink-0" />
+              }
               label="Duration"
               value={course.duration || "N/A"}
             />
             <MetaItem
-              icon={<Globe className="w-5 h-5 text-cyan-400" />}
+              icon={
+                <Globe className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400 shrink-0" />
+              }
               label="Language"
               value={course.language || "N/A"}
             />
             <MetaItem
-              icon={<Users className="w-5 h-5 text-cyan-400" />}
+              icon={
+                <Users className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400 shrink-0" />
+              }
               label="Students Enrolled"
               value={course.students_enrolled?.length ?? 0}
             />
             {!isMasterclass ? (
               <MetaItem
-                icon={<Star className="w-5 h-5 text-yellow-400" />}
+                icon={
+                  <Star className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400 shrink-0" />
+                }
                 label="Rating"
                 value={`${course.rating || 0} ⭐`}
               />
             ) : (
               <MetaItem
-                icon={<Video className="w-5 h-5 text-cyan-400" />}
+                icon={
+                  <Video className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400 shrink-0" />
+                }
                 label="Meeting Provider"
                 value={formatProvider(masterclass?.meeting_provider)}
               />
             )}
             <MetaItem
-              icon={<Calendar className="w-5 h-5 text-cyan-400" />}
+              icon={
+                <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400 shrink-0" />
+              }
               label="Created On"
               value={createdDate}
             />
             {course.tags && course.tags.length > 0 && (
-              <div className="flex items-center gap-2 flex-wrap">
-                <Calendar className="w-5 h-5 text-cyan-400" />
-                <span className="text-white font-semibold">Class Days:</span>
+              <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap col-span-1 xs:col-span-2 sm:col-span-2">
+                <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400 shrink-0" />
+                <span className="text-white font-semibold text-sm sm:text-base">
+                  Class Days:
+                </span>
 
                 {course.tags?.map((day, i) => (
                   <span
                     key={i}
-                    className="bg-cyan-800/40 text-cyan-200 px-2 py-1 rounded-md text-xs"
+                    className="bg-cyan-800/40 text-cyan-200 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md text-[11px] sm:text-xs"
                   >
                     {day}
                   </span>
@@ -410,11 +428,13 @@ Current price: ₹${currentPrice}${
               </div>
             )}
             {course.tags && course.tags.length > 0 && (
-              <div className="flex items-center gap-2 flex-wrap">
-                <Clock className="w-5 h-5 text-cyan-400" />
-                <span className="text-white font-semibold">Class Time:</span>
+              <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap col-span-1 xs:col-span-2 sm:col-span-2">
+                <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400 shrink-0" />
+                <span className="text-white font-semibold text-sm sm:text-base">
+                  Class Time:
+                </span>
 
-                <span className="bg-cyan-800/40 text-cyan-200 px-2 py-1 rounded-md text-xs">
+                <span className="bg-cyan-800/40 text-cyan-200 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md text-[11px] sm:text-xs">
                   7:30 PM
                 </span>
               </div>
@@ -423,13 +443,17 @@ Current price: ₹${currentPrice}${
             {isMasterclass && (
               <>
                 <MetaItem
-                  icon={<Calendar className="w-5 h-5 text-cyan-400" />}
+                  icon={
+                    <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400 shrink-0" />
+                  }
                   label="Starts At"
                   value={formatDateTime(masterclass?.masterclass_start_at)}
                 />
 
                 <MetaItem
-                  icon={<Calendar className="w-5 h-5 text-cyan-400" />}
+                  icon={
+                    <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400 shrink-0" />
+                  }
                   label="Ends At"
                   value={formatDateTime(masterclass?.masterclass_end_at)}
                 />
@@ -439,10 +463,10 @@ Current price: ₹${currentPrice}${
 
           {/* Description */}
           <div>
-            <h2 className="text-2xl font-bold text-cyan-300 mb-3">
+            <h2 className="text-xl sm:text-2xl font-bold text-cyan-300 mb-2 sm:mb-3">
               About this course
             </h2>
-            <p className="text-gray-200 leading-relaxed text-lg">
+            <p className="text-gray-200 leading-relaxed text-sm sm:text-base md:text-lg">
               {course.description ||
                 "This course provides a deep dive into the subject with practical examples and step-by-step lessons to help you master new skills."}
             </p>
@@ -470,17 +494,17 @@ Current price: ₹${currentPrice}${
 
           {/* PPT card for completed masterclass */}
           {isPptVisible() && (
-            <div className="rounded-2xl border border-cyan-400/20 bg-white/10 backdrop-blur-md p-6 shadow-lg">
-              <div className="flex items-start gap-4">
-                <div className="rounded-xl bg-cyan-500/15 p-3 border border-cyan-400/20">
-                  <Presentation className="w-6 h-6 text-cyan-300" />
+            <div className="rounded-xl sm:rounded-2xl border border-cyan-400/20 bg-white/10 backdrop-blur-md p-4 sm:p-5 md:p-6 shadow-lg">
+              <div className="flex flex-col sm:flex-row items-start gap-3 sm:gap-4">
+                <div className="rounded-lg sm:rounded-xl bg-cyan-500/15 p-2.5 sm:p-3 border border-cyan-400/20">
+                  <Presentation className="w-5 h-5 sm:w-6 sm:h-6 text-cyan-300" />
                 </div>
 
                 <div className="flex-1">
-                  <h3 className="text-xl font-bold text-cyan-300">
+                  <h3 className="text-lg sm:text-xl font-bold text-cyan-300">
                     Masterclass Presentation
                   </h3>
-                  <p className="mt-2 text-gray-200">
+                  <p className="mt-1.5 sm:mt-2 text-gray-200 text-sm sm:text-base">
                     The session is completed. You can now access the
                     presentation file shared for this masterclass.
                   </p>
@@ -489,9 +513,9 @@ Current price: ₹${currentPrice}${
                     href={masterclass?.ppt_file_url || "#"}
                     target="_blank"
                     rel="noreferrer"
-                    className="mt-4 inline-flex items-center gap-2 rounded-xl bg-cyan-600 px-4 py-2 font-semibold text-white transition hover:bg-cyan-500"
+                    className="mt-3 sm:mt-4 inline-flex items-center gap-2 rounded-lg sm:rounded-xl bg-cyan-600 px-3 sm:px-4 py-1.5 sm:py-2 font-semibold text-white text-sm sm:text-base transition hover:bg-cyan-500"
                   >
-                    <ExternalLink className="w-4 h-4" />
+                    <ExternalLink className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                     {masterclass?.ppt_file_name || "Open PPT"}
                   </a>
                 </div>
@@ -501,59 +525,67 @@ Current price: ₹${currentPrice}${
         </div>
 
         {/* Right sidebar */}
-        <aside className="lg:sticky lg:top-28 bg-white/10 backdrop-blur-md p-6 rounded-2xl border border-white/10 shadow-lg space-y-5 h-fit">
+        <aside className="lg:sticky lg:top-28 bg-white/10 backdrop-blur-md p-4 sm:p-5 md:p-6 rounded-xl sm:rounded-2xl border border-white/10 shadow-lg space-y-4 sm:space-y-5 h-fit order-first lg:order-last">
           {showFreeMockCard ? (
-            <div className="relative overflow-hidden rounded-3xl border border-cyan-400/20 bg-gradient-to-br from-cyan-500/15 via-sky-500/10 to-indigo-500/15 p-6 shadow-[0_12px_40px_rgba(0,0,0,0.25)]">
+            <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-cyan-400/20 bg-gradient-to-br from-cyan-500/15 via-sky-500/10 to-indigo-500/15 p-4 sm:p-5 md:p-6 shadow-[0_12px_40px_rgba(0,0,0,0.25)]">
               <div className="absolute -top-10 -right-10 h-28 w-28 rounded-full bg-cyan-400/20 blur-3xl" />
               <div className="absolute -bottom-8 -left-8 h-24 w-24 rounded-full bg-blue-500/20 blur-3xl" />
 
               <div className="relative">
-                <div className="inline-flex items-center rounded-full border border-cyan-300/20 bg-cyan-400/10 px-3 py-1 text-xs font-medium uppercase tracking-wide text-cyan-200">
+                <div className="inline-flex items-center rounded-full border border-cyan-300/20 bg-cyan-400/10 px-2.5 sm:px-3 py-0.5 sm:py-1 text-[10px] sm:text-xs font-medium uppercase tracking-wide text-cyan-200">
                   Free Mock Test
                 </div>
 
-                <div className="mt-4 flex items-end gap-3">
-                  <h3 className="text-5xl font-extrabold leading-none text-cyan-300">
+                <div className="mt-3 sm:mt-4 flex items-end gap-2 sm:gap-3">
+                  <h3 className="text-4xl sm:text-5xl font-extrabold leading-none text-cyan-300">
                     {attemptsLoading ? "..." : freeMockTestsLeft}
                   </h3>
-                  <p className="pb-1 text-sm text-gray-200">tests left</p>
+                  <p className="pb-0.5 sm:pb-1 text-xs sm:text-sm text-gray-200">
+                    tests left
+                  </p>
                 </div>
 
-                <p className="mt-3 text-sm leading-6 text-gray-200">
+                <p className="mt-2 sm:mt-3 text-xs sm:text-sm leading-5 sm:leading-6 text-gray-200">
                   Start free practice and check your preparation level.
                 </p>
 
-                <div className="mt-5 grid grid-cols-3 gap-3">
-                  <div className="rounded-2xl border border-white/10 bg-white/10 p-3 text-center">
-                    <p className="text-base font-semibold text-cyan-300">
+                <div className="mt-4 sm:mt-5 grid grid-cols-3 gap-2 sm:gap-3">
+                  <div className="rounded-xl sm:rounded-2xl border border-white/10 bg-white/10 p-2 sm:p-3 text-center">
+                    <p className="text-sm sm:text-base font-semibold text-cyan-300">
                       {TOTAL_FREE_MOCK_TESTS}
                     </p>
-                    <p className="text-[11px] text-gray-200">Total</p>
+                    <p className="text-[10px] sm:text-[11px] text-gray-200">
+                      Total
+                    </p>
                   </div>
 
-                  <div className="rounded-2xl border border-white/10 bg-white/10 p-3 text-center">
-                    <p className="text-base font-semibold text-cyan-300">
+                  <div className="rounded-xl sm:rounded-2xl border border-white/10 bg-white/10 p-2 sm:p-3 text-center">
+                    <p className="text-sm sm:text-base font-semibold text-cyan-300">
                       {attemptsLoading ? "..." : usedMockTests}
                     </p>
-                    <p className="text-[11px] text-gray-200">Used</p>
+                    <p className="text-[10px] sm:text-[11px] text-gray-200">
+                      Used
+                    </p>
                   </div>
 
-                  <div className="rounded-2xl border border-white/10 bg-white/10 p-3 text-center">
-                    <p className="text-base font-semibold text-cyan-300">
+                  <div className="rounded-xl sm:rounded-2xl border border-white/10 bg-white/10 p-2 sm:p-3 text-center">
+                    <p className="text-sm sm:text-base font-semibold text-cyan-300">
                       {attemptsLoading ? "..." : freeMockTestsLeft}
                     </p>
-                    <p className="text-[11px] text-gray-200">Left</p>
+                    <p className="text-[10px] sm:text-[11px] text-gray-200">
+                      Left
+                    </p>
                   </div>
                 </div>
 
-                <div className="mt-6 flex flex-col gap-3">
+                <div className="mt-4 sm:mt-6 flex flex-col gap-2.5 sm:gap-3">
                   <button
                     onClick={handleTakeMockTest}
                     disabled={isMockButtonDisabled}
-                    className={`w-full rounded-xl px-4 py-3 font-semibold text-white shadow-md transition ${
+                    className={`w-full rounded-lg sm:rounded-xl px-4 py-2.5 sm:py-3 text-sm sm:text-base font-semibold text-white shadow-md transition ${
                       isMockButtonDisabled
                         ? "cursor-not-allowed bg-gray-600 opacity-70"
-                        : "bg-gradient-to-r from-cyan-500 to-blue-600 hover:scale-[1.02] hover:from-cyan-400 hover:to-blue-500"
+                        : "bg-gradient-to-r from-cyan-500 to-blue-600 hover:scale-[1.02] hover:from-cyan-400 hover:to-blue-500 active:scale-[0.98]"
                     }`}
                   >
                     {isMockButtonDisabled
@@ -563,7 +595,7 @@ Current price: ₹${currentPrice}${
 
                   <button
                     onClick={handleEnrollNow}
-                    className={`w-full rounded-xl px-4 py-3 font-semibold text-white transition shadow-md ${
+                    className={`w-full rounded-lg sm:rounded-xl px-4 py-2.5 sm:py-3 text-sm sm:text-base font-semibold text-white transition shadow-md active:scale-[0.98] ${
                       shouldHighlightEnrollNow
                         ? "bg-cyan-600 hover:bg-cyan-500"
                         : "border border-white/15 bg-white/10 hover:bg-white/15"
@@ -573,7 +605,7 @@ Current price: ₹${currentPrice}${
                   </button>
                 </div>
 
-                <p className="mt-4 text-center text-xs text-gray-300">
+                <p className="mt-3 sm:mt-4 text-center text-[10px] sm:text-xs text-gray-300">
                   {!currentUser
                     ? "Login required to start the mock test."
                     : freeMockTestsLeft > 0
@@ -586,18 +618,18 @@ Current price: ₹${currentPrice}${
             <>
               {(!currentUser || !isEnrolled) && !isFreeMockCourse && (
                 <div className="flex flex-col items-center text-center">
-                  <span className="text-gray-300 text-sm">
+                  <span className="text-gray-300 text-xs sm:text-sm">
                     {isMasterclass ? "Masterclass Price" : "Course Price"}
                   </span>
 
-                  <div className="mt-2 flex items-end justify-center gap-3">
-                    <h3 className="text-4xl font-extrabold text-emerald-400 leading-none">
+                  <div className="mt-1.5 sm:mt-2 flex items-end justify-center gap-2 sm:gap-3">
+                    <h3 className="text-3xl sm:text-4xl font-extrabold text-emerald-400 leading-none">
                       ₹{course.price}
                     </h3>
 
                     {course.price_without_discount &&
                       course.price_without_discount > (course.price || 0) && (
-                        <span className="text-lg text-red-500 line-through">
+                        <span className="text-base sm:text-lg text-red-500 line-through">
                           ₹{course.price_without_discount}
                         </span>
                       )}
@@ -605,7 +637,7 @@ Current price: ₹${currentPrice}${
 
                   {course.price_without_discount &&
                     course.price_without_discount > (course.price || 0) && (
-                      <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-emerald-500/15 px-3 py-1 text-sm text-emerald-200 border border-emerald-400/20">
+                      <div className="mt-2 sm:mt-3 inline-flex items-center gap-1.5 sm:gap-2 rounded-full bg-emerald-500/15 px-2.5 sm:px-3 py-0.5 sm:py-1 text-xs sm:text-sm text-emerald-200 border border-emerald-400/20">
                         <span className="font-semibold">
                           Save{" "}
                           {Math.round(
@@ -628,7 +660,7 @@ Current price: ₹${currentPrice}${
 
               <button
                 onClick={handleMainButton}
-                className={`w-full px-6 py-3 rounded-lg font-semibold text-white transition-all shadow-md ${
+                className={`w-full px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg text-sm sm:text-base font-semibold text-white transition-all shadow-md active:scale-[0.98] ${
                   isEnrolled
                     ? "bg-green-600 hover:bg-green-500"
                     : "bg-cyan-600 hover:bg-cyan-500"
@@ -637,7 +669,7 @@ Current price: ₹${currentPrice}${
                 {getMainButtonText()}
               </button>
 
-              <p className="text-center text-gray-400 text-sm">
+              <p className="text-center text-gray-400 text-xs sm:text-sm">
                 {getSidebarNote()}
               </p>
             </>
@@ -669,9 +701,9 @@ function MetaItem({
   value: string | number;
 }) {
   return (
-    <div className="flex items-center space-x-3">
+    <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
       {icon}
-      <span className="text-gray-200">
+      <span className="text-gray-200 text-xs sm:text-sm md:text-base truncate">
         <strong className="text-white/90">{label}:</strong> {value}
       </span>
     </div>
