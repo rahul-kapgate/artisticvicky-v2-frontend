@@ -16,7 +16,7 @@ import type {
   StudentArtwork,
   StudentArtworkResponse,
 } from "@/types/studentArtwork";
-import { motion, number } from "framer-motion";
+import { motion } from "framer-motion";
 import NotificationsSection from "@/components/NotificationsSection";
 import Vicky from "/vicky.jpg";
 import FreeMockPopup from "@/components/FreeMockPopup";
