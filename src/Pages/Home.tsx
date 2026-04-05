@@ -96,6 +96,7 @@ function Home() {
   const [homeReviews, setHomeReviews] = useState<HomePageReview[]>([]);
   const [homeReviewsLoading, setHomeReviewsLoading] = useState(true);
   const [homeReviewsError, setHomeReviewsError] = useState<string | null>(null);
+  const [reviewCount, setReviewCount] = useState<number |  null>(null);
 
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const firstRowRef = useRef<HTMLDivElement | null>(null);
@@ -148,11 +149,12 @@ function Home() {
   const fetchHomePageReviews = async () => {
     try {
       const res = await apiClient.get<HomePageReviewResponse>(
-        "/api/course-reviews/home-page?limit=6",
+        "/api/course-reviews/home-page?limit=50",
       );
 
       if (res.data.success) {
         setHomeReviews(res.data.data || []);
+        setReviewCount(res.data?.count || 0)
       } else {
         throw new Error(
           res.data.message || "Failed to fetch home page reviews",
@@ -916,7 +918,7 @@ function Home() {
                       Student Voices
                     </p>
                     <p className="text-4xl font-bold text-white">
-                      {homeReviews.length}
+                      {reviewCount}
                     </p>
                     <p className="text-sm text-gray-300 mt-4 leading-relaxed">
                       Real feedback from learners who joined Artistic Vickey’s
@@ -939,59 +941,61 @@ function Home() {
 
               {/* Review Grid */}
               {remainingReviews.length > 0 && (
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                  {remainingReviews.map((review, index) => (
-                    <motion.div
-                      key={review.id}
-                      initial={{ opacity: 0, y: 24 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true, amount: 0.2 }}
-                      transition={{ duration: 0.5, delay: index * 0.05 }}
-                      className="group rounded-2xl border border-white/10 bg-white/5 hover:bg-white/[0.07] backdrop-blur-xl p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_50px_rgba(0,0,0,0.18)]"
-                    >
-                      <div className="flex items-center justify-between gap-3 mb-4">
-                        <div className="flex items-center gap-3 min-w-0">
-                          <div className="w-11 h-11 rounded-full bg-gradient-to-br from-cyan-400 via-blue-500 to-fuchsia-500 flex items-center justify-center text-white font-semibold shrink-0">
-                            {getReviewerInitials(review.user?.user_name)}
+                <div className="overflow-x-auto scroll-smooth snap-x snap-mandatory pb-4 [-ms-overflow-style:none] [scrollbar-width:none] md:overflow-visible">
+                  <div className="flex gap-6 md:grid md:grid-cols-2 xl:grid-cols-3">
+                    {remainingReviews.map((review, index) => (
+                      <motion.div
+                        key={review.id}
+                        initial={{ opacity: 0, y: 24 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true, amount: 0.2 }}
+                        transition={{ duration: 0.5, delay: index * 0.05 }}
+                        className="snap-start flex-shrink-0 w-[85vw] sm:w-[340px] md:w-auto group rounded-2xl border border-white/10 bg-white/5 hover:bg-white/[0.07] backdrop-blur-xl p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_50px_rgba(0,0,0,0.18)]"
+                      >
+                        <div className="flex items-center justify-between gap-3 mb-4">
+                          <div className="flex items-center gap-3 min-w-0">
+                            <div className="w-11 h-11 rounded-full bg-gradient-to-br from-cyan-400 via-blue-500 to-fuchsia-500 flex items-center justify-center text-white font-semibold shrink-0">
+                              {getReviewerInitials(review.user?.user_name)}
+                            </div>
+                            <div className="min-w-0">
+                              <h3 className="text-white font-semibold truncate">
+                                {review.user?.user_name || "Student"}
+                              </h3>
+                              <p className="text-xs text-gray-400 truncate">
+                                {review.course?.course_name || "Course Review"}
+                              </p>
+                            </div>
                           </div>
-                          <div className="min-w-0">
-                            <h3 className="text-white font-semibold truncate">
-                              {review.user?.user_name || "Student"}
-                            </h3>
-                            <p className="text-xs text-gray-400 truncate">
-                              {review.course?.course_name || "Course Review"}
-                            </p>
-                          </div>
+
+                          <span className="text-xs text-gray-400 shrink-0">
+                            {formatReviewDate(review.created_at)}
+                          </span>
                         </div>
 
-                        <span className="text-xs text-gray-400 shrink-0">
-                          {formatReviewDate(review.created_at)}
-                        </span>
-                      </div>
+                        <div className="mb-4">
+                          {renderReviewStars(Number(review.rating || 0))}
+                        </div>
 
-                      <div className="mb-4">
-                        {renderReviewStars(Number(review.rating || 0))}
-                      </div>
+                        <p className="text-gray-200 leading-relaxed line-clamp-5">
+                          “
+                          {review.review_text?.trim() ||
+                            "Very helpful course with a supportive learning experience."}
+                          ”
+                        </p>
 
-                      <p className="text-gray-200 leading-relaxed line-clamp-5">
-                        “
-                        {review.review_text?.trim() ||
-                          "Very helpful course with a supportive learning experience."}
-                        ”
-                      </p>
-
-                      <button
-                        onClick={() =>
-                          navigate(
-                            `/courses/${review.course?.id || review.course_id}`,
-                          )
-                        }
-                        className="mt-5 inline-flex items-center rounded-full border border-cyan-400/20 bg-cyan-500/10 px-4 py-2 text-sm text-cyan-200 hover:bg-cyan-500 hover:text-white transition"
-                      >
-                        View Course
-                      </button>
-                    </motion.div>
-                  ))}
+                        <button
+                          onClick={() =>
+                            navigate(
+                              `/courses/${review.course?.id || review.course_id}`,
+                            )
+                          }
+                          className="mt-5 inline-flex items-center rounded-full border border-cyan-400/20 bg-cyan-500/10 px-4 py-2 text-sm text-cyan-200 hover:bg-cyan-500 hover:text-white transition"
+                        >
+                          View Course
+                        </button>
+                      </motion.div>
+                    ))}
+                  </div>
                 </div>
               )}
             </>
