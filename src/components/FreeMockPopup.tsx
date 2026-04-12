@@ -54,6 +54,11 @@ function FreeMockPopup() {
 
     const showPopup = () => {
       if (hasShownRef.current) return;
+      // Don't hijack the user if a dialog is already open
+      const openDialog = document.querySelector(
+        '[data-state="open"][role="dialog"]',
+      );
+      if (openDialog) return;
       hasShownRef.current = true;
       setOpen(true);
     };
@@ -93,14 +98,14 @@ function FreeMockPopup() {
           <motion.button
             type="button"
             aria-label="Close popup backdrop"
-            className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm"
+            className="fixed inset-0 z-[9998] bg-black/70 backdrop-blur-sm"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={dismissForDays}
           />
 
-          <div className="fixed inset-0 z-[101] flex items-end justify-center px-3 py-3 sm:items-center sm:px-4">
+          <div className="fixed inset-0 z-[9999] flex items-end justify-center px-3 py-3 sm:items-center sm:px-4">
             <motion.div
               initial={{ opacity: 0, y: 24, scale: 0.96 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -141,15 +146,21 @@ function FreeMockPopup() {
 
                   <div className="mt-5 grid grid-cols-3 gap-3">
                     <div className="rounded-2xl bg-white/10 p-3 text-center border border-white/10">
-                      <div className="text-lg font-semibold text-cyan-300">3</div>
+                      <div className="text-lg font-semibold text-cyan-300">
+                        3
+                      </div>
                       <div className="text-xs text-slate-200">Attempts</div>
                     </div>
                     <div className="rounded-2xl bg-white/10 p-3 text-center border border-white/10">
-                      <div className="text-lg font-semibold text-cyan-300">Quick</div>
+                      <div className="text-lg font-semibold text-cyan-300">
+                        Quick
+                      </div>
                       <div className="text-xs text-slate-200">Signup</div>
                     </div>
                     <div className="rounded-2xl bg-white/10 p-3 text-center border border-white/10">
-                      <div className="text-lg font-semibold text-cyan-300">Easy</div>
+                      <div className="text-lg font-semibold text-cyan-300">
+                        Easy
+                      </div>
                       <div className="text-xs text-slate-200">Start</div>
                     </div>
                   </div>
