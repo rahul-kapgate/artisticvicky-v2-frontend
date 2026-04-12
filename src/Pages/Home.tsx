@@ -96,7 +96,7 @@ function Home() {
   const [homeReviews, setHomeReviews] = useState<HomePageReview[]>([]);
   const [homeReviewsLoading, setHomeReviewsLoading] = useState(true);
   const [homeReviewsError, setHomeReviewsError] = useState<string | null>(null);
-  const [reviewCount, setReviewCount] = useState<number |  null>(null);
+  const [reviewCount, setReviewCount] = useState<number | null>(null);
 
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const firstRowRef = useRef<HTMLDivElement | null>(null);
@@ -154,7 +154,7 @@ function Home() {
 
       if (res.data.success) {
         setHomeReviews(res.data.data || []);
-        setReviewCount(res.data?.count || 0)
+        setReviewCount(res.data?.count || 0);
       } else {
         throw new Error(
           res.data.message || "Failed to fetch home page reviews",
@@ -180,31 +180,81 @@ function Home() {
 
     const container = scrollContainerRef.current;
     const firstRow = firstRowRef.current;
-
     if (!container || !firstRow) return;
 
     const speed = 0.9;
     let animationFrameId: number;
+    let isPaused = false;
 
+    // ── Mouse drag ──
+    let isMouseDown = false;
+    let startX = 0;
+    let scrollStart = 0;
+
+    const onMouseDown = (e: MouseEvent) => {
+      isMouseDown = true;
+      isPaused = true;
+      startX = e.pageX;
+      scrollStart = container.scrollLeft;
+    };
+    const onMouseMove = (e: MouseEvent) => {
+      if (!isMouseDown) return;
+      container.scrollLeft = scrollStart - (e.pageX - startX);
+    };
+    const onMouseUp = () => {
+      isMouseDown = false;
+      isPaused = false;
+    };
+
+    // ── Touch drag ──
+    let startTouchX = 0;
+    let scrollTouchStart = 0;
+
+    const onTouchStart = (e: TouchEvent) => {
+      isPaused = true;
+      startTouchX = e.touches[0].pageX;
+      scrollTouchStart = container.scrollLeft;
+    };
+    const onTouchMove = (e: TouchEvent) => {
+      container.scrollLeft =
+        scrollTouchStart - (e.touches[0].pageX - startTouchX);
+    };
+    const onTouchEnd = () => {
+      isPaused = false;
+    };
+
+    container.addEventListener("mousedown", onMouseDown);
+    window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("mouseup", onMouseUp);
+    container.addEventListener("touchstart", onTouchStart, { passive: true });
+    container.addEventListener("touchmove", onTouchMove, { passive: true });
+    container.addEventListener("touchend", onTouchEnd);
+
+    // ── Auto-scroll loop ──
     const step = () => {
-      const firstWidth = firstRow.offsetWidth;
-      if (firstWidth <= 0) {
-        animationFrameId = requestAnimationFrame(step);
-        return;
+      if (!isPaused) {
+        const firstWidth = firstRow.offsetWidth;
+        if (firstWidth > 0) {
+          if (container.scrollLeft >= firstWidth) {
+            container.scrollLeft -= firstWidth;
+          }
+          container.scrollLeft += speed;
+        }
       }
-
-      // When we've scrolled past the first set, wrap back by exactly its width
-      if (container.scrollLeft >= firstWidth) {
-        container.scrollLeft -= firstWidth;
-      }
-
-      container.scrollLeft += speed;
       animationFrameId = requestAnimationFrame(step);
     };
 
     animationFrameId = requestAnimationFrame(step);
 
-    return () => cancelAnimationFrame(animationFrameId);
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+      container.removeEventListener("mousedown", onMouseDown);
+      window.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("mouseup", onMouseUp);
+      container.removeEventListener("touchstart", onTouchStart);
+      container.removeEventListener("touchmove", onTouchMove);
+      container.removeEventListener("touchend", onTouchEnd);
+    };
   }, [artworkLoading, studentArtworks.length]);
 
   useEffect(() => {
@@ -402,7 +452,7 @@ function Home() {
               <div
                 id="studentArtworkScroll"
                 ref={scrollContainerRef}
-                className="overflow-x-hidden pb-4 art-scrollbar"
+                className="overflow-x-scroll pb-4 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden cursor-grab active:cursor-grabbing"
               >
                 <div className="flex gap-6">
                   {/* 🔹 First set (used for measuring width) */}
