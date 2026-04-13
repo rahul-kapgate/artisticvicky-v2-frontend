@@ -726,8 +726,6 @@ export default function ReviewsSection({
         {/* ── Marquee ── mobile only */}
         {marqueeReviews.length > 0 && (
           <div className="mb-10 relative xl:hidden">
-            <div className="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-[#0b1120] to-transparent z-10 pointer-events-none" />
-            <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-[#0b1120] to-transparent z-10 pointer-events-none" />
             <ReviewMarquee reviews={marqueeReviews} />
           </div>
         )}
