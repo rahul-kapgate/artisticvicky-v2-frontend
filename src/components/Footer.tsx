@@ -13,15 +13,6 @@ function Footer() {
     }
   };
 
-  const quickLinks = [
-    { label: "Home", href: "/" },
-    { label: "Courses", href: "/courses" },
-    { label: "About", href: "/#about" },
-    { label: "Contact Us", href: "/contact" },
-    { label: "Privacy Policy", href: "/privacy-policy" },
-    { label: "Terms of Use", href: "/terms" },
-    { label: "Refund Policy", href: "/refund-policy" },
-  ];
 
   const socials = [
     {
