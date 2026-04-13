@@ -181,16 +181,6 @@ function Footer() {
         <p className="text-[12px] text-slate-700">
           © {new Date().getFullYear()} <span className="text-indigo-500">ArtisticVickey</span>. All rights reserved.
         </p>
-        <div className="flex gap-4">
-          {["Privacy Policy", "Terms", "Refund Policy"].map((l) => (
-            <Link key={l} to={`/${l.toLowerCase().replace(/ /g, "-")}`} className="text-[11px] text-slate-700 hover:text-cyan-400 transition-colors">
-              {l}
-            </Link>
-          ))}
-        </div>
-        <p className="text-[11px] text-slate-800">
-          Made with ♥ by <span className="text-indigo-500">Artistic Vickey</span>
-        </p>
       </div>
     </footer>
   );
