@@ -68,7 +68,8 @@ function Footer() {
       textClass: "text-green-300",
       icon: (
         <svg viewBox="0 0 24 24" fill="#4ade80" className="w-3.5 h-3.5">
-          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" /><path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.12 1.533 5.845L.057 23.428c-.073.28.178.538.46.476l5.698-1.457A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.826 9.826 0 01-5.013-1.374l-.36-.214-3.724.953.984-3.617-.234-.373A9.818 9.818 0 012.182 12C2.182 6.57 6.57 2.182 12 2.182S21.818 6.57 21.818 12 17.43 21.818 12 21.818z" />
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" />
+          <path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.12 1.533 5.845L.057 23.428c-.073.28.178.538.46.476l5.698-1.457A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.826 9.826 0 01-5.013-1.374l-.36-.214-3.724.953.984-3.617-.234-.373A9.818 9.818 0 012.182 12C2.182 6.57 6.57 2.182 12 2.182S21.818 6.57 21.818 12 17.43 21.818 12 21.818z" />
         </svg>
       ),
     },
@@ -77,15 +78,13 @@ function Footer() {
   const contactInfo = [
     { icon: "📧", value: "vikkitembhurne358@gmail.com" },
     { icon: "📱", value: "+91 9325217691" },
-
   ];
 
   return (
     <footer
       className="relative overflow-hidden border-t border-indigo-900/30 pt-12 pb-0 text-slate-400"
       style={{
-        background:
-          "linear-gradient(to bottom, #050816, #0a0f2c, #10194f)",
+        background: "linear-gradient(to bottom, #050816, #0a0f2c, #10194f)",
       }}
     >
       {/* Blobs */}
@@ -93,7 +92,6 @@ function Footer() {
       <div className="pointer-events-none absolute bottom-10 -right-10 w-60 h-60 bg-purple-600 rounded-full blur-[80px] opacity-[0.07]" />
 
       <div className="relative z-10 max-w-7xl mx-auto px-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
-
         {/* Brand */}
         <div>
           <Link
@@ -120,13 +118,96 @@ function Footer() {
             Quick Links
           </h3>
           <ul className="flex flex-col gap-2">
-            {quickLinks.map((l) => (
+            {/* Home */}
+            <li>
+              <button
+                onClick={() => {
+                  if (location.pathname !== "/") {
+                    navigate("/");
+                    setTimeout(
+                      () => window.scrollTo({ top: 0, behavior: "smooth" }),
+                      300,
+                    );
+                  } else {
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }
+                }}
+                className="text-[13px] text-slate-500 hover:text-cyan-300 transition-colors flex items-center gap-1 group"
+              >
+                <span className="opacity-0 group-hover:opacity-100 transition-opacity text-[10px]">
+                  →
+                </span>
+                Home
+              </button>
+            </li>
+
+            {/* Courses */}
+            <li>
+              <button
+                onClick={() => {
+                  if (location.pathname !== "/") {
+                    navigate("/");
+                    setTimeout(() => {
+                      document
+                        .getElementById("courses")
+                        ?.scrollIntoView({ behavior: "smooth" });
+                    }, 400);
+                  } else {
+                    document
+                      .getElementById("courses")
+                      ?.scrollIntoView({ behavior: "smooth" });
+                  }
+                }}
+                className="text-[13px] text-slate-500 hover:text-cyan-300 transition-colors flex items-center gap-1 group"
+              >
+                <span className="opacity-0 group-hover:opacity-100 transition-opacity text-[10px]">
+                  →
+                </span>
+                Courses
+              </button>
+            </li>
+
+            {/* About */}
+            <li>
+              <button
+                onClick={() => {
+                  if (location.pathname !== "/") {
+                    navigate("/");
+                    setTimeout(() => {
+                      document
+                        .getElementById("about")
+                        ?.scrollIntoView({ behavior: "smooth" });
+                    }, 400);
+                  } else {
+                    document
+                      .getElementById("about")
+                      ?.scrollIntoView({ behavior: "smooth" });
+                  }
+                }}
+                className="text-[13px] text-slate-500 hover:text-cyan-300 transition-colors flex items-center gap-1 group"
+              >
+                <span className="opacity-0 group-hover:opacity-100 transition-opacity text-[10px]">
+                  →
+                </span>
+                About
+              </button>
+            </li>
+
+            {/* Regular links (these pages exist as routes) */}
+            {[
+              { label: "Contact Us", href: "/contact" },
+              { label: "Privacy Policy", href: "/privacy-policy" },
+              { label: "Terms of Use", href: "/terms" },
+              { label: "Refund Policy", href: "/refund-policy" },
+            ].map((l) => (
               <li key={l.label}>
                 <Link
                   to={l.href}
                   className="text-[13px] text-slate-500 hover:text-cyan-300 transition-colors flex items-center gap-1 group"
                 >
-                  <span className="opacity-0 group-hover:opacity-100 transition-opacity text-[10px]">→</span>
+                  <span className="opacity-0 group-hover:opacity-100 transition-opacity text-[10px]">
+                    →
+                  </span>
                   {l.label}
                 </Link>
               </li>
@@ -148,11 +229,15 @@ function Footer() {
                 rel="noreferrer"
                 className="flex items-center gap-3 p-2 rounded-xl border border-white/5 bg-white/[0.02] hover:bg-white/[0.05] hover:border-white/10 hover:translate-x-1 transition-all duration-200"
               >
-                <div className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 border ${s.colorClass}`}>
+                <div
+                  className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 border ${s.colorClass}`}
+                >
                   {s.icon}
                 </div>
                 <div>
-                  <p className={`text-xs font-semibold ${s.textClass}`}>{s.label}</p>
+                  <p className={`text-xs font-semibold ${s.textClass}`}>
+                    {s.label}
+                  </p>
                   <p className="text-[11px] text-slate-600">{s.handle}</p>
                 </div>
               </a>
@@ -179,7 +264,9 @@ function Footer() {
       {/* Bottom bar */}
       <div className="relative z-10 max-w-7xl mx-auto px-6 mt-10 py-4 border-t border-indigo-900/20 flex flex-col sm:flex-row items-center justify-between gap-3">
         <p className="text-[12px] text-slate-700">
-          © {new Date().getFullYear()} <span className="text-indigo-500">ArtisticVickey</span>. All rights reserved.
+          © {new Date().getFullYear()}{" "}
+          <span className="text-indigo-500">ArtisticVickey</span>. All rights
+          reserved.
         </p>
       </div>
     </footer>
