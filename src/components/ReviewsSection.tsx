@@ -446,6 +446,7 @@ export default function ReviewsSection({
   reviewCount,
 }: ReviewsSectionProps) {
   const navigate = useNavigate();
+  //@ts-ignore
   const [activeFilter, setActiveFilter] = useState<number | null>(null);
 
   const reviewAverage = useMemo(() => {

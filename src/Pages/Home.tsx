@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Palette,
   Heart,
@@ -288,54 +288,6 @@ function Home() {
 
     const step = courseStep || Math.floor(el.clientWidth * 0.9);
     el.scrollBy({ left: dir === "left" ? -step : step, behavior: "smooth" });
-  };
-
-  const reviewAverage = useMemo(() => {
-    if (!homeReviews.length) return "0.0";
-    const total = homeReviews.reduce(
-      (sum, review) => sum + Number(review.rating || 0),
-      0,
-    );
-    return (total / homeReviews.length).toFixed(1);
-  }, [homeReviews]);
-
-  const featuredReview = homeReviews[0] || null;
-  const remainingReviews = homeReviews.slice(1);
-
-  const getReviewerInitials = (name?: string) => {
-    if (!name?.trim()) return "AV";
-    return name
-      .trim()
-      .split(/\s+/)
-      .slice(0, 2)
-      .map((part) => part[0]?.toUpperCase())
-      .join("");
-  };
-
-  const formatReviewDate = (date: string) => {
-    if (!date) return "Recently";
-    return new Date(date).toLocaleDateString("en-IN", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    });
-  };
-
-  const renderReviewStars = (rating: number, iconClass = "w-4 h-4") => {
-    return (
-      <div className="flex items-center gap-1">
-        {[1, 2, 3, 4, 5].map((value) => (
-          <Star
-            key={value}
-            className={`${iconClass} ${
-              value <= rating
-                ? "fill-yellow-400 text-yellow-400"
-                : "text-white/25"
-            }`}
-          />
-        ))}
-      </div>
-    );
   };
 
   return (
