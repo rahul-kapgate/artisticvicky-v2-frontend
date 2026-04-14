@@ -135,7 +135,7 @@ function FreeMockPopup() {
                   </div>
 
                   <h2 className="text-2xl font-bold leading-tight sm:text-3xl">
-                    Get <span className="text-cyan-300">3 Free Mock Tests</span>
+                    Get <span className="text-cyan-300">1 Free Mock Tests</span>
                   </h2>
 
                   <p className="mt-3 text-sm leading-6 text-slate-200">
@@ -146,9 +146,7 @@ function FreeMockPopup() {
 
                   <div className="mt-5 grid grid-cols-3 gap-3">
                     <div className="rounded-2xl bg-white/10 p-3 text-center border border-white/10">
-                      <div className="text-lg font-semibold text-cyan-300">
-                        3
-                      </div>
+                      <div className="text-lg font-semibold text-cyan-300">1</div>
                       <div className="text-xs text-slate-200">Attempts</div>
                     </div>
                     <div className="rounded-2xl bg-white/10 p-3 text-center border border-white/10">
