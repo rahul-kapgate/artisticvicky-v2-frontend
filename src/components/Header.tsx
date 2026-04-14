@@ -5,11 +5,10 @@ import Login from "./Login";
 import { AuthContext } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import Register from "./Register";
-import ForgotPassword from "./ForgotPassword"
+import ForgotPassword from "./ForgotPassword";
 
 function Header() {
   const [isOpen, setIsOpen] = useState(false); // mobile nav menu
-  const [isProfileOpen, setIsProfileOpen] = useState(false); // profile dropdown
   const [showHeader, setShowHeader] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const navigate = useNavigate();
@@ -41,17 +40,14 @@ function Header() {
     const handleClickOutside = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
       if (!target.closest(".profile-menu")) {
-        setIsProfileOpen(false);
       }
     };
     document.addEventListener("click", handleClickOutside);
     return () => document.removeEventListener("click", handleClickOutside);
   }, []);
 
-    useEffect(() => {
-    const handleOpenAuthModal = (
-      e: Event,
-    ) => {
+  useEffect(() => {
+    const handleOpenAuthModal = (e: Event) => {
       const customEvent = e as CustomEvent<{
         mode?: "login" | "register" | "forgot";
       }>;
@@ -59,7 +55,6 @@ function Header() {
       const mode = customEvent.detail?.mode || "login";
 
       setIsOpen(false);
-      setIsProfileOpen(false);
 
       setLoginOpen(mode === "login");
       setRegisterOpen(mode === "register");
@@ -94,8 +89,9 @@ function Header() {
 
   return (
     <header
-      className={`fixed top-0 left-0 w-full z-50 transition-transform duration-300 ${showHeader ? "translate-y-0" : "-translate-y-full"
-        }`}
+      className={`fixed top-0 left-0 w-full z-50 transition-transform duration-300 ${
+        showHeader ? "translate-y-0" : "-translate-y-full"
+      }`}
     >
       <div className="bg-gradient-to-r from-[#0a0f2c] via-[#10194f] to-[#1a237e] backdrop-blur-md border-b border-blue-900/40 shadow-md">
         <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
@@ -106,7 +102,10 @@ function Header() {
               e.preventDefault();
               if (location.pathname !== "/") {
                 navigate("/");
-                setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 300);
+                setTimeout(
+                  () => window.scrollTo({ top: 0, behavior: "smooth" }),
+                  300,
+                );
               } else {
                 window.scrollTo({ top: 0, behavior: "smooth" });
               }
@@ -175,53 +174,12 @@ function Header() {
                 <div className="relative sm:hidden profile-menu">
                   {/* Avatar Button */}
                   <button
-                    onClick={() => {
-                      setIsProfileOpen((prev) => {
-                        const next = !prev;
-                        if (next) setIsOpen(false); //close mobile nav if profile opens
-                        return next;
-                      });
-                    }}
+                    onClick={() => navigate("/profile")}
                     className="w-9 h-9 flex items-center justify-center rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold text-lg uppercase shadow-md"
                     title={user.email || user.mobile}
                   >
                     {user.email?.[0] || user.mobile?.[0] || "U"}
                   </button>
-
-                  {/* Dropdown */}
-                  {isProfileOpen && (
-                    <div className="absolute right-0 mt-3 w-48 bg-[#10194f]/95 backdrop-blur-xl border border-blue-900/40 rounded-xl shadow-lg p-2 z-50 animate-fadeIn">
-                      <button
-                        className="w-full text-left text-gray-200 hover:text-cyan-300 hover:bg-blue-800/40 rounded-lg px-4 py-2 transition-colors"
-                        onClick={() => {
-                          setIsProfileOpen(false);
-                          navigate("/profile");
-                        }}
-                      >
-                        👤 View Profile
-                      </button>
-
-                      <button
-                        className="w-full text-left text-gray-200 hover:text-cyan-300 hover:bg-blue-800/40 rounded-lg px-4 py-2 transition-colors"
-                        onClick={() => {
-                          setIsProfileOpen(false);
-                          navigate("/my-courses");
-                        }}
-                      >
-                        📘 My Courses
-                      </button>
-
-                      <button
-                        className="w-full text-left text-gray-200 hover:text-red-400 hover:bg-blue-800/40 rounded-lg px-4 py-2 transition-colors"
-                        onClick={() => {
-                          setIsProfileOpen(false);
-                          logout();
-                        }}
-                      >
-                        🚪 Logout
-                      </button>
-                    </div>
-                  )}
                 </div>
               </>
             ) : (
@@ -251,11 +209,11 @@ function Header() {
                   }}
                 />
 
-                <Register
-                  open={registerOpen}
-                  onOpenChange={setRegisterOpen}
+                <Register open={registerOpen} onOpenChange={setRegisterOpen} />
+                <ForgotPassword
+                  open={forgotOpen}
+                  onOpenChange={setForgotOpen}
                 />
-                <ForgotPassword open={forgotOpen} onOpenChange={setForgotOpen} />
               </>
             )}
 
@@ -271,9 +229,21 @@ function Header() {
       </div>
 
       {/* Mobile Nav */}
+      {/* Mobile Nav */}
       {isOpen && (
         <div className="md:hidden bg-[#0a0f2c]/95 backdrop-blur-lg border-t border-blue-900/40 shadow-inner animate-fadeIn">
           <nav className="flex flex-col items-center space-y-4 py-4 text-gray-200 font-medium">
+            {user && (
+              <button
+                onClick={() => {
+                  navigate("/my-courses");
+                  setIsOpen(false);
+                }}
+                className="hover:text-cyan-300 transition-colors duration-200"
+              >
+                My Courses
+              </button>
+            )}
             <button
               onClick={() => handleNavClick("courses")}
               className="hover:text-cyan-300 transition-colors duration-200"
@@ -293,6 +263,17 @@ function Header() {
             >
               Contact Us
             </Link>
+            {user && (
+              <Button
+                onClick={() => {
+                  logout();
+                  setIsOpen(false);
+                }}
+                className="hover:text-cyan-300 transition-colors duration-200"
+              >
+                Logout
+              </Button>
+            )}
           </nav>
         </div>
       )}
