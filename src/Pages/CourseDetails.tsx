@@ -20,7 +20,7 @@ import Register from "@/components/Register";
 import CourseApprovedReviews from "@/components/CourseApprovedReviews";
 
 const FREE_MOCK_COURSE_ID = "12";
-const TOTAL_FREE_MOCK_TESTS = 3;
+const TOTAL_FREE_MOCK_TESTS = 1;
 
 type MockAttempt = {
   id: number;
