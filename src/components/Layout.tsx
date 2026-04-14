@@ -23,7 +23,7 @@ export default function Layout() {
 
   return (
     <>
-      <Toaster richColors position="top-center" />
+      <Toaster richColors position="bottom-right" />
       {!hideLayout && <Header />}
 
       <main className={hideLayout ? "min-h-screen" : ""}>
