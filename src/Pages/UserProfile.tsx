@@ -100,7 +100,7 @@ export default function UserProfile() {
 
         {/* DETAILS GRID */}
         {!loading && profile && (
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid md:grid-cols-1 gap-6">
 
             {/* CONTACT CARD */}
             <div className="bg-white/5 border border-white/10 rounded-2xl p-5 space-y-4">
@@ -116,23 +116,6 @@ export default function UserProfile() {
                 <span>{profile.mobile}</span>
               </div>
             </div>
-
-            {/* PROGRESS CARD */}
-            <div className="bg-white/5 border border-white/10 rounded-2xl p-5 space-y-4">
-              <h3 className="text-lg font-semibold">Profile Progress</h3>
-
-              <div className="w-full bg-white/10 rounded-full h-3 overflow-hidden">
-                <div
-                  className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 transition-all"
-                  style={{ width: `${profileCompletion}%` }}
-                />
-              </div>
-
-              <p className="text-sm text-gray-400">
-                Complete your profile to unlock more features.
-              </p>
-            </div>
-
           </div>
         )}
 
