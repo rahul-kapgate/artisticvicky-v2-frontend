@@ -20,6 +20,14 @@ import {
   ChevronUp,
   GraduationCap,
   BarChart3,
+  FileText,
+  Trophy,
+  Timer,
+  Target,
+  TrendingUp,
+  Lock,
+  PlayCircle,
+  AlertCircle,
 } from "lucide-react";
 import { AuthContext } from "@/context/AuthContext";
 import Login from "@/components/Login";
@@ -28,6 +36,8 @@ import CourseApprovedReviews from "@/components/CourseApprovedReviews";
 
 const FREE_MOCK_COURSE_ID = "12";
 const TOTAL_FREE_MOCK_TESTS = 1;
+const MOCK_TOTAL_MARKS = 40;
+const MOCK_DURATION_MINS = 60;
 
 type MockAttempt = {
   id: number;
@@ -35,6 +45,7 @@ type MockAttempt = {
   course_id: number;
   score: number;
   submitted_at: string;
+  courses?: { course_name: string };
 };
 
 type MasterclassDetails = {
@@ -76,17 +87,8 @@ type CourseWithMasterclass = Course & {
   price?: number;
   level?: string | null;
   sections?: string[];
-  instructor?: {
-    name: string;
-    bio: string;
-    avatar?: string;
-    students?: number;
-    courses?: number;
-    rating?: number;
-  };
 };
 
-// Map section keys to readable labels and icons
 const SECTION_LABELS: Record<string, { label: string; icon: string }> = {
   resources: { label: "Study Resources", icon: "📚" },
   videos: { label: "Video Lectures", icon: "🎥" },
@@ -95,7 +97,6 @@ const SECTION_LABELS: Record<string, { label: string; icon: string }> = {
   "live-test": { label: "Live Tests", icon: "⚡" },
 };
 
-// Static "What You'll Learn" content (customize per course or pull from API)
 const WHAT_YOU_LEARN = [
   "Master Object Drawing techniques used in MAH AAC CET",
   "Design Practical exercises with expert feedback",
@@ -105,7 +106,6 @@ const WHAT_YOU_LEARN = [
   "Portfolio building and presentation skills",
 ];
 
-// Static sample curriculum
 const SAMPLE_CURRICULUM: CourseSection[] = [
   {
     title: "Module 1 — Object Drawing Basics",
@@ -147,6 +147,583 @@ const SAMPLE_CURRICULUM: CourseSection[] = [
   },
 ];
 
+/* ── Score helpers ── */
+function getScoreColor(score: number, total: number) {
+  const pct = (score / total) * 100;
+  if (pct >= 75)
+    return "text-emerald-400 bg-emerald-400/10 border-emerald-400/30";
+  if (pct >= 50) return "text-yellow-400 bg-yellow-400/10 border-yellow-400/30";
+  return "text-red-400 bg-red-400/10 border-red-400/30";
+}
+
+function getScoreLabel(score: number, total: number) {
+  const pct = (score / total) * 100;
+  if (pct >= 75) return "Excellent";
+  if (pct >= 50) return "Good";
+  if (pct >= 35) return "Average";
+  return "Needs Work";
+}
+
+/* ════════════════════════════════════════
+   MOCK TEST PAGE  (course id = 12)
+════════════════════════════════════════ */
+function MockTestCoursePage({
+  course,
+  currentUser,
+  isEnrolled,
+  attempts,
+  attemptsLoading,
+  freeMockTestsLeft,
+  usedMockTests,
+  onTakeMockTest,
+  onOpenLogin,
+}: {
+  course: CourseWithMasterclass;
+  currentUser: any;
+  isEnrolled: boolean;
+  attempts: MockAttempt[];
+  attemptsLoading: boolean;
+  freeMockTestsLeft: number;
+  usedMockTests: number;
+  onTakeMockTest: () => void;
+  onOpenLogin: () => void;
+}) {
+  const createdDate = course.created_at
+    ? new Date(course.created_at).toLocaleDateString("en-IN", {
+        year: "numeric",
+        month: "long",
+      })
+    : "N/A";
+
+  const discount =
+    course.price_without_discount &&
+    course.price_without_discount > (course.price || 0)
+      ? Math.round(
+          ((course.price_without_discount - (course.price || 0)) /
+            course.price_without_discount) *
+            100,
+        )
+      : null;
+
+  const isMockButtonDisabled =
+    !!currentUser && freeMockTestsLeft <= 0 && !isEnrolled;
+
+  const bestScore = attempts.length
+    ? Math.max(...attempts.map((a) => a.score))
+    : null;
+  const avgScore = attempts.length
+    ? Math.round(attempts.reduce((s, a) => s + a.score, 0) / attempts.length)
+    : null;
+
+  const openWhatsApp = () => {
+    const msg = `Hi, I am interested in "${course.course_name}".\nPrice: ₹${course.price}`;
+    window.open(
+      `https://wa.me/9325217691?text=${encodeURIComponent(msg)}`,
+      "_blank",
+    );
+  };
+
+  const handleCTA = () => {
+    if (!currentUser) {
+      onOpenLogin();
+      return;
+    }
+    if (isEnrolled || freeMockTestsLeft > 0) {
+      onTakeMockTest();
+      return;
+    }
+    openWhatsApp();
+  };
+
+  return (
+    <section className="bg-gradient-to-b from-[#0a1628] via-[#0f1b3d] to-[#1a237e] text-gray-100 min-h-screen">
+      {/* ── Hero ── */}
+      <div className="relative w-full h-[240px] sm:h-[340px] md:h-[400px] overflow-hidden">
+        <img
+          src={course.image || ""}
+          alt={course.course_name}
+          className="w-full h-full object-cover brightness-40"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0a1628] via-[#0a1628]/60 to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 px-4 sm:px-8 pb-6 sm:pb-10 max-w-6xl mx-auto">
+          <span className="inline-block bg-orange-500/20 border border-orange-400/30 text-orange-200 text-xs font-semibold uppercase tracking-wider px-3 py-1 rounded-full mb-3">
+            📝 Mock Test Series
+          </span>
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white leading-tight max-w-3xl mb-2">
+            {course.course_name}
+          </h1>
+          <div className="flex flex-wrap items-center gap-3 text-sm text-gray-300">
+            <span className="flex items-center gap-1.5 bg-white/10 px-3 py-1 rounded-full">
+              <FileText className="w-3.5 h-3.5 text-orange-300" />
+              {MOCK_TOTAL_MARKS} Questions
+            </span>
+            <span className="flex items-center gap-1.5 bg-white/10 px-3 py-1 rounded-full">
+              <Timer className="w-3.5 h-3.5 text-orange-300" />
+              {MOCK_DURATION_MINS} Minutes
+            </span>
+            <span className="flex items-center gap-1.5 bg-white/10 px-3 py-1 rounded-full">
+              <Users className="w-3.5 h-3.5 text-orange-300" />
+              {course.students_enrolled?.length ?? 0} students
+            </span>
+            {course.rating && (
+              <span className="flex items-center gap-1">
+                <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                <span className="font-semibold text-yellow-300">
+                  {course.rating}
+                </span>
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* ── Main Layout ── */}
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* ── Left Column ── */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* Exam stat cards */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {[
+              {
+                icon: <FileText className="w-5 h-5 text-orange-300" />,
+                label: "Questions",
+                value: String(MOCK_TOTAL_MARKS),
+              },
+              {
+                icon: <Timer className="w-5 h-5 text-orange-300" />,
+                label: "Duration",
+                value: `${MOCK_DURATION_MINS} min`,
+              },
+              {
+                icon: <Target className="w-5 h-5 text-orange-300" />,
+                label: "Total Marks",
+                value: String(MOCK_TOTAL_MARKS),
+              },
+              {
+                icon: <TrendingUp className="w-5 h-5 text-orange-300" />,
+                label: "Language",
+                value: course.language || "English",
+              },
+            ].map(({ icon, label, value }) => (
+              <div
+                key={label}
+                className="rounded-2xl border border-white/10 bg-white/5 p-4 text-center"
+              >
+                <div className="flex justify-center mb-2">{icon}</div>
+                <p className="text-lg font-bold text-white">{value}</p>
+                <p className="text-xs text-gray-400 mt-0.5">{label}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Topics covered */}
+          <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-6">
+            <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+              <BookOpen className="w-5 h-5 text-orange-400" />
+              Topics Covered in Mock Tests
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {[
+                "Art History — Indian & International",
+                "Famous Artists & Their Works",
+                "Design Fundamentals & Principles",
+                "Architecture & Sculpture",
+                "Current Art Affairs",
+                "Color Theory & Terminology",
+                "MAH AAC CET Pattern Questions",
+                "Speed & Accuracy Practice",
+              ].map((item, i) => (
+                <div key={i} className="flex items-start gap-2.5">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400 mt-0.5 shrink-0" />
+                  <span className="text-sm text-gray-200 leading-snug">
+                    {item}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* About */}
+          <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-6">
+            <h2 className="text-lg font-bold text-white mb-3">
+              About this Mock Test
+            </h2>
+            <div className="space-y-2">
+              {course.description
+                ?.split(/\r?\n/)
+                .filter(Boolean)
+                .map((line, i) => (
+                  <p key={i} className="text-gray-300 text-sm leading-relaxed">
+                    {line}
+                  </p>
+                ))}
+            </div>
+          </div>
+
+          {/* ── Attempt History ── */}
+          <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-6">
+            <h2 className="text-lg font-bold text-white mb-1 flex items-center gap-2">
+              <Trophy className="w-5 h-5 text-orange-400" />
+              Your Attempts
+            </h2>
+            <p className="text-xs text-gray-400 mb-4">
+              Track your progress across all mock test attempts
+            </p>
+
+            {!currentUser ? (
+              <div className="rounded-xl border border-white/10 bg-white/5 p-6 text-center">
+                <Lock className="w-8 h-8 text-gray-500 mx-auto mb-2" />
+                <p className="text-sm text-gray-400 mb-3">
+                  Login to see your attempt history
+                </p>
+                <button
+                  onClick={onOpenLogin}
+                  className="px-4 py-2 rounded-xl bg-orange-600 hover:bg-orange-500 text-white text-sm font-semibold transition"
+                >
+                  Login to Continue
+                </button>
+              </div>
+            ) : attemptsLoading ? (
+              <div className="space-y-2 animate-pulse">
+                {[0, 1, 2].map((i) => (
+                  <div key={i} className="h-14 rounded-xl bg-white/5" />
+                ))}
+              </div>
+            ) : attempts.length === 0 ? (
+              <div className="rounded-xl border border-white/10 bg-white/5 p-6 text-center">
+                <AlertCircle className="w-8 h-8 text-gray-500 mx-auto mb-2" />
+                <p className="text-sm text-gray-400">
+                  No attempts yet. Take your first mock test!
+                </p>
+              </div>
+            ) : (
+              <>
+                {/* Stats */}
+                <div className="grid grid-cols-3 gap-3 mb-4">
+                  <div className="rounded-xl bg-white/5 border border-white/10 p-3 text-center">
+                    <p className="text-xl font-bold text-orange-300">
+                      {attempts.length}
+                    </p>
+                    <p className="text-xs text-gray-400 mt-0.5">Attempts</p>
+                  </div>
+                  <div className="rounded-xl bg-white/5 border border-white/10 p-3 text-center">
+                    <p className="text-xl font-bold text-emerald-300">
+                      {bestScore ?? "—"}
+                      <span className="text-xs text-gray-400">
+                        /{MOCK_TOTAL_MARKS}
+                      </span>
+                    </p>
+                    <p className="text-xs text-gray-400 mt-0.5">Best Score</p>
+                  </div>
+                  <div className="rounded-xl bg-white/5 border border-white/10 p-3 text-center">
+                    <p className="text-xl font-bold text-cyan-300">
+                      {avgScore ?? "—"}
+                      <span className="text-xs text-gray-400">
+                        /{MOCK_TOTAL_MARKS}
+                      </span>
+                    </p>
+                    <p className="text-xs text-gray-400 mt-0.5">Avg Score</p>
+                  </div>
+                </div>
+
+                {/* List */}
+                <div className="space-y-2 max-h-72 overflow-y-auto pr-1 [scrollbar-width:thin]">
+                  {attempts.map((attempt, idx) => {
+                    const pct = Math.round(
+                      (attempt.score / MOCK_TOTAL_MARKS) * 100,
+                    );
+                    const colorClass = getScoreColor(
+                      attempt.score,
+                      MOCK_TOTAL_MARKS,
+                    );
+                    const label = getScoreLabel(
+                      attempt.score,
+                      MOCK_TOTAL_MARKS,
+                    );
+                    return (
+                      <div
+                        key={attempt.id}
+                        className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 px-4 py-3"
+                      >
+                        <div className="w-7 h-7 rounded-full bg-orange-500/20 border border-orange-400/20 flex items-center justify-center text-xs font-bold text-orange-300 shrink-0">
+                          {attempts.length - idx}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs text-gray-400">
+                            {new Date(attempt.submitted_at).toLocaleDateString(
+                              "en-IN",
+                              {
+                                day: "2-digit",
+                                month: "short",
+                                year: "numeric",
+                              },
+                            )}
+                            {" • "}
+                            {new Date(attempt.submitted_at).toLocaleTimeString(
+                              "en-IN",
+                              { hour: "2-digit", minute: "2-digit" },
+                            )}
+                          </p>
+                          <div className="mt-1.5 h-1.5 w-full rounded-full bg-white/10 overflow-hidden">
+                            <div
+                              className={`h-full rounded-full transition-all ${pct >= 75 ? "bg-emerald-400" : pct >= 50 ? "bg-yellow-400" : "bg-red-400"}`}
+                              style={{ width: `${pct}%` }}
+                            />
+                          </div>
+                        </div>
+                        <div
+                          className={`shrink-0 rounded-lg border px-2.5 py-1 text-center ${colorClass}`}
+                        >
+                          <p className="text-sm font-bold leading-none">
+                            {attempt.score}/{MOCK_TOTAL_MARKS}
+                          </p>
+                          <p className="text-[10px] mt-0.5">{label}</p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </>
+            )}
+          </div>
+
+          {/* Reviews */}
+          <CourseApprovedReviews courseId={Number(course.id)} />
+
+          {/* Instructor */}
+          <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-6">
+            <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+              <GraduationCap className="w-5 h-5 text-orange-400" />
+              Your Instructor
+            </h2>
+            <div className="flex items-start gap-4">
+              <div className="w-14 h-14 rounded-full bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center text-xl font-bold text-white shrink-0">
+                V
+              </div>
+              <div>
+                <h3 className="font-bold text-white text-base">Vicky Sir</h3>
+                <p className="text-orange-300 text-sm mb-2">
+                  MAH AAC CET Expert & BFA Coach
+                </p>
+                <div className="flex flex-wrap gap-3 text-xs text-gray-400 mb-3">
+                  <span className="flex items-center gap-1">
+                    <Star className="w-3.5 h-3.5 text-yellow-400" /> 5.0 Rating
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Users className="w-3.5 h-3.5 text-orange-400" /> 500+
+                    Students
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <BookOpen className="w-3.5 h-3.5 text-orange-400" /> 3
+                    Courses
+                  </span>
+                </div>
+                <p className="text-gray-300 text-sm leading-relaxed">
+                  Expert MAH AAC CET coach helping students unlock their
+                  creative potential and secure BFA admissions across
+                  Maharashtra's top visual arts colleges.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ── Right Sidebar ── */}
+        <aside className="lg:sticky lg:top-24 h-fit space-y-4 order-first lg:order-last">
+          {/* Free attempt card — non-enrolled only */}
+          {!isEnrolled && (
+            <div className="relative overflow-hidden rounded-2xl border border-orange-400/20 bg-gradient-to-br from-orange-500/15 via-red-500/10 to-pink-500/10 p-5 shadow-xl">
+              <div className="absolute -top-10 -right-10 h-28 w-28 rounded-full bg-orange-400/20 blur-3xl" />
+              <div className="absolute -bottom-8 -left-8 h-24 w-24 rounded-full bg-red-500/20 blur-3xl" />
+              <div className="relative">
+                <div className="inline-flex items-center rounded-full border border-orange-300/20 bg-orange-400/10 px-3 py-1 text-xs font-medium uppercase tracking-wide text-orange-200 mb-4">
+                  🎁 1 Free Mock Test
+                </div>
+                <div className="grid grid-cols-3 gap-2 mb-4">
+                  {[
+                    { label: "Total", value: TOTAL_FREE_MOCK_TESTS },
+                    {
+                      label: "Used",
+                      value: attemptsLoading ? "…" : usedMockTests,
+                    },
+                    {
+                      label: "Left",
+                      value: attemptsLoading ? "…" : freeMockTestsLeft,
+                    },
+                  ].map(({ label, value }) => (
+                    <div
+                      key={label}
+                      className="rounded-xl border border-white/10 bg-white/10 p-2.5 text-center"
+                    >
+                      <p className="text-base font-bold text-orange-300">
+                        {value}
+                      </p>
+                      <p className="text-[10px] text-gray-300">{label}</p>
+                    </div>
+                  ))}
+                </div>
+                <button
+                  onClick={handleCTA}
+                  disabled={isMockButtonDisabled}
+                  className={`w-full rounded-xl py-3 text-sm font-semibold text-white transition mb-2 ${
+                    isMockButtonDisabled
+                      ? "bg-gray-600 opacity-60 cursor-not-allowed"
+                      : "bg-gradient-to-r from-orange-500 to-red-500 hover:scale-[1.02] active:scale-[0.98]"
+                  }`}
+                >
+                  {isMockButtonDisabled
+                    ? "No Free Tests Left"
+                    : "Start Free Mock Test 🚀"}
+                </button>
+                <p className="text-center text-xs text-gray-400">
+                  {!currentUser
+                    ? "Login to take the free mock test"
+                    : freeMockTestsLeft > 0
+                      ? "Try before you enroll — no payment needed"
+                      : "Free attempt used. Enroll for unlimited tests."}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Price + Enroll / Start Test */}
+          <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-5 space-y-4">
+            {!isEnrolled && (
+              <div className="text-center">
+                <div className="flex items-end justify-center gap-3">
+                  <span className="text-4xl font-extrabold text-emerald-400">
+                    ₹{course.price}
+                  </span>
+                  {course.price_without_discount &&
+                    course.price_without_discount > (course.price || 0) && (
+                      <span className="text-xl text-red-400 line-through pb-0.5">
+                        ₹{course.price_without_discount}
+                      </span>
+                    )}
+                </div>
+                {discount && (
+                  <div className="mt-2 inline-flex items-center gap-2 rounded-full bg-emerald-500/15 border border-emerald-400/20 px-3 py-1 text-sm text-emerald-200">
+                    <span className="font-semibold">Save {discount}%</span>
+                    <span className="text-emerald-100/60">•</span>
+                    <span>
+                      ₹
+                      {(course.price_without_discount || 0) -
+                        (course.price || 0)}{" "}
+                      off
+                    </span>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {isEnrolled ? (
+              <button
+                onClick={onTakeMockTest}
+                className="w-full py-3 rounded-xl text-base font-semibold text-white bg-orange-600 hover:bg-orange-500 transition flex items-center justify-center gap-2 active:scale-[0.98]"
+              >
+                <PlayCircle className="w-5 h-5" />
+                Start Mock Test
+              </button>
+            ) : (
+              <button
+                onClick={openWhatsApp}
+                className="w-full py-3 rounded-xl text-base font-semibold text-white bg-orange-600 hover:bg-orange-500 transition active:scale-[0.98]"
+              >
+                Enroll for Unlimited Tests 🚀
+              </button>
+            )}
+
+            <button
+              onClick={openWhatsApp}
+              className="w-full py-2.5 rounded-xl text-sm font-semibold text-white bg-[#25D366] hover:bg-[#20bd5a] transition flex items-center justify-center gap-2 active:scale-[0.98]"
+            >
+              <MessageCircle className="w-4 h-4" />
+              Ask on WhatsApp
+            </button>
+
+            <div className="pt-2 border-t border-white/10">
+              <p className="text-sm font-semibold text-white mb-3">
+                What you get:
+              </p>
+              <div className="space-y-2">
+                {[
+                  { icon: "📝", text: "40 questions per test" },
+                  { icon: "⏱️", text: "60 minute timed exam" },
+                  { icon: "📊", text: "Instant score & result" },
+                  { icon: "🔄", text: "Unlimited attempts (enrolled)" },
+                  { icon: "📈", text: "Attempt history & progress" },
+                  { icon: "🏆", text: "Best score tracking" },
+                ].map(({ icon, text }) => (
+                  <div
+                    key={text}
+                    className="flex items-center gap-2 text-sm text-gray-300"
+                  >
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                    {icon} {text}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Test details */}
+          <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-5">
+            <p className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+              <BarChart3 className="w-4 h-4 text-orange-400" />
+              Test Details
+            </p>
+            <div className="space-y-2.5">
+              <MetaRow
+                icon={<Layers className="w-4 h-4 text-orange-400" />}
+                label="Category"
+                value={course.category || "N/A"}
+              />
+              <MetaRow
+                icon={<FileText className="w-4 h-4 text-orange-400" />}
+                label="Questions"
+                value={String(MOCK_TOTAL_MARKS)}
+              />
+              <MetaRow
+                icon={<Timer className="w-4 h-4 text-orange-400" />}
+                label="Duration"
+                value={`${MOCK_DURATION_MINS} mins`}
+              />
+              <MetaRow
+                icon={<Globe className="w-4 h-4 text-orange-400" />}
+                label="Language"
+                value={course.language || "N/A"}
+              />
+              <MetaRow
+                icon={<Clock className="w-4 h-4 text-orange-400" />}
+                label="Access"
+                value={course.duration || "N/A"}
+              />
+              <MetaRow
+                icon={<Users className="w-4 h-4 text-orange-400" />}
+                label="Students"
+                value={String(course.students_enrolled?.length ?? 0)}
+              />
+              <MetaRow
+                icon={<Star className="w-4 h-4 text-yellow-400" />}
+                label="Rating"
+                value={`${course.rating || 0} ⭐`}
+              />
+              <MetaRow
+                icon={<Calendar className="w-4 h-4 text-orange-400" />}
+                label="Created"
+                value={createdDate}
+              />
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+  );
+}
+
+/* ════════════════════════════════════════
+   MAIN COMPONENT
+════════════════════════════════════════ */
 export default function CourseDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -163,6 +740,7 @@ export default function CourseDetails() {
     TOTAL_FREE_MOCK_TESTS,
   );
   const [usedMockTests, setUsedMockTests] = useState(0);
+  const [attempts, setAttempts] = useState<MockAttempt[]>([]);
   const [attemptsLoading, setAttemptsLoading] = useState(false);
 
   const { user } = useContext(AuthContext);
@@ -176,13 +754,13 @@ export default function CourseDetails() {
   }, []);
 
   const currentUser = user || storedUser;
+  const isMockCourse = String(id) === FREE_MOCK_COURSE_ID;
 
   useEffect(() => {
-    const fetchCourseAndAttempts = async () => {
+    const fetchCourse = async () => {
       try {
         setLoading(true);
         setError(null);
-
         const { data } = await apiClient.get(`/api/course/${id}`);
         const fetchedCourse: CourseWithMasterclass = data?.data;
         setCourse(fetchedCourse);
@@ -192,21 +770,29 @@ export default function CourseDetails() {
           !!currentUser?.id && enrolledList.includes(Number(currentUser.id));
         setIsEnrolled(userEnrolled);
 
-        const isFreeMockCourse =
+        const isFreeMock =
           String(fetchedCourse?.id) === FREE_MOCK_COURSE_ID &&
           fetchedCourse?.course_type !== "masterclass";
 
-        if (isFreeMockCourse && currentUser?.id) {
+        if (isFreeMock && currentUser?.id) {
           setAttemptsLoading(true);
           try {
-            const attemptsRes = await apiClient.get(
+            const res = await apiClient.get(
               `/api/mock-test/attempts/${currentUser.id}`,
             );
-            const attempts: MockAttempt[] = attemptsRes.data?.data || [];
-            const used = attempts.length;
-            setUsedMockTests(used);
-            setFreeMockTestsLeft(Math.max(TOTAL_FREE_MOCK_TESTS - used, 0));
+            const data: MockAttempt[] = res.data?.data || [];
+            setAttempts(data);
+            setUsedMockTests(data.length);
+            // if enrolled, unlimited — free limit only applies to non-enrolled
+            if (!userEnrolled) {
+              setFreeMockTestsLeft(
+                Math.max(TOTAL_FREE_MOCK_TESTS - data.length, 0),
+              );
+            } else {
+              setFreeMockTestsLeft(999); // unlimited
+            }
           } catch {
+            setAttempts([]);
             setUsedMockTests(0);
             setFreeMockTestsLeft(TOTAL_FREE_MOCK_TESTS);
           } finally {
@@ -219,8 +805,7 @@ export default function CourseDetails() {
         setLoading(false);
       }
     };
-
-    if (id) fetchCourseAndAttempts();
+    if (id) fetchCourse();
   }, [id, currentUser?.id]);
 
   if (loading) {
@@ -239,10 +824,61 @@ export default function CourseDetails() {
   if (!course)
     return <p className="text-center text-gray-300 mt-10">Course not found.</p>;
 
+  const handleTakeMockTest = () => {
+    if (!currentUser) {
+      setLoginOpen(true);
+      return;
+    }
+    if (!isEnrolled && freeMockTestsLeft <= 0) return;
+    navigate(`/my-courses/${course.id}/mock-test`, {
+      state: { source: "free-mock", courseId: course.id },
+    });
+  };
+
+  const openWhatsApp = () => {
+    const msg = `Hi, I am interested in "${course.course_name}".\nCurrent price: ₹${course.price ?? 0}${
+      course.price_without_discount &&
+      course.price_without_discount > (course.price || 0)
+        ? `\nOriginal price: ₹${course.price_without_discount}`
+        : ""
+    }`;
+    window.open(
+      `https://wa.me/9325217691?text=${encodeURIComponent(msg)}`,
+      "_blank",
+    );
+  };
+
+  /* ── Route to mock test page ── */
+  if (isMockCourse) {
+    return (
+      <>
+        <MockTestCoursePage
+          course={course}
+          currentUser={currentUser}
+          isEnrolled={isEnrolled}
+          attempts={attempts}
+          attemptsLoading={attemptsLoading}
+          freeMockTestsLeft={freeMockTestsLeft}
+          usedMockTests={usedMockTests}
+          onTakeMockTest={handleTakeMockTest}
+          onOpenLogin={() => setLoginOpen(true)}
+        />
+        <Login
+          open={loginOpen}
+          onOpenChange={setLoginOpen}
+          onOpenRegister={() => {
+            setLoginOpen(false);
+            setRegisterOpen(true);
+          }}
+        />
+        <Register open={registerOpen} onOpenChange={setRegisterOpen} />
+      </>
+    );
+  }
+
+  /* ── Regular course / masterclass ── */
   const isMasterclass = course.course_type === "masterclass";
   const masterclass = course.masterclass_details || null;
-  const isFreeMockCourse =
-    String(course.id) === FREE_MOCK_COURSE_ID && !isMasterclass;
 
   const createdDate = course.created_at
     ? new Date(course.created_at).toLocaleDateString("en-IN", {
@@ -269,33 +905,11 @@ export default function CourseDetails() {
     return value.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
   };
 
-  const isMeetingVisible = () => {
-    if (!isMasterclass || !masterclass?.masterclass_start_at) return false;
-    const start = new Date(masterclass.masterclass_start_at).getTime();
-    const visibleAt =
-      start - (masterclass.meeting_visible_before_minutes ?? 15) * 60 * 1000;
-    return Date.now() >= visibleAt;
-  };
-
   const isPptVisible = () =>
     isMasterclass &&
     isEnrolled &&
     masterclass?.masterclass_status === "completed" &&
     !!masterclass?.ppt_file_url;
-
-  const openWhatsApp = () => {
-    if (!course) return;
-    const msg = `Hi, I am interested in "${course.course_name}".\nCurrent price: ₹${course.price ?? 0}${
-      course.price_without_discount &&
-      course.price_without_discount > (course.price || 0)
-        ? `\nOriginal price: ₹${course.price_without_discount}`
-        : ""
-    }`;
-    window.open(
-      `https://wa.me/9325217691?text=${encodeURIComponent(msg)}`,
-      "_blank",
-    );
-  };
 
   const handleMainButton = () => {
     if (!currentUser) {
@@ -306,30 +920,9 @@ export default function CourseDetails() {
     else openWhatsApp();
   };
 
-  const handleEnrollNow = () => {
-    if (!currentUser) {
-      setLoginOpen(true);
-      return;
-    }
-    openWhatsApp();
-  };
-
-  const handleTakeMockTest = () => {
-    if (!currentUser) {
-      setLoginOpen(true);
-      return;
-    }
-    if (freeMockTestsLeft <= 0) return;
-    navigate(`/my-courses/${course.id}/mock-test`, {
-      state: { source: "free-mock", courseId: course.id },
-    });
-  };
-
   const getMainButtonText = () => {
-    if (isMasterclass) {
-      if (isEnrolled) return "View Masterclass 🚀";
-      return "Book Masterclass 🚀";
-    }
+    if (isMasterclass)
+      return isEnrolled ? "View Masterclass 🚀" : "Book Masterclass 🚀";
     return isEnrolled ? "Continue Learning 🚀" : "Enroll Now 🚀";
   };
 
@@ -343,13 +936,9 @@ export default function CourseDetails() {
         )
       : null;
 
-  const showFreeMockCard = isFreeMockCourse && !isEnrolled;
-  const isMockButtonDisabled = !!currentUser && freeMockTestsLeft <= 0;
-  const shouldHighlightEnrollNow = !!currentUser && freeMockTestsLeft <= 0;
-
   return (
     <section className="bg-gradient-to-b from-[#0a1628] via-[#0f1b3d] to-[#1a237e] text-gray-100 min-h-screen">
-      {/* ── Hero ── */}
+      {/* Hero */}
       <div className="relative w-full h-[260px] sm:h-[360px] md:h-[440px] overflow-hidden">
         <img
           src={course.image || ""}
@@ -385,11 +974,8 @@ export default function CourseDetails() {
         </div>
       </div>
 
-      {/* ── Main Layout ── */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* ── Left Column ── */}
         <div className="lg:col-span-2 space-y-8">
-          {/* What You'll Learn */}
           {!isMasterclass && (
             <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-6">
               <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
@@ -409,7 +995,6 @@ export default function CourseDetails() {
             </div>
           )}
 
-          {/* Course Curriculum */}
           {!isMasterclass && (
             <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-6">
               <h2 className="text-xl font-bold text-white mb-1 flex items-center gap-2">
@@ -424,8 +1009,6 @@ export default function CourseDetails() {
                 )}{" "}
                 lessons
               </p>
-
-              {/* Sections included */}
               {course.sections && course.sections.length > 0 && (
                 <div className="flex flex-wrap gap-2 mb-5">
                   {course.sections.map((sec) => {
@@ -436,14 +1019,12 @@ export default function CourseDetails() {
                         key={sec}
                         className="inline-flex items-center gap-1.5 bg-cyan-500/10 border border-cyan-400/20 text-cyan-200 text-xs px-3 py-1.5 rounded-full"
                       >
-                        <span>{info.icon}</span>
-                        {info.label}
+                        {info.icon} {info.label}
                       </span>
                     );
                   })}
                 </div>
               )}
-
               <div className="space-y-2">
                 {SAMPLE_CURRICULUM.map((module, idx) => (
                   <div
@@ -491,7 +1072,6 @@ export default function CourseDetails() {
             </div>
           )}
 
-          {/* Masterclass schedule info */}
           {isMasterclass && masterclass && (
             <div className="rounded-2xl border border-cyan-400/20 bg-cyan-500/5 p-6 space-y-3">
               <h2 className="text-xl font-bold text-white mb-2 flex items-center gap-2">
@@ -516,7 +1096,6 @@ export default function CourseDetails() {
             </div>
           )}
 
-          {/* About */}
           <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-6">
             <h2 className="text-xl font-bold text-white mb-3">
               About this {isMasterclass ? "Masterclass" : "Course"}
@@ -527,10 +1106,8 @@ export default function CourseDetails() {
             </p>
           </div>
 
-          {/* Reviews */}
           <CourseApprovedReviews courseId={Number(course.id)} />
 
-          {/* PPT for completed masterclass */}
           {isPptVisible() && (
             <div className="rounded-2xl border border-cyan-400/20 bg-white/5 p-6">
               <div className="flex items-start gap-4">
@@ -559,7 +1136,6 @@ export default function CourseDetails() {
             </div>
           )}
 
-          {/* Instructor */}
           <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-6">
             <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
               <GraduationCap className="w-5 h-5 text-cyan-400" />
@@ -596,173 +1172,84 @@ export default function CourseDetails() {
           </div>
         </div>
 
-        {/* ── Right Sidebar ── */}
         <aside className="lg:sticky lg:top-24 h-fit space-y-4 order-first lg:order-last">
-          {showFreeMockCard ? (
-            /* Free Mock Card */
-            <div className="relative overflow-hidden rounded-2xl border border-cyan-400/20 bg-gradient-to-br from-cyan-500/15 via-sky-500/10 to-indigo-500/15 p-5 shadow-xl">
-              <div className="absolute -top-10 -right-10 h-28 w-28 rounded-full bg-cyan-400/20 blur-3xl" />
-              <div className="absolute -bottom-8 -left-8 h-24 w-24 rounded-full bg-blue-500/20 blur-3xl" />
-              <div className="relative">
-                <div className="inline-flex items-center rounded-full border border-cyan-300/20 bg-cyan-400/10 px-3 py-1 text-xs font-medium uppercase tracking-wide text-cyan-200">
-                  Free Mock Test
-                </div>
-                <div className="mt-4 flex items-end gap-3">
-                  <h3 className="text-5xl font-extrabold leading-none text-cyan-300">
-                    {attemptsLoading ? "..." : freeMockTestsLeft}
-                  </h3>
-                  <p className="pb-1 text-sm text-gray-200">tests left</p>
-                </div>
-                <p className="mt-3 text-sm leading-6 text-gray-200">
-                  Start free practice and check your preparation level.
-                </p>
-                <div className="mt-5 grid grid-cols-3 gap-3">
-                  {[
-                    { label: "Total", value: TOTAL_FREE_MOCK_TESTS },
-                    {
-                      label: "Used",
-                      value: attemptsLoading ? "..." : usedMockTests,
-                    },
-                    {
-                      label: "Left",
-                      value: attemptsLoading ? "..." : freeMockTestsLeft,
-                    },
-                  ].map(({ label, value }) => (
-                    <div
-                      key={label}
-                      className="rounded-2xl border border-white/10 bg-white/10 p-3 text-center"
-                    >
-                      <p className="text-base font-semibold text-cyan-300">
-                        {value}
-                      </p>
-                      <p className="text-[11px] text-gray-200">{label}</p>
-                    </div>
-                  ))}
-                </div>
-                <div className="mt-6 flex flex-col gap-3">
-                  <button
-                    onClick={handleTakeMockTest}
-                    disabled={isMockButtonDisabled}
-                    className={`w-full rounded-xl px-4 py-3 text-sm font-semibold text-white shadow-md transition ${
-                      isMockButtonDisabled
-                        ? "cursor-not-allowed bg-gray-600 opacity-70"
-                        : "bg-gradient-to-r from-cyan-500 to-blue-600 hover:scale-[1.02] active:scale-[0.98]"
-                    }`}
-                  >
-                    {isMockButtonDisabled
-                      ? "No Mock Tests Left"
-                      : "Take a Mock Test"}
-                  </button>
-                  <button
-                    onClick={handleEnrollNow}
-                    className={`w-full rounded-xl px-4 py-3 text-sm font-semibold text-white transition shadow-md active:scale-[0.98] ${
-                      shouldHighlightEnrollNow
-                        ? "bg-cyan-600 hover:bg-cyan-500"
-                        : "border border-white/15 bg-white/10 hover:bg-white/15"
-                    }`}
-                  >
-                    Enroll Now
-                  </button>
-                </div>
-                <p className="mt-4 text-center text-xs text-gray-300">
-                  {!currentUser
-                    ? "Login required to start the mock test."
-                    : freeMockTestsLeft > 0
-                      ? "Use your free attempts before enrolling."
-                      : "Your free mock tests are finished. Enroll to continue."}
-                </p>
-              </div>
-            </div>
-          ) : (
-            /* Regular Enroll Card */
-            <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-5 space-y-4">
-              {(!currentUser || !isEnrolled) && !isFreeMockCourse && (
-                <div className="text-center">
-                  <div className="flex items-end justify-center gap-3">
-                    <span className="text-4xl font-extrabold text-emerald-400">
-                      ₹{course.price}
-                    </span>
-                    {course.price_without_discount &&
-                      course.price_without_discount > (course.price || 0) && (
-                        <span className="text-xl text-red-400 line-through pb-0.5">
-                          ₹{course.price_without_discount}
-                        </span>
-                      )}
-                  </div>
-                  {discount && (
-                    <div className="mt-2 inline-flex items-center gap-2 rounded-full bg-emerald-500/15 border border-emerald-400/20 px-3 py-1 text-sm text-emerald-200">
-                      <span className="font-semibold">Save {discount}%</span>
-                      <span className="text-emerald-100/70">•</span>
-                      <span>
-                        ₹
-                        {(course.price_without_discount || 0) -
-                          (course.price || 0)}{" "}
-                        off
+          <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-5 space-y-4">
+            {(!currentUser || !isEnrolled) && (
+              <div className="text-center">
+                <div className="flex items-end justify-center gap-3">
+                  <span className="text-4xl font-extrabold text-emerald-400">
+                    ₹{course.price}
+                  </span>
+                  {course.price_without_discount &&
+                    course.price_without_discount > (course.price || 0) && (
+                      <span className="text-xl text-red-400 line-through pb-0.5">
+                        ₹{course.price_without_discount}
                       </span>
-                    </div>
-                  )}
+                    )}
                 </div>
-              )}
-
-              <button
-                onClick={handleMainButton}
-                className={`w-full px-6 py-3 rounded-xl text-base font-semibold text-white transition-all shadow-md active:scale-[0.98] ${
-                  isEnrolled
-                    ? "bg-green-600 hover:bg-green-500"
-                    : "bg-cyan-600 hover:bg-cyan-500"
-                }`}
-              >
-                {getMainButtonText()}
-              </button>
-
-              {/* WhatsApp button for non-enrolled */}
-              {!isEnrolled && (
-                <button
-                  onClick={openWhatsApp}
-                  className="w-full px-6 py-3 rounded-xl text-base font-semibold text-white bg-[#25D366] hover:bg-[#20bd5a] transition-all shadow-md active:scale-[0.98] flex items-center justify-center gap-2"
-                >
-                  <MessageCircle className="w-5 h-5" />
-                  Message on WhatsApp
-                </button>
-              )}
-
-              {/* Includes section */}
-              {!isMasterclass &&
-                course.sections &&
-                course.sections.length > 0 && (
-                  <div className="pt-2 border-t border-white/10">
-                    <p className="text-sm font-semibold text-white mb-3">
-                      This course includes:
-                    </p>
-                    <div className="space-y-2">
-                      {course.sections.map((sec) => {
-                        const info = SECTION_LABELS[sec];
-                        if (!info) return null;
-                        return (
-                          <div
-                            key={sec}
-                            className="flex items-center gap-2 text-sm text-gray-300"
-                          >
-                            <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                            {info.icon} {info.label}
-                          </div>
-                        );
-                      })}
-                      <div className="flex items-center gap-2 text-sm text-gray-300">
-                        <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                        🏆 Certificate on completion
-                      </div>
-                      <div className="flex items-center gap-2 text-sm text-gray-300">
-                        <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                        📅 Access till exam
-                      </div>
-                    </div>
+                {discount && (
+                  <div className="mt-2 inline-flex items-center gap-2 rounded-full bg-emerald-500/15 border border-emerald-400/20 px-3 py-1 text-sm text-emerald-200">
+                    <span className="font-semibold">Save {discount}%</span>
+                    <span className="text-emerald-100/70">•</span>
+                    <span>
+                      ₹
+                      {(course.price_without_discount || 0) -
+                        (course.price || 0)}{" "}
+                      off
+                    </span>
                   </div>
                 )}
-            </div>
-          )}
+              </div>
+            )}
+            <button
+              onClick={handleMainButton}
+              className={`w-full px-6 py-3 rounded-xl text-base font-semibold text-white transition-all shadow-md active:scale-[0.98] ${isEnrolled ? "bg-green-600 hover:bg-green-500" : "bg-cyan-600 hover:bg-cyan-500"}`}
+            >
+              {getMainButtonText()}
+            </button>
+            {!isEnrolled && (
+              <button
+                onClick={openWhatsApp}
+                className="w-full px-6 py-3 rounded-xl text-base font-semibold text-white bg-[#25D366] hover:bg-[#20bd5a] transition-all shadow-md active:scale-[0.98] flex items-center justify-center gap-2"
+              >
+                <MessageCircle className="w-5 h-5" />
+                Message on WhatsApp
+              </button>
+            )}
+            {!isMasterclass &&
+              course.sections &&
+              course.sections.length > 0 && (
+                <div className="pt-2 border-t border-white/10">
+                  <p className="text-sm font-semibold text-white mb-3">
+                    This course includes:
+                  </p>
+                  <div className="space-y-2">
+                    {course.sections.map((sec) => {
+                      const info = SECTION_LABELS[sec];
+                      if (!info) return null;
+                      return (
+                        <div
+                          key={sec}
+                          className="flex items-center gap-2 text-sm text-gray-300"
+                        >
+                          <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                          {info.icon} {info.label}
+                        </div>
+                      );
+                    })}
+                    <div className="flex items-center gap-2 text-sm text-gray-300">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                      🏆 Certificate on completion
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-gray-300">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                      📅 Access till exam
+                    </div>
+                  </div>
+                </div>
+              )}
+          </div>
 
-          {/* Course meta card */}
           <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-5">
             <p className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
               <BarChart3 className="w-4 h-4 text-cyan-400" />
