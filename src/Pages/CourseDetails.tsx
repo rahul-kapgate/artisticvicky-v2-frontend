@@ -36,6 +36,7 @@ import CourseApprovedReviews from "@/components/CourseApprovedReviews";
 
 const FREE_MOCK_COURSE_ID = "12";
 const PYQ_MOCK_COURSE_ID = "13";
+const RESOURCES_COURSE_ID = "16";
 const TOTAL_FREE_MOCK_TESTS = 1;
 const MOCK_TOTAL_MARKS = 40;
 const MOCK_DURATION_MINS = 60;
@@ -637,13 +638,6 @@ function MockTestCoursePage({
               </button>
             )}
 
-            <button
-              onClick={openWhatsApp}
-              className="w-full py-2.5 rounded-xl text-sm font-semibold text-white bg-[#25D366] hover:bg-[#20bd5a] transition flex items-center justify-center gap-2 active:scale-[0.98]"
-            >
-              <MessageCircle className="w-4 h-4" />
-              Ask on WhatsApp
-            </button>
 
             <div className="pt-2 border-t border-white/10">
               <p className="text-sm font-semibold text-white mb-3">
@@ -984,7 +978,7 @@ function PYQMockCoursePage({
                   ✅ You're Enrolled
                 </p>
                 <p className="text-xs text-gray-400 mt-1">
-                   Start practicing
+                  Select any year above to start practicing
                 </p>
               </div>
             ) : (
@@ -996,13 +990,6 @@ function PYQMockCoursePage({
               </button>
             )}
 
-            <button
-              onClick={openWhatsApp}
-              className="w-full py-2.5 rounded-xl text-sm font-semibold text-white bg-[#25D366] hover:bg-[#20bd5a] transition flex items-center justify-center gap-2 active:scale-[0.98]"
-            >
-              <MessageCircle className="w-4 h-4" />
-              Ask on WhatsApp
-            </button>
 
             <div className="pt-2 border-t border-white/10">
               <p className="text-sm font-semibold text-white mb-3">
@@ -1028,6 +1015,30 @@ function PYQMockCoursePage({
               </div>
             </div>
           </div>
+
+          {/* Years quick access — enrolled only */}
+          {isEnrolled && (
+            <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-5">
+              <p className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+                <FileText className="w-4 h-4 text-violet-400" />
+                Quick Access
+              </p>
+              <div className="grid grid-cols-3 gap-1.5">
+                {PYQ_YEARS.slice(0, 9).map((year) => (
+                  <button
+                    key={year}
+                    onClick={() => handleStartPYQ(year)}
+                    className="rounded-lg border border-white/10 bg-white/5 hover:border-violet-400/30 hover:bg-violet-500/15 py-2 text-center text-xs font-semibold text-gray-300 hover:text-violet-200 transition"
+                  >
+                    {year}
+                  </button>
+                ))}
+              </div>
+              <p className="text-xs text-gray-500 mt-2 text-center">
+                Showing latest 9 — scroll left for more
+              </p>
+            </div>
+          )}
 
           {/* Details */}
           <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-5">
@@ -1090,6 +1101,454 @@ function PYQMockCoursePage({
 }
 
 /* ════════════════════════════════════════
+   RESOURCES COURSE PAGE  (course id = 16)
+════════════════════════════════════════ */
+const RESOURCE_ITEMS = [
+  {
+    icon: "📋",
+    title: "PYQ Question Papers",
+    desc: "Previous Year Question Papers from 2006 to 2026 in clean, print-ready PDF format.",
+    badge: "21 Years",
+    color: "from-violet-500/15 to-purple-500/10 border-violet-400/20",
+    badgeColor: "bg-violet-400/15 text-violet-200 border-violet-400/25",
+  },
+  {
+    icon: "📝",
+    title: "Exam Notes",
+    desc: "Concise, topic-wise notes covering Art History, Design, GK, and more — curated for MAH AAC CET.",
+    badge: "All Topics",
+    color: "from-cyan-500/15 to-blue-500/10 border-cyan-400/20",
+    badgeColor: "bg-cyan-400/15 text-cyan-200 border-cyan-400/25",
+  },
+  {
+    icon: "📚",
+    title: "E-Books",
+    desc: "Comprehensive e-books on Object Drawing, Design Practical, and Memory Drawing techniques.",
+    badge: "3 Books",
+    color: "from-emerald-500/15 to-teal-500/10 border-emerald-400/20",
+    badgeColor: "bg-emerald-400/15 text-emerald-200 border-emerald-400/25",
+  },
+  {
+    icon: "🗒️",
+    title: "Session Notes",
+    desc: "Handwritten and digital notes from live sessions, summarizing key concepts and tips from each class.",
+    badge: "Updated Live",
+    color: "from-orange-500/15 to-amber-500/10 border-orange-400/20",
+    badgeColor: "bg-orange-400/15 text-orange-200 border-orange-400/25",
+  },
+];
+
+function ResourcesCoursePage({
+  course,
+  currentUser,
+  isEnrolled,
+  onOpenLogin,
+}: {
+  course: CourseWithMasterclass;
+  currentUser: any;
+  isEnrolled: boolean;
+  onOpenLogin: () => void;
+}) {
+  const navigate = useNavigate();
+
+  const createdDate = course.created_at
+    ? new Date(course.created_at).toLocaleDateString("en-IN", {
+        year: "numeric",
+        month: "long",
+      })
+    : "N/A";
+
+  const discount =
+    course.price_without_discount &&
+    course.price_without_discount > (course.price || 0)
+      ? Math.round(
+          ((course.price_without_discount - (course.price || 0)) /
+            course.price_without_discount) *
+            100,
+        )
+      : null;
+
+  const openWhatsApp = () => {
+    const msg = `Hi, I am interested in "${course.course_name}".\nPrice: ₹${course.price}`;
+    window.open(
+      `https://wa.me/9325217691?text=${encodeURIComponent(msg)}`,
+      "_blank",
+    );
+  };
+
+  const handleAccess = () => {
+    if (!currentUser) {
+      onOpenLogin();
+      return;
+    }
+    if (!isEnrolled) {
+      openWhatsApp();
+      return;
+    }
+    navigate(`/my-courses/${course.id}`);
+  };
+
+  return (
+    <section className="bg-gradient-to-b from-[#0a1628] via-[#0f1b3d] to-[#1a237e] text-gray-100 min-h-screen">
+      {/* ── Hero ── */}
+      <div className="relative w-full h-[240px] sm:h-[340px] md:h-[400px] overflow-hidden">
+        <img
+          src={course.image || ""}
+          alt={course.course_name}
+          className="w-full h-full object-cover brightness-40"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0a1628] via-[#0a1628]/60 to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 px-4 sm:px-8 pb-6 sm:pb-10 max-w-6xl mx-auto">
+          <span className="inline-block bg-emerald-500/20 border border-emerald-400/30 text-emerald-200 text-xs font-semibold uppercase tracking-wider px-3 py-1 rounded-full mb-3">
+            📚 Study Resources
+          </span>
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white leading-tight max-w-3xl mb-2">
+            {course.course_name}
+          </h1>
+          <div className="flex flex-wrap items-center gap-3 text-sm text-gray-300">
+            <span className="flex items-center gap-1.5 bg-white/10 px-3 py-1 rounded-full">
+              <FileText className="w-3.5 h-3.5 text-emerald-300" />
+              PYQ Papers
+            </span>
+            <span className="flex items-center gap-1.5 bg-white/10 px-3 py-1 rounded-full">
+              <BookOpen className="w-3.5 h-3.5 text-emerald-300" />
+              Notes & E-Books
+            </span>
+            <span className="flex items-center gap-1.5 bg-white/10 px-3 py-1 rounded-full">
+              <Users className="w-3.5 h-3.5 text-emerald-300" />
+              {course.students_enrolled?.length ?? 0} students
+            </span>
+            {course.rating && (
+              <span className="flex items-center gap-1">
+                <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                <span className="font-semibold text-yellow-300">
+                  {course.rating}
+                </span>
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* ── Main Layout ── */}
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* ── Left Column ── */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* Stat cards */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {[
+              {
+                icon: <FileText className="w-5 h-5 text-emerald-300" />,
+                label: "PYQ Papers",
+                value: "21 Years",
+              },
+              {
+                icon: <BookOpen className="w-5 h-5 text-emerald-300" />,
+                label: "E-Books",
+                value: "3 Books",
+              },
+              {
+                icon: <Trophy className="w-5 h-5 text-emerald-300" />,
+                label: "Session Notes",
+                value: "Every Class",
+              },
+              {
+                icon: <Star className="w-5 h-5 text-yellow-300" />,
+                label: "Rating",
+                value: `${course.rating || 4.9} ⭐`,
+              },
+            ].map(({ icon, label, value }) => (
+              <div
+                key={label}
+                className="rounded-2xl border border-white/10 bg-white/5 p-4 text-center"
+              >
+                <div className="flex justify-center mb-2">{icon}</div>
+                <p className="text-lg font-bold text-white">{value}</p>
+                <p className="text-xs text-gray-400 mt-0.5">{label}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* What's inside */}
+          <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-6">
+            <h2 className="text-lg font-bold text-white mb-5 flex items-center gap-2">
+              <BookOpen className="w-5 h-5 text-emerald-400" />
+              What's Inside
+            </h2>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {RESOURCE_ITEMS.map(
+                ({ icon, title, desc, badge, color, badgeColor }) => (
+                  <div
+                    key={title}
+                    className={`relative rounded-2xl border bg-gradient-to-br p-5 ${color}`}
+                  >
+                    <div className="flex items-start justify-between gap-2 mb-3">
+                      <div className="flex items-center gap-2.5">
+                        <span className="text-2xl">{icon}</span>
+                        <h3 className="font-bold text-white text-sm leading-snug">
+                          {title}
+                        </h3>
+                      </div>
+                      <span
+                        className={`shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${badgeColor}`}
+                      >
+                        {badge}
+                      </span>
+                    </div>
+                    <p className="text-xs text-gray-300 leading-relaxed">
+                      {desc}
+                    </p>
+
+                    {/* Lock overlay for non-enrolled */}
+                    {!isEnrolled && (
+                      <div className="absolute inset-0 rounded-2xl bg-black/40 backdrop-blur-[2px] flex items-center justify-center">
+                        <div className="flex flex-col items-center gap-1">
+                          <Lock className="w-5 h-5 text-white/60" />
+                          <span className="text-[10px] text-white/60 font-medium">
+                            Enroll to unlock
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ),
+              )}
+            </div>
+          </div>
+
+          {/* Access CTA — enrolled */}
+          {isEnrolled && (
+            <div className="rounded-2xl border border-emerald-400/20 bg-emerald-500/8 p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div>
+                <h3 className="font-bold text-white text-base mb-1">
+                  ✅ You have full access!
+                </h3>
+                <p className="text-sm text-gray-300">
+                  Click below to open your resources dashboard and download your
+                  materials.
+                </p>
+              </div>
+              <button
+                onClick={handleAccess}
+                className="shrink-0 px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-semibold transition active:scale-[0.98] flex items-center gap-2"
+              >
+                <BookOpen className="w-4 h-4" />
+                Open Resources
+              </button>
+            </div>
+          )}
+
+          {/* About */}
+          <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-6">
+            <h2 className="text-lg font-bold text-white mb-3">
+              About this Resource Pack
+            </h2>
+            <div className="space-y-2">
+              {course.description
+                ?.split(/\r?\n/)
+                .filter(Boolean)
+                .map((line, i) => (
+                  <p key={i} className="text-gray-300 text-sm leading-relaxed">
+                    {line}
+                  </p>
+                ))}
+            </div>
+          </div>
+
+          {/* Topics / What you get checklist */}
+          <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-6">
+            <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+              <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+              What You'll Get
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {[
+                "MAH AAC CET PYQ papers 2006–2026 (PDF)",
+                "Clean, print-ready format for offline study",
+                "Topic-wise notes for every subject",
+                "Art History quick reference e-book",
+                "Design Practical illustrated guide",
+                "Memory Drawing tips & examples",
+                "Session notes updated after every live class",
+                "GK cheat sheets for last-minute revision",
+              ].map((item, i) => (
+                <div key={i} className="flex items-start gap-2.5">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400 mt-0.5 shrink-0" />
+                  <span className="text-sm text-gray-200 leading-snug">
+                    {item}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Reviews */}
+          <CourseApprovedReviews courseId={Number(course.id)} />
+
+          {/* Instructor */}
+          <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-6">
+            <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+              <GraduationCap className="w-5 h-5 text-emerald-400" />
+              Curated By
+            </h2>
+            <div className="flex items-start gap-4">
+              <div className="w-14 h-14 rounded-full bg-gradient-to-br from-emerald-400 to-teal-600 flex items-center justify-center text-xl font-bold text-white shrink-0">
+                V
+              </div>
+              <div>
+                <h3 className="font-bold text-white text-base">Vicky Sir</h3>
+                <p className="text-emerald-300 text-sm mb-2">
+                  MAH AAC CET Expert & BFA Coach
+                </p>
+                <div className="flex flex-wrap gap-3 text-xs text-gray-400 mb-3">
+                  <span className="flex items-center gap-1">
+                    <Star className="w-3.5 h-3.5 text-yellow-400" /> 5.0 Rating
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Users className="w-3.5 h-3.5 text-emerald-400" /> 500+
+                    Students
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <BookOpen className="w-3.5 h-3.5 text-emerald-400" /> 3
+                    Courses
+                  </span>
+                </div>
+                <p className="text-gray-300 text-sm leading-relaxed">
+                  All resources are personally curated and updated by Vicky Sir
+                  to match the latest MAH AAC CET syllabus and exam pattern.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ── Right Sidebar ── */}
+        <aside className="lg:sticky lg:top-24 h-fit space-y-4 order-first lg:order-last">
+          {/* Price + CTA */}
+          <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-5 space-y-4">
+            {!isEnrolled && (
+              <div className="text-center">
+                <div className="flex items-end justify-center gap-3">
+                  <span className="text-4xl font-extrabold text-emerald-400">
+                    ₹{course.price}
+                  </span>
+                  {course.price_without_discount &&
+                    course.price_without_discount > (course.price || 0) && (
+                      <span className="text-xl text-red-400 line-through pb-0.5">
+                        ₹{course.price_without_discount}
+                      </span>
+                    )}
+                </div>
+                {discount && (
+                  <div className="mt-2 inline-flex items-center gap-2 rounded-full bg-emerald-500/15 border border-emerald-400/20 px-3 py-1 text-sm text-emerald-200">
+                    <span className="font-semibold">Save {discount}%</span>
+                    <span className="text-emerald-100/60">•</span>
+                    <span>
+                      ₹
+                      {(course.price_without_discount || 0) -
+                        (course.price || 0)}{" "}
+                      off
+                    </span>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {isEnrolled ? (
+              <button
+                onClick={handleAccess}
+                className="w-full py-3 rounded-xl text-base font-semibold text-white bg-emerald-600 hover:bg-emerald-500 transition flex items-center justify-center gap-2 active:scale-[0.98]"
+              >
+                <BookOpen className="w-5 h-5" />
+                Access My Resources
+              </button>
+            ) : (
+              <button
+                onClick={!currentUser ? onOpenLogin : openWhatsApp}
+                className="w-full py-3 rounded-xl text-base font-semibold text-white bg-emerald-600 hover:bg-emerald-500 transition active:scale-[0.98]"
+              >
+                Get Full Access 🚀
+              </button>
+            )}
+
+
+            <div className="pt-2 border-t border-white/10">
+              <p className="text-sm font-semibold text-white mb-3">
+                This pack includes:
+              </p>
+              <div className="space-y-2">
+                {[
+                  { icon: "📋", text: "PYQ papers 2006–2026 (PDF)" },
+                  { icon: "📝", text: "Topic-wise exam notes" },
+                  { icon: "📚", text: "3 subject e-books" },
+                  { icon: "🗒️", text: "Live session notes" },
+                  { icon: "🔄", text: "Lifetime access & updates" },
+                  { icon: "📥", text: "Instant download after enroll" },
+                ].map(({ icon, text }) => (
+                  <div
+                    key={text}
+                    className="flex items-center gap-2 text-sm text-gray-300"
+                  >
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                    {icon} {text}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Details card */}
+          <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-5">
+            <p className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+              <BarChart3 className="w-4 h-4 text-emerald-400" />
+              Resource Details
+            </p>
+            <div className="space-y-2.5">
+              <MetaRow
+                icon={<FileText className="w-4 h-4 text-emerald-400" />}
+                label="PYQ Papers"
+                value="2006–2026"
+              />
+              <MetaRow
+                icon={<BookOpen className="w-4 h-4 text-emerald-400" />}
+                label="Format"
+                value="PDF / Digital"
+              />
+              <MetaRow
+                icon={<Globe className="w-4 h-4 text-emerald-400" />}
+                label="Language"
+                value="English / Hindi"
+              />
+              <MetaRow
+                icon={<Clock className="w-4 h-4 text-emerald-400" />}
+                label="Access"
+                value="Lifetime"
+              />
+              <MetaRow
+                icon={<Users className="w-4 h-4 text-emerald-400" />}
+                label="Students"
+                value={String(course.students_enrolled?.length ?? 0)}
+              />
+              <MetaRow
+                icon={<Star className="w-4 h-4 text-yellow-400" />}
+                label="Rating"
+                value={`${course.rating || 0} ⭐`}
+              />
+              <MetaRow
+                icon={<Calendar className="w-4 h-4 text-emerald-400" />}
+                label="Created"
+                value={createdDate}
+              />
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+  );
+}
+
+/* ════════════════════════════════════════
    MAIN COMPONENT
 ════════════════════════════════════════ */
 export default function CourseDetails() {
@@ -1124,6 +1583,7 @@ export default function CourseDetails() {
   const currentUser = user || storedUser;
   const isMockCourse = String(id) === FREE_MOCK_COURSE_ID;
   const isPYQCourse = String(id) === PYQ_MOCK_COURSE_ID;
+  const isResourcesCourse = String(id) === RESOURCES_COURSE_ID;
 
   useEffect(() => {
     const fetchCourse = async () => {
@@ -1265,6 +1725,29 @@ export default function CourseDetails() {
           isEnrolled={isEnrolled}
           onOpenLogin={() => setLoginOpen(true)}
           onNavigateToPYQ={handleNavigateToPYQ}
+        />
+        <Login
+          open={loginOpen}
+          onOpenChange={setLoginOpen}
+          onOpenRegister={() => {
+            setLoginOpen(false);
+            setRegisterOpen(true);
+          }}
+        />
+        <Register open={registerOpen} onOpenChange={setRegisterOpen} />
+      </>
+    );
+  }
+
+  /* ── Route to resources page ── */
+  if (isResourcesCourse) {
+    return (
+      <>
+        <ResourcesCoursePage
+          course={course}
+          currentUser={currentUser}
+          isEnrolled={isEnrolled}
+          onOpenLogin={() => setLoginOpen(true)}
         />
         <Login
           open={loginOpen}
