@@ -933,7 +933,13 @@ function Home() {
                         </span>
                       </div>
                       <button
-                        onClick={() => navigate(`/courses/${course.id}`)}
+                        onClick={() =>
+                          navigate(
+                            isMasterclass
+                              ? `/masterclass/${course.id}`
+                              : `/courses/${course.id}`,
+                          )
+                        }
                         className={`mt-auto w-full py-2 rounded-lg font-semibold border ${s.accent} text-white/90 hover:text-white transition-all duration-300`}
                       >
                         {isMasterclass

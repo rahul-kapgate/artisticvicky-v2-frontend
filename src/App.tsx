@@ -33,6 +33,7 @@ import LiveTestPage from "./Pages/LiveTestPage";
 import CourseLiveTestsPage from "./Pages/CourseLiveTestsPage";
 
 import WhatsAppWidgetGate from "@/layouts/WhatsAppWidgetGate";
+import MasterClassDetails from "./components/MasterClassDetails";
 
 function App() {
   return (
@@ -61,6 +62,8 @@ function App() {
           <Route path="my-courses/:id" element={<CourseLearning />} />
           <Route path="my-courses/:id/resources" element={<Resources />} />
           <Route path="my-courses/:id/videos" element={<VideoLectures />} />
+
+          <Route path="masterclass/:id" element={<MasterClassDetails />} />
 
           {/* 🧩 Tests & Reviews */}
           <Route
