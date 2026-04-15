@@ -6,18 +6,59 @@ import { AuthContext } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import Register from "./Register";
 import ForgotPassword from "./ForgotPassword";
+import ArtAvatar from "@/components/avatar/ArtAvatar";
+import { apiClient } from "@/utils/axiosConfig";
 
 function Header() {
-  const [isOpen, setIsOpen] = useState(false); // mobile nav menu
+  const [isOpen, setIsOpen] = useState(false);
   const [showHeader, setShowHeader] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
+  const [avatarId, setAvatarId] = useState<number>(0);
   const navigate = useNavigate();
   const location = useLocation();
   const { user, logout } = useContext(AuthContext);
 
+  console.log(user);
+
   const [loginOpen, setLoginOpen] = useState(false);
   const [registerOpen, setRegisterOpen] = useState(false);
   const [forgotOpen, setForgotOpen] = useState(false);
+
+  // Fetch avatar_id when user logs in
+  useEffect(() => {
+    if (!user) {
+      setAvatarId(0);
+      return;
+    }
+    const fetchAvatar = async () => {
+      try {
+        const res = await apiClient.get("/api/user/profile");
+        if (res.data?.success && res.data.user) {
+          setAvatarId(res.data.user.avatar_id ?? 0);
+        }
+      } catch {
+        // silently fall back to default avatar
+      }
+    };
+    fetchAvatar();
+  }, [user]);
+
+  // Re-sync avatar when user navigates back from profile page
+  // (in case they changed it)
+  useEffect(() => {
+    if (!user) return;
+    const fetchAvatar = async () => {
+      try {
+        const res = await apiClient.get("/api/user/profile");
+        if (res.data?.success && res.data.user) {
+          setAvatarId(res.data.user.avatar_id ?? 0);
+        }
+      } catch {
+        // ignore
+      }
+    };
+    fetchAvatar();
+  }, [location.pathname]);
 
   // Hide/Show header on scroll
   useEffect(() => {
@@ -30,12 +71,10 @@ function Header() {
       }
       setLastScrollY(currentScrollY);
     };
-
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, [lastScrollY]);
 
-  // Close profile dropdown when clicking outside (for mobile)
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
@@ -51,21 +90,16 @@ function Header() {
       const customEvent = e as CustomEvent<{
         mode?: "login" | "register" | "forgot";
       }>;
-
       const mode = customEvent.detail?.mode || "login";
-
       setIsOpen(false);
-
       setLoginOpen(mode === "login");
       setRegisterOpen(mode === "register");
       setForgotOpen(mode === "forgot");
     };
-
     window.addEventListener(
       "open-auth-modal",
       handleOpenAuthModal as EventListener,
     );
-
     return () => {
       window.removeEventListener(
         "open-auth-modal",
@@ -74,7 +108,6 @@ function Header() {
     };
   }, []);
 
-  // Smooth scroll to section
   const handleNavClick = (id: string) => {
     if (location.pathname !== "/") {
       navigate("/");
@@ -142,18 +175,17 @@ function Header() {
           <div className="flex items-center space-x-4">
             {user ? (
               <>
-                {/* Desktop View */}
+                {/* Desktop */}
                 <div className="hidden sm:flex items-center gap-3">
-                  {/* Avatar (click → profile) */}
+                  {/* Art Avatar → navigate to profile */}
                   <button
                     onClick={() => navigate("/profile")}
-                    className="w-9 h-9 flex items-center justify-center rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold text-lg uppercase shadow-md hover:opacity-90 transition"
-                    title={user.email || user.mobile}
+                    className="rounded-xl overflow-hidden hover:ring-2 hover:ring-cyan-400 hover:ring-offset-2 hover:ring-offset-transparent transition-all"
+                    title="View profile"
                   >
-                    {user.email?.[0] || user.mobile?.[0] || "U"}
+                    <ArtAvatar avatarId={avatarId} size={36} />
                   </button>
 
-                  {/* My courses Button */}
                   <Button
                     onClick={() => navigate("/my-courses")}
                     className="px-4 py-2 rounded-lg font-semibold border border-blue-400 text-blue-100 hover:bg-gradient-to-r hover:from-blue-700 hover:to-blue-600 transition-all duration-300 shadow-sm"
@@ -161,7 +193,6 @@ function Header() {
                     My Courses
                   </Button>
 
-                  {/* Logout Button */}
                   <Button
                     onClick={logout}
                     className="px-4 py-2 rounded-lg font-semibold border border-blue-400 text-blue-100 hover:bg-gradient-to-r hover:from-blue-700 hover:to-blue-600 transition-all duration-300 shadow-sm"
@@ -170,24 +201,22 @@ function Header() {
                   </Button>
                 </div>
 
-                {/* Mobile View (Avatar Dropdown) */}
+                {/* Mobile */}
                 <div className="relative sm:hidden profile-menu">
-                  {/* Avatar Button */}
                   <button
                     onClick={() => navigate("/profile")}
-                    className="w-9 h-9 flex items-center justify-center rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold text-lg uppercase shadow-md"
-                    title={user.email || user.mobile}
+                    className="rounded-xl overflow-hidden hover:ring-2 hover:ring-cyan-400 transition-all"
+                    title="View profile"
                   >
-                    {user.email?.[0] || user.mobile?.[0] || "U"}
+                    <ArtAvatar avatarId={avatarId} size={36} />
                   </button>
                 </div>
               </>
             ) : (
               <>
-                {/* ✅ Header-controlled Login button */}
                 <Button
                   onClick={() => {
-                    setRegisterOpen(false); // make sure Register is closed
+                    setRegisterOpen(false);
                     setLoginOpen(true);
                   }}
                   className="px-4 py-2 rounded-lg font-semibold border border-blue-400 text-blue-100 hover:bg-gradient-to-r hover:from-blue-700 hover:to-blue-600 transition-all duration-300 shadow-sm"
@@ -195,7 +224,6 @@ function Header() {
                   Login
                 </Button>
 
-                {/* ✅ Mount dialogs (portaled, won’t affect layout) */}
                 <Login
                   open={loginOpen}
                   onOpenChange={setLoginOpen}
@@ -208,7 +236,6 @@ function Header() {
                     setForgotOpen(true);
                   }}
                 />
-
                 <Register open={registerOpen} onOpenChange={setRegisterOpen} />
                 <ForgotPassword
                   open={forgotOpen}
@@ -217,7 +244,7 @@ function Header() {
               </>
             )}
 
-            {/* Hamburger Button */}
+            {/* Hamburger */}
             <button
               className="md:hidden text-cyan-300 focus:outline-none"
               onClick={() => setIsOpen(!isOpen)}
@@ -228,7 +255,6 @@ function Header() {
         </div>
       </div>
 
-      {/* Mobile Nav */}
       {/* Mobile Nav */}
       {isOpen && (
         <div className="md:hidden bg-[#0a0f2c]/95 backdrop-blur-lg border-t border-blue-900/40 shadow-inner animate-fadeIn">
