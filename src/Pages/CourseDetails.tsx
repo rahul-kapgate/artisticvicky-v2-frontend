@@ -744,7 +744,6 @@ function PYQMockCoursePage({
   onOpenLogin: () => void;
   onNavigateToPYQ: (year: number) => void;
 }) {
-  const [selectedYear, setSelectedYear] = useState<number | null>(null);
 
   const createdDate = course.created_at
     ? new Date(course.created_at).toLocaleDateString("en-IN", {
