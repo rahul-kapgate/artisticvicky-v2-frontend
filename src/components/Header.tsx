@@ -7,58 +7,21 @@ import { Button } from "@/components/ui/button";
 import Register from "./Register";
 import ForgotPassword from "./ForgotPassword";
 import ArtAvatar from "@/components/avatar/ArtAvatar";
-import { apiClient } from "@/utils/axiosConfig";
 
 function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const [showHeader, setShowHeader] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
-  const [avatarId, setAvatarId] = useState<number>(0);
   const navigate = useNavigate();
   const location = useLocation();
   const { user, logout } = useContext(AuthContext);
 
-  console.log(user);
+  // avatar_id 
+  const avatarId = user?.avatar_id ?? 0;
 
   const [loginOpen, setLoginOpen] = useState(false);
   const [registerOpen, setRegisterOpen] = useState(false);
   const [forgotOpen, setForgotOpen] = useState(false);
-
-  // Fetch avatar_id when user logs in
-  useEffect(() => {
-    if (!user) {
-      setAvatarId(0);
-      return;
-    }
-    const fetchAvatar = async () => {
-      try {
-        const res = await apiClient.get("/api/user/profile");
-        if (res.data?.success && res.data.user) {
-          setAvatarId(res.data.user.avatar_id ?? 0);
-        }
-      } catch {
-        // silently fall back to default avatar
-      }
-    };
-    fetchAvatar();
-  }, [user]);
-
-  // Re-sync avatar when user navigates back from profile page
-  // (in case they changed it)
-  useEffect(() => {
-    if (!user) return;
-    const fetchAvatar = async () => {
-      try {
-        const res = await apiClient.get("/api/user/profile");
-        if (res.data?.success && res.data.user) {
-          setAvatarId(res.data.user.avatar_id ?? 0);
-        }
-      } catch {
-        // ignore
-      }
-    };
-    fetchAvatar();
-  }, [location.pathname]);
 
   // Hide/Show header on scroll
   useEffect(() => {

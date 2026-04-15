@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { apiClient } from "@/utils/axiosConfig";
 import { Mail, Phone, Pencil } from "lucide-react";
 import { toast } from "sonner";
@@ -6,6 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import AttemptsList from "@/components/AttemptsList";
 import ArtAvatar from "@/components/avatar/ArtAvatar";
 import AvatarPicker from "@/components/avatar/AvatarPicker";
+import { AuthContext } from "@/context/AuthContext";
 
 interface UserProfileData {
   id: number;
@@ -18,11 +19,12 @@ interface UserProfileData {
 }
 
 export default function UserProfile() {
+  const { user, login: updateAuthUser } = useContext(AuthContext);
   const [profile, setProfile] = useState<UserProfileData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [pickerOpen, setPickerOpen] = useState(false);
-  const [avatarId, setAvatarId] = useState<number>(0);
+  const [avatarId, setAvatarId] = useState<number>(user?.avatar_id ?? 0);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -54,6 +56,12 @@ export default function UserProfile() {
 
     try {
       await apiClient.patch("/api/user/profile", { avatar_id: id });
+
+      // Sync AuthContext so the header avatar updates instantly
+      if (user) {
+        updateAuthUser({ ...user, avatar_id: id });
+      }
+
       toast.success("Avatar updated!");
     } catch (err: any) {
       setAvatarId(previousId); // revert on failure

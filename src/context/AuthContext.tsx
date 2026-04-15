@@ -5,6 +5,7 @@ interface User {
   email?: string;
   mobile?: string;
   is_admin?: boolean;
+  avatar_id?: number;
 }
 
 interface AuthContextType {
