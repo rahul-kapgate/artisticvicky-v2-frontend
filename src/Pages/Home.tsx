@@ -290,16 +290,53 @@ function Home() {
     el.scrollBy({ left: dir === "left" ? -step : step, behavior: "smooth" });
   };
 
+  // Add these at the top with other state declarations inside Home()
+  const [phraseIndex, setPhraseIndex] = useState(0);
+  const [displayed, setDisplayed] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [charIndex, setCharIndex] = useState(0);
+
+  const rotatingPhrases = [
+    "Master Perspective Drawing ✏️",
+    "Score Full Marks in Aptitude 📐",
+    "Crack Design Entrance Exams 🎯",
+    "Build Your Dream Portfolio 🖼️",
+    "Join 1200+ Successful Students 🌟",
+    "Learn 3D Visualisation 🏛️",
+    "Ace Colour Theory & Sketching 🎨",
+  ];
+
+  useEffect(() => {
+    const current = rotatingPhrases[phraseIndex];
+    if (!isDeleting && charIndex === current.length) {
+      const t = setTimeout(() => setIsDeleting(true), 1800);
+      return () => clearTimeout(t);
+    }
+    if (isDeleting && charIndex === 0) {
+      setIsDeleting(false);
+      setPhraseIndex((p) => (p + 1) % rotatingPhrases.length);
+      return;
+    }
+    const t = setTimeout(
+      () => {
+        setDisplayed(current.slice(0, charIndex + (isDeleting ? -1 : 1)));
+        setCharIndex((c) => c + (isDeleting ? -1 : 1));
+      },
+      isDeleting ? 38 : 68,
+    );
+    return () => clearTimeout(t);
+  }, [charIndex, isDeleting, phraseIndex]);
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-50 via-white to-white text-gray-800 scroll-smooth mt-14">
       <FreeMockPopup />
 
       {/* ---------------- Hero Section ---------------- */}
-      <section className="relative flex flex-col justify-center items-center h-[60vh] lg:h-[85vh]  text-center text-white overflow-hidden">
-        {/* 🔹 Static gradient background */}
+      <section className="relative flex flex-col justify-center items-center min-h-[60vh] lg:min-h-[92vh] text-white overflow-hidden">
+        {/* Background */}
         <div className="absolute inset-0 bg-gradient-to-br from-[#050816] via-[#10194f] to-[#1e3a8a]" />
 
-        {/* 🔹 Animated glowing blobs for depth */}
+        {/* Animated blobs */}
         <div className="pointer-events-none absolute inset-0 opacity-60">
           <motion.div
             className="absolute -top-32 -left-16 w-72 h-72 bg-[#3b82f6] rounded-full blur-3xl"
@@ -318,54 +355,494 @@ function Home() {
           />
         </div>
 
-        {/* 🔹 Soft dark overlay to enhance text contrast */}
+        {/* Dark overlay */}
         <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" />
 
-        {/* 🔹 Hero Content with entrance animation */}
-        <motion.div
-          className="relative z-10 px-6 max-w-3xl"
-          initial={{ opacity: 0, y: 25 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.9, ease: "easeOut" }}
-        >
-          <motion.h1
-            className="text-5xl sm:text-6xl font-bold mb-4 leading-tight"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, delay: 0.1 }}
+        {/* ── Main Content: Split Layout ── */}
+        <div className="relative z-10 w-full max-w-7xl mx-auto px-6 py-16 lg:py-0 flex flex-col lg:flex-row items-center justify-between gap-12">
+          {/* LEFT — Text content */}
+          <motion.div
+            className="flex-1 text-center lg:text-left"
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.9, ease: "easeOut" }}
           >
-            Welcome to{" "}
-            <span className="bg-gradient-to-r from-[#3b82f6] via-[#60a5fa] to-[#22d3ee] bg-clip-text text-transparent drop-shadow-[0_2px_8px_rgba(0,0,0,0.4)]">
-              Artistic Vickey
-            </span>
-          </motion.h1>
+            {/* Exam badge */}
+            <motion.div
+              className="inline-flex items-center gap-2 mb-5 px-4 py-1.5 rounded-full border border-purple-400/40 bg-purple-500/10 text-purple-300 text-sm font-medium"
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1, duration: 0.6 }}
+            >
+              <span className="w-2 h-2 rounded-full bg-purple-400 animate-pulse" />
+              India's #1 MAH AAC CET Coaching
+            </motion.div>
 
-          <motion.p
-            className="text-lg text-gray-100 max-w-2xl mx-auto mb-8 leading-relaxed drop-shadow-[0_1px_3px_rgba(0,0,0,0.6)]"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.25 }}
+            {/* Headline */}
+            <motion.h1
+              className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-4 leading-tight"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1, delay: 0.15 }}
+            >
+              Welcome to{" "}
+              <span className="bg-gradient-to-r from-[#3b82f6] via-[#60a5fa] to-[#22d3ee] bg-clip-text text-transparent">
+                Artistic Vickey
+              </span>
+            </motion.h1>
+
+            {/* Typewriter rotating phrase */}
+            <motion.div
+              className="flex items-center justify-center lg:justify-start gap-1 mb-5 h-9"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3 }}
+            >
+              <span
+                className="text-lg sm:text-xl font-semibold"
+                style={{
+                  background:
+                    "linear-gradient(to right,#f472b6,#a78bfa,#22d3ee)",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  backgroundClip: "text",
+                }}
+              >
+                {displayed}
+              </span>
+              <span className="inline-block w-[2px] h-6 bg-cyan-300 rounded-full animate-pulse" />
+            </motion.div>
+
+            {/* Sub-text */}
+            <motion.p
+              className="text-gray-300 text-base sm:text-lg max-w-xl mx-auto lg:mx-0 mb-8 leading-relaxed"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.3 }}
+            >
+              Sketch your success, ace the exam, and bring your artistic dreams
+              to life — guided by expert mentor Vickey.
+            </motion.p>
+
+            {/* CTA Buttons */}
+            <motion.div
+              className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start mb-10"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4, duration: 0.7 }}
+            >
+              <motion.button
+                onClick={() =>
+                  document
+                    .getElementById("courses")
+                    ?.scrollIntoView({ behavior: "smooth" })
+                }
+                className="px-7 py-3 bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-400 rounded-full text-white font-semibold hover:opacity-90 transition shadow-lg"
+                whileHover={{ scale: 1.04 }}
+                whileTap={{ scale: 0.97 }}
+              >
+                🎨 Explore Courses
+              </motion.button>
+              <motion.button
+                onClick={() =>
+                  document
+                    .getElementById("about")
+                    ?.scrollIntoView({ behavior: "smooth" })
+                }
+                className="px-7 py-3 rounded-full font-semibold border border-white/30 text-white hover:bg-white/10 transition"
+                whileHover={{ scale: 1.04 }}
+                whileTap={{ scale: 0.97 }}
+              >
+                About Vickey →
+              </motion.button>
+            </motion.div>
+
+            {/* Stats strip */}
+            <motion.div
+              className="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-xl mx-auto lg:mx-0"
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.55, duration: 0.7 }}
+            >
+              {[
+                { num: "1200+", label: "Students" },
+                { num: "94%", label: "Selection Rate" },
+                { num: "50+", label: "Video Lessons" },
+                { num: "5 ★", label: "Rated" },
+              ].map((s) => (
+                <div
+                  key={s.label}
+                  className="rounded-xl border border-white/10 bg-white/5 backdrop-blur-sm py-3 px-2 text-center"
+                >
+                  <div className="text-xl font-bold text-cyan-300">{s.num}</div>
+                  <div className="text-xs text-gray-400 mt-0.5">{s.label}</div>
+                </div>
+              ))}
+            </motion.div>
+          </motion.div>
+
+          {/* RIGHT — Animated SVG Art Illustration */}
+          <motion.div
+            className="flex-shrink-0 w-full max-w-xs lg:max-w-sm xl:max-w-md hidden sm:flex items-center justify-center"
+            initial={{ opacity: 0, x: 30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 1, delay: 0.2 }}
           >
-            Sketch Your Success. Ace the MAH AAC CET. Bring art to life. 🎨
-          </motion.p>
+            <svg
+              viewBox="0 0 360 400"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              className="w-full h-auto"
+            >
+              {/* Outer glow ring */}
+              <circle
+                cx="180"
+                cy="190"
+                r="155"
+                stroke="rgba(99,102,241,0.18)"
+                strokeWidth="1"
+                strokeDasharray="6 4"
+              />
+              <circle
+                cx="180"
+                cy="190"
+                r="130"
+                stroke="rgba(167,139,250,0.15)"
+                strokeWidth="0.8"
+              />
 
-          <motion.button
-            onClick={() =>
-              document
-                .getElementById("courses")
-                ?.scrollIntoView({ behavior: "smooth" })
-            }
-            className="px-8 py-3 bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-400 rounded-full text-white font-semibold hover:opacity-90 transition drop-shadow-lg"
-            whileHover={{ scale: 1.04 }}
-            whileTap={{ scale: 0.97 }}
-          >
-            Explore Courses
-          </motion.button>
-        </motion.div>
+              {/* Canvas / Drawing Board */}
+              <rect
+                x="70"
+                y="60"
+                width="220"
+                height="175"
+                rx="8"
+                fill="rgba(15,23,42,0.85)"
+                stroke="rgba(167,139,250,0.5)"
+                strokeWidth="1.5"
+              />
 
-        {/* Gradient fades for smooth blending */}
-        <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-black/40 to-transparent" />
-        <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-black/50 to-transparent" />
+              {/* Perspective grid lines on canvas */}
+              {/* Horizon */}
+              <line
+                x1="70"
+                y1="147"
+                x2="290"
+                y2="147"
+                stroke="rgba(167,139,250,0.25)"
+                strokeWidth="0.8"
+              />
+              {/* Vertical center */}
+              <line
+                x1="180"
+                y1="60"
+                x2="180"
+                y2="235"
+                stroke="rgba(167,139,250,0.2)"
+                strokeWidth="0.8"
+              />
+              {/* VP lines left */}
+              <line
+                x1="180"
+                y1="147"
+                x2="70"
+                y2="80"
+                stroke="rgba(244,114,182,0.4)"
+                strokeWidth="0.8"
+              />
+              <line
+                x1="180"
+                y1="147"
+                x2="70"
+                y2="120"
+                stroke="rgba(244,114,182,0.3)"
+                strokeWidth="0.7"
+              />
+              <line
+                x1="180"
+                y1="147"
+                x2="70"
+                y2="160"
+                stroke="rgba(244,114,182,0.3)"
+                strokeWidth="0.7"
+              />
+              <line
+                x1="180"
+                y1="147"
+                x2="70"
+                y2="200"
+                stroke="rgba(244,114,182,0.25)"
+                strokeWidth="0.7"
+              />
+              <line
+                x1="180"
+                y1="147"
+                x2="70"
+                y2="235"
+                stroke="rgba(244,114,182,0.2)"
+                strokeWidth="0.7"
+              />
+              {/* VP lines right */}
+              <line
+                x1="180"
+                y1="147"
+                x2="290"
+                y2="80"
+                stroke="rgba(34,211,238,0.4)"
+                strokeWidth="0.8"
+              />
+              <line
+                x1="180"
+                y1="147"
+                x2="290"
+                y2="120"
+                stroke="rgba(34,211,238,0.3)"
+                strokeWidth="0.7"
+              />
+              <line
+                x1="180"
+                y1="147"
+                x2="290"
+                y2="160"
+                stroke="rgba(34,211,238,0.3)"
+                strokeWidth="0.7"
+              />
+              <line
+                x1="180"
+                y1="147"
+                x2="290"
+                y2="200"
+                stroke="rgba(34,211,238,0.25)"
+                strokeWidth="0.7"
+              />
+              <line
+                x1="180"
+                y1="147"
+                x2="290"
+                y2="235"
+                stroke="rgba(34,211,238,0.2)"
+                strokeWidth="0.7"
+              />
+
+              {/* 3D box on canvas */}
+              {/* Front face */}
+              <polygon
+                points="155,165 205,165 205,210 155,210"
+                fill="rgba(99,102,241,0.25)"
+                stroke="#818cf8"
+                strokeWidth="1.2"
+              />
+              {/* Top face */}
+              <polygon
+                points="155,165 205,165 220,150 170,150"
+                fill="rgba(99,102,241,0.15)"
+                stroke="#818cf8"
+                strokeWidth="1.2"
+              />
+              {/* Side face */}
+              <polygon
+                points="205,165 220,150 220,195 205,210"
+                fill="rgba(99,102,241,0.1)"
+                stroke="#818cf8"
+                strokeWidth="1.2"
+              />
+
+              {/* VP dot */}
+              <circle cx="180" cy="147" r="3.5" fill="#f472b6" />
+              <circle
+                cx="180"
+                cy="147"
+                r="6"
+                fill="none"
+                stroke="rgba(244,114,182,0.5)"
+                strokeWidth="1"
+              />
+
+              {/* Pencil */}
+              <g transform="rotate(-35, 260, 300)">
+                <rect
+                  x="247"
+                  y="255"
+                  width="13"
+                  height="60"
+                  rx="2"
+                  fill="#fbbf24"
+                />
+                <polygon points="247,315 260,315 253.5,332" fill="#fde68a" />
+                <rect
+                  x="247"
+                  y="255"
+                  width="13"
+                  height="10"
+                  rx="1"
+                  fill="#9ca3af"
+                />
+                <rect x="249" y="329" width="9" height="3" fill="#d97706" />
+              </g>
+
+              {/* Colour palette dots */}
+              <circle
+                cx="95"
+                cy="310"
+                r="12"
+                fill="rgba(239,68,68,0.8)"
+                stroke="rgba(255,255,255,0.15)"
+                strokeWidth="1"
+              />
+              <circle
+                cx="122"
+                cy="318"
+                r="12"
+                fill="rgba(251,191,36,0.8)"
+                stroke="rgba(255,255,255,0.15)"
+                strokeWidth="1"
+              />
+              <circle
+                cx="149"
+                cy="322"
+                r="12"
+                fill="rgba(34,197,94,0.8)"
+                stroke="rgba(255,255,255,0.15)"
+                strokeWidth="1"
+              />
+              <circle
+                cx="176"
+                cy="320"
+                r="12"
+                fill="rgba(59,130,246,0.8)"
+                stroke="rgba(255,255,255,0.15)"
+                strokeWidth="1"
+              />
+              <circle
+                cx="203"
+                cy="316"
+                r="12"
+                fill="rgba(168,85,247,0.8)"
+                stroke="rgba(255,255,255,0.15)"
+                strokeWidth="1"
+              />
+
+              {/* Palette body */}
+              <ellipse
+                cx="155"
+                cy="318"
+                rx="75"
+                ry="22"
+                fill="none"
+                stroke="rgba(255,255,255,0.1)"
+                strokeWidth="1.5"
+              />
+
+              {/* Floating topic pills */}
+              {/* Pill 1 */}
+              <rect
+                x="30"
+                y="150"
+                width="110"
+                height="24"
+                rx="12"
+                fill="rgba(34,211,238,0.12)"
+                stroke="rgba(34,211,238,0.4)"
+                strokeWidth="1"
+              />
+              <text
+                x="85"
+                y="166"
+                textAnchor="middle"
+                fill="#67e8f9"
+                fontSize="10"
+                fontFamily="sans-serif"
+              >
+                Perspective Drawing
+              </text>
+              {/* Pill 2 */}
+              <rect
+                x="220"
+                y="105"
+                width="105"
+                height="24"
+                rx="12"
+                fill="rgba(244,114,182,0.12)"
+                stroke="rgba(244,114,182,0.4)"
+                strokeWidth="1"
+              />
+              <text
+                x="272"
+                y="121"
+                textAnchor="middle"
+                fill="#f9a8d4"
+                fontSize="10"
+                fontFamily="sans-serif"
+              >
+                Colour Theory
+              </text>
+              {/* Pill 3 */}
+              <rect
+                x="35"
+                y="240"
+                width="90"
+                height="24"
+                rx="12"
+                fill="rgba(167,139,250,0.12)"
+                stroke="rgba(167,139,250,0.4)"
+                strokeWidth="1"
+              />
+              <text
+                x="80"
+                y="256"
+                textAnchor="middle"
+                fill="#c4b5fd"
+                fontSize="10"
+                fontFamily="sans-serif"
+              >
+                Aptitude Test
+              </text>
+              {/* Pill 4 */}
+              <rect
+                x="225"
+                y="245"
+                width="90"
+                height="24"
+                rx="12"
+                fill="rgba(74,222,128,0.12)"
+                stroke="rgba(74,222,128,0.4)"
+                strokeWidth="1"
+              />
+              <text
+                x="270"
+                y="261"
+                textAnchor="middle"
+                fill="#86efac"
+                fontSize="10"
+                fontFamily="sans-serif"
+              >
+                Sketching
+              </text>
+
+              {/* Stars scattered */}
+              <circle cx="60" cy="100" r="2" fill="#fbbf24" opacity="0.8" />
+              <circle cx="300" cy="180" r="1.5" fill="#67e8f9" opacity="0.7" />
+              <circle cx="45" cy="290" r="1.5" fill="#f472b6" opacity="0.6" />
+              <circle cx="315" cy="290" r="2" fill="#a78bfa" opacity="0.7" />
+              <circle cx="180" cy="30" r="2" fill="#67e8f9" opacity="0.6" />
+
+              {/* Animated draw line hint */}
+              <line
+                x1="70"
+                y1="235"
+                x2="290"
+                y2="235"
+                stroke="rgba(167,139,250,0.3)"
+                strokeWidth="0.8"
+              />
+            </svg>
+          </motion.div>
+        </div>
+
+        {/* Gradient fades */}
+        <div className="absolute top-0 left-0 right-0 h-20 bg-gradient-to-b from-black/30 to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-black/50 to-transparent" />
       </section>
 
       {/* ---------------- Student Artwork Section ---------------- */}
@@ -755,11 +1232,11 @@ function Home() {
 
       {/* ---------------- Student Reviews Section ---------------- */}
       <ReviewsSection
-  homeReviews={homeReviews}
-  homeReviewsLoading={homeReviewsLoading}
-  homeReviewsError={homeReviewsError}
-  reviewCount={reviewCount}
-/>
+        homeReviews={homeReviews}
+        homeReviewsLoading={homeReviewsLoading}
+        homeReviewsError={homeReviewsError}
+        reviewCount={reviewCount}
+      />
     </div>
   );
 }
