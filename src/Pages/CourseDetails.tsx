@@ -28,6 +28,7 @@ import {
   Lock,
   PlayCircle,
   AlertCircle,
+  ArrowLeft,
 } from "lucide-react";
 import { AuthContext } from "@/context/AuthContext";
 import Login from "@/components/Login";
@@ -250,6 +251,14 @@ function MockTestCoursePage({
           className="w-full h-full object-cover brightness-40"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-[#0a1628] via-[#0a1628]/60 to-transparent" />
+        {/* Back button — Mock Test */}
+        <button
+          onClick={() => window.history.back()}
+          className="absolute mt-20 left-4 sm:top-6 sm:left-6 flex items-center gap-1.5 rounded-full bg-black/40 backdrop-blur-sm border border-white/10 px-3 py-1.5 text-sm text-white hover:bg-black/60 transition"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back
+        </button>
         <div className="absolute bottom-0 left-0 right-0 px-4 sm:px-8 pb-6 sm:pb-10 max-w-6xl mx-auto">
           <span className="inline-block bg-orange-500/20 border border-orange-400/30 text-orange-200 text-xs font-semibold uppercase tracking-wider px-3 py-1 rounded-full mb-3">
             📝 Mock Test Series
@@ -784,6 +793,14 @@ function PYQMockCoursePage({
           className="w-full h-full object-cover brightness-40"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-[#0a1628] via-[#0a1628]/60 to-transparent" />
+        {/* Back button — PYQ */}
+        <button
+          onClick={() => window.history.back()}
+          className="absolute mt-20 left-4 sm:top-6 sm:left-6 flex items-center gap-1.5 rounded-full bg-black/40 backdrop-blur-sm border border-white/10 px-3 py-1.5 text-sm text-white hover:bg-black/60 transition"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back
+        </button>
         <div className="absolute bottom-0 left-0 right-0 px-4 sm:px-8 pb-6 sm:pb-10 max-w-6xl mx-auto">
           <span className="inline-block bg-violet-500/20 border border-violet-400/30 text-violet-200 text-xs font-semibold uppercase tracking-wider px-3 py-1 rounded-full mb-3">
             📋 PYQ Mock Test Series
@@ -1198,6 +1215,14 @@ function ResourcesCoursePage({
           className="w-full h-full object-cover brightness-40"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-[#0a1628] via-[#0a1628]/60 to-transparent" />
+        {/* Back button — Resources */}
+        <button
+          onClick={() => window.history.back()}
+          className="absolute mt-20 left-4 sm:top-6 sm:left-6 flex items-center gap-1.5 rounded-full bg-black/40 backdrop-blur-sm border border-white/10 px-3 py-1.5 text-sm text-white hover:bg-black/60 transition"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back
+        </button>
         <div className="absolute bottom-0 left-0 right-0 px-4 sm:px-8 pb-6 sm:pb-10 max-w-6xl mx-auto">
           <span className="inline-block bg-emerald-500/20 border border-emerald-400/30 text-emerald-200 text-xs font-semibold uppercase tracking-wider px-3 py-1 rounded-full mb-3">
             📚 Study Resources
@@ -1832,6 +1857,14 @@ export default function CourseDetails() {
           className="w-full h-full object-cover brightness-50"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-[#0a1628] via-[#0a1628]/60 to-transparent" />
+        {/* Back button */}
+        <button
+          onClick={() => window.history.back()}
+          className="absolute mt-20 left-4 sm:top-6 sm:left-6 flex items-center gap-1.5 rounded-full bg-black/40 backdrop-blur-sm border border-white/10 px-3 py-1.5 text-sm text-white hover:bg-black/60 transition"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back
+        </button>
         <div className="absolute bottom-0 left-0 right-0 px-4 sm:px-8 pb-6 sm:pb-10 max-w-6xl mx-auto">
           <span className="inline-block bg-cyan-500/20 border border-cyan-400/30 text-cyan-300 text-xs font-semibold uppercase tracking-wider px-3 py-1 rounded-full mb-3">
             {isMasterclass ? "Live Masterclass" : course.category || "Course"}
