@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { apiClient } from "@/utils/axiosConfig";
-import { Mail, Phone } from "lucide-react";
+import { Mail, Phone, Pencil } from "lucide-react";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
 import AttemptsList from "@/components/AttemptsList";
-import PixelAvatar from "@/components/PixelAvatar";
+import ArtAvatar from "@/components/avatar/ArtAvatar";
+import AvatarPicker from "@/components/avatar/AvatarPicker";
 
 interface UserProfileData {
   id: number;
@@ -13,19 +14,25 @@ interface UserProfileData {
   mobile: string;
   is_admin: boolean;
   created_at: string;
+  avatar_id?: number;
 }
 
 export default function UserProfile() {
   const [profile, setProfile] = useState<UserProfileData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [avatarId, setAvatarId] = useState<number>(0);
 
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         const res = await apiClient.get("/api/user/profile");
         if (res.data?.success && res.data.user) {
-          setProfile(res.data.user);
+          const user: UserProfileData = res.data.user;
+          setProfile(user);
+
+          setAvatarId(user.avatar_id ?? 0);
         } else {
           setError("No user profile found.");
         }
@@ -41,23 +48,34 @@ export default function UserProfile() {
     fetchProfile();
   }, []);
 
+  const handleAvatarSelect = async (id: number) => {
+    const previousId = avatarId;
+    setAvatarId(id); // optimistic update
+
+    try {
+      await apiClient.patch("/api/user/profile", { avatar_id: id });
+      toast.success("Avatar updated!");
+    } catch (err: any) {
+      setAvatarId(previousId); // revert on failure
+      const msg = err.response?.data?.message || "Failed to update avatar.";
+      toast.error(msg);
+    }
+  };
+
   const profileCompletion = profile
     ? Math.round(
-        (["user_name", "email", "mobile"].filter(
-          (key) => (profile as any)[key]
-        ).length /
+        (["user_name", "email", "mobile"].filter((key) => (profile as any)[key])
+          .length /
           3) *
-          100
+          100,
       )
     : 0;
 
   return (
     <section className="min-h-screen pt-24 pb-16 px-4 bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white">
       <div className="max-w-6xl mx-auto space-y-6">
-
         {/* HEADER CARD */}
         <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-xl">
-
           {loading ? (
             <div className="space-y-4">
               <Skeleton className="h-16 w-16 rounded-xl" />
@@ -66,43 +84,59 @@ export default function UserProfile() {
             </div>
           ) : error ? (
             <p className="text-red-400">{error}</p>
-          ) : profile && (
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+          ) : (
+            profile && (
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+                {/* LEFT — avatar + info */}
+                <div className="flex items-center gap-4">
+                  {/* Avatar with edit button */}
+                  <div className="relative group">
+                    <ArtAvatar avatarId={avatarId} size={80} />
+                    <button
+                      onClick={() => setPickerOpen(true)}
+                      className="absolute inset-0 flex items-center justify-center rounded-2xl bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity"
+                      title="Change avatar"
+                    >
+                      <Pencil size={18} className="text-white" />
+                    </button>
+                  </div>
 
-              {/* LEFT */}
-              <div className="flex items-center gap-4">
-                <PixelAvatar username={profile.user_name} size={80} />
+                  <div>
+                    <h2 className="text-xl md:text-2xl font-semibold">
+                      {profile.user_name}
+                    </h2>
+                    <p className="text-sm text-gray-400">
+                      Joined{" "}
+                      {new Date(profile.created_at).toLocaleDateString("en-IN")}
+                    </p>
+                    <button
+                      onClick={() => setPickerOpen(true)}
+                      className="mt-1 text-xs text-orange-400 hover:text-orange-300 transition"
+                    >
+                      Change avatar
+                    </button>
+                  </div>
+                </div>
 
-                <div>
-                  <h2 className="text-xl md:text-2xl font-semibold">
-                    {profile.user_name}
-                  </h2>
-                  <p className="text-sm text-gray-400">
-                    Joined {new Date(profile.created_at).toLocaleDateString("en-IN")}
-                  </p>
+                {/* RIGHT — badges */}
+                <div className="flex flex-wrap gap-2">
+                  {profile.is_admin && (
+                    <span className="px-3 py-1 text-xs rounded-full bg-yellow-400 text-black font-semibold">
+                      Admin
+                    </span>
+                  )}
+                  <span className="px-3 py-1 text-xs rounded-full bg-indigo-500/20 border border-indigo-400">
+                    {profileCompletion}% Complete
+                  </span>
                 </div>
               </div>
-
-              {/* RIGHT */}
-              <div className="flex flex-wrap gap-2">
-                {profile.is_admin && (
-                  <span className="px-3 py-1 text-xs rounded-full bg-yellow-400 text-black font-semibold">
-                    Admin
-                  </span>
-                )}
-                <span className="px-3 py-1 text-xs rounded-full bg-indigo-500/20 border border-indigo-400">
-                  {profileCompletion}% Complete
-                </span>
-              </div>
-            </div>
+            )
           )}
         </div>
 
         {/* DETAILS GRID */}
         {!loading && profile && (
           <div className="grid md:grid-cols-1 gap-6">
-
-            {/* CONTACT CARD */}
             <div className="bg-white/5 border border-white/10 rounded-2xl p-5 space-y-4">
               <h3 className="text-lg font-semibold">Contact Info</h3>
 
@@ -126,8 +160,16 @@ export default function UserProfile() {
             <AttemptsList studentId={profile.id} type="pyq" />
           </div>
         )}
-
       </div>
+
+      {/* AVATAR PICKER MODAL */}
+      {pickerOpen && (
+        <AvatarPicker
+          currentId={avatarId}
+          onSelect={handleAvatarSelect}
+          onClose={() => setPickerOpen(false)}
+        />
+      )}
     </section>
   );
 }
