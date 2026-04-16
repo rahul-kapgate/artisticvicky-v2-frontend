@@ -104,51 +104,75 @@ const SECTION_LABELS: Record<string, { label: string; icon: string }> = {
 };
 
 const WHAT_YOU_LEARN = [
-  "Master Object Drawing techniques used in MAH AAC CET",
-  "Design Practical exercises with expert feedback",
-  "Memory Drawing strategies and tips",
-  "General Knowledge topics specific to BFA entrance",
-  "Time management and exam strategy",
-  "Portfolio building and presentation skills",
+  "Master Object Drawing — shapes, shading, perspective & realistic detailing",
+  "Memory Drawing — human figures, scenes, composition & storytelling",
+  "2D Design — color theory, layouts, typography & poster design",
+  "GK & Art Awareness — artists, art movements, history & PYQ concepts",
+  "Regular Tests — weekly tests, mock exams, performance analysis & improvement",
+  "Complete Guidance — exam strategy, time management, doubt sessions & admission support",
 ];
 
 const SAMPLE_CURRICULUM: CourseSection[] = [
   {
-    title: "Module 1 — Object Drawing Basics",
+    title: "Module 1 — Object Drawing",
+    lessons_count: 5,
+    lessons: [
+      { title: "Basic Shapes & Forms (Cube, Sphere, Cone)" },
+      { title: "Light, Shadow & Shading Techniques" },
+      { title: "Perspective Drawing (1-Point & 2-Point)" },
+      { title: "Texture and Detailing" },
+      { title: "Advanced Object Composition" },
+    ],
+  },
+  {
+    title: "Module 2 — Memory Drawing",
     lessons_count: 4,
     lessons: [
-      { title: "Introduction to Object Drawing" },
-      { title: "Shading and Rendering Techniques" },
-      { title: "Common Objects Practice" },
-      { title: "Past Year Questions Walkthrough" },
+      { title: "Human Figures & Proportions" },
+      { title: "Daily Life Scenes (Market, Bus Stop, Festival)" },
+      { title: "Composition & Storytelling" },
+      { title: "Background, Depth & Environment Creation" },
     ],
   },
   {
-    title: "Module 2 — Design Practical",
+    title: "Module 3 — 2D Design",
+    lessons_count: 5,
+    lessons: [
+      { title: "Color Theory & Color Wheel" },
+      { title: "Layout and Composition Rules" },
+      { title: "Typography Basics" },
+      { title: "Poster & Creative Design" },
+      { title: "Color Application Techniques" },
+    ],
+  },
+  {
+    title: "Module 4 — GK & Art Awareness",
     lessons_count: 4,
     lessons: [
-      { title: "Color Theory & Application" },
-      { title: "Pattern Design Fundamentals" },
-      { title: "Composition Principles" },
-      { title: "Practice Problems" },
+      { title: "Famous Artists & Artworks" },
+      { title: "Art Movements & History" },
+      { title: "Previous Year Questions (PYQs)" },
+      { title: "Important Concepts for CET" },
     ],
   },
   {
-    title: "Module 3 — Memory Drawing",
-    lessons_count: 3,
+    title: "Module 5 — Tests & Practice",
+    lessons_count: 4,
     lessons: [
-      { title: "Observation & Recall Techniques" },
-      { title: "Outdoor Scene Practice" },
-      { title: "Exam Strategy for Memory Drawing" },
+      { title: "Weekly Tests (Every Friday)" },
+      { title: "Subject-wise Evaluation" },
+      { title: "Full-Length Mock Tests" },
+      { title: "Performance Analysis & Improvement" },
     ],
   },
   {
-    title: "Module 4 — General Knowledge",
-    lessons_count: 3,
+    title: "Module 6 — Complete Guidance",
+    lessons_count: 4,
     lessons: [
-      { title: "Indian Art History" },
-      { title: "Famous Artists & Movements" },
-      { title: "Architecture & Design Basics" },
+      { title: "Exam Strategy & Paper Solving Techniques" },
+      { title: "Time Management Skills" },
+      { title: "Doubt Solving Sessions" },
+      { title: "Admission Guidance After Exam" },
     ],
   },
 ];
@@ -647,7 +671,6 @@ function MockTestCoursePage({
               </button>
             )}
 
-
             <div className="pt-2 border-t border-white/10">
               <p className="text-sm font-semibold text-white mb-3">
                 What you get:
@@ -744,7 +767,6 @@ function PYQMockCoursePage({
   onOpenLogin: () => void;
   onNavigateToPYQ: (year: number) => void;
 }) {
-
   const createdDate = course.created_at
     ? new Date(course.created_at).toLocaleDateString("en-IN", {
         year: "numeric",
@@ -1005,7 +1027,6 @@ function PYQMockCoursePage({
                 Enroll for Full Access 🚀
               </button>
             )}
-
 
             <div className="pt-2 border-t border-white/10">
               <p className="text-sm font-semibold text-white mb-3">
@@ -1495,7 +1516,6 @@ function ResourcesCoursePage({
                 Get Full Access 🚀
               </button>
             )}
-
 
             <div className="pt-2 border-t border-white/10">
               <p className="text-sm font-semibold text-white mb-3">
