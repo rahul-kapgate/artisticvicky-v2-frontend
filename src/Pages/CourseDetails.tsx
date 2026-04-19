@@ -44,8 +44,12 @@ const TOTAL_FREE_MOCK_TESTS = 1;
 const MOCK_TOTAL_MARKS = 40;
 const MOCK_DURATION_MINS = 60;
 
-// PYQ years — 2006 to 2026
-const PYQ_YEARS = Array.from({ length: 21 }, (_, i) => 2026 - i);
+type PYQPaper = {
+  year: number;
+  examDay?: number;
+  questions: number;
+  sectionId: number;
+};
 
 type MockAttempt = {
   id: number;
@@ -177,6 +181,30 @@ const SAMPLE_CURRICULUM: CourseSection[] = [
       { title: "Admission Guidance After Exam" },
     ],
   },
+];
+
+const PYQ_PAPERS: PYQPaper[] = [
+  { year: 2026, questions: 40, sectionId: 24 },
+  { year: 2025, questions: 40, sectionId: 2 },
+  { year: 2024, questions: 40, sectionId: 1 },
+  { year: 2023, questions: 40, sectionId: 3 },
+  { year: 2022, questions: 40, sectionId: 4 },
+  { year: 2021, examDay: 1, questions: 40, sectionId: 5 },
+  { year: 2021, examDay: 2, questions: 40, sectionId: 11 },
+  { year: 2020, examDay: 1, questions: 40, sectionId: 6 },
+  { year: 2020, examDay: 2, questions: 40, sectionId: 12 },
+  { year: 2019, questions: 40, sectionId: 7 },
+  { year: 2018, questions: 40, sectionId: 8 },
+  { year: 2017, questions: 40, sectionId: 9 },
+  { year: 2016, questions: 40, sectionId: 10 },
+  { year: 2015, questions: 40, sectionId: 16 },
+  { year: 2014, questions: 40, sectionId: 17 },
+  { year: 2012, questions: 40, sectionId: 18 },
+  { year: 2010, questions: 40, sectionId: 19 },
+  { year: 2009, questions: 40, sectionId: 20 },
+  { year: 2008, questions: 20, sectionId: 21 },
+  { year: 2007, questions: 49, sectionId: 22 },
+  { year: 2006, questions: 50, sectionId: 23 },
 ];
 
 /* ── Score helpers ── */
@@ -796,7 +824,7 @@ function PYQMockCoursePage({
   currentUser: any;
   isEnrolled: boolean;
   onOpenLogin: () => void;
-  onNavigateToPYQ: (year: number) => void;
+  onNavigateToPYQ: (paper: PYQPaper) => void;
   onEnroll: () => void;
   isPaying: boolean;
 }) {
@@ -817,7 +845,7 @@ function PYQMockCoursePage({
         )
       : null;
 
-  const handleStartPYQ = (year: number) => {
+  const handleStartPYQ = (paper: PYQPaper) => {
     if (!currentUser) {
       onOpenLogin();
       return;
@@ -826,7 +854,7 @@ function PYQMockCoursePage({
       onEnroll();
       return;
     }
-    onNavigateToPYQ(year);
+    onNavigateToPYQ(paper);
   };
 
   return (
@@ -1069,24 +1097,73 @@ function PYQMockCoursePage({
 
           {isEnrolled && (
             <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-5">
-              <p className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
-                <FileText className="w-4 h-4 text-violet-400" />
-                Quick Access
-              </p>
-              <div className="grid grid-cols-3 gap-1.5">
-                {PYQ_YEARS.slice(0, 9).map((year) => (
-                  <button
-                    key={year}
-                    onClick={() => handleStartPYQ(year)}
-                    className="rounded-lg border border-white/10 bg-white/5 hover:border-violet-400/30 hover:bg-violet-500/15 py-2 text-center text-xs font-semibold text-gray-300 hover:text-violet-200 transition"
-                  >
-                    {year}
-                  </button>
-                ))}
+              <div className="flex items-center justify-between mb-1">
+                <p className="text-sm font-semibold text-white flex items-center gap-2">
+                  <FileText className="w-4 h-4 text-violet-400" />
+                  All PYQ Papers
+                </p>
+                <span className="text-[10px] text-gray-400 bg-white/5 border border-white/10 rounded-full px-2 py-0.5">
+                  {PYQ_PAPERS.length} papers
+                </span>
               </div>
-              <p className="text-xs text-gray-500 mt-2 text-center">
-                Showing latest 9 — scroll left for more
+              <p className="text-xs text-gray-400 mb-3">
+                Tap any paper to start — 2020 & 2021 have 2 exam days each
               </p>
+
+              <div className="grid grid-cols-2 gap-2 max-h-[380px] overflow-y-auto pr-1 [scrollbar-width:thin] pt-4">
+                {PYQ_PAPERS.map((paper) => {
+                  const isLatest = paper.year === 2026;
+                  const hasMultipleDays = !!paper.examDay;
+
+                  return (
+                    <button
+                      key={`${paper.year}-${paper.examDay ?? 0}`}
+                      onClick={() => handleStartPYQ(paper)}
+                      className={`group relative rounded-xl border px-3 py-2.5 text-left transition-all active:scale-[0.97] ${
+                        isLatest
+                          ? "border-violet-400/40 bg-gradient-to-br from-violet-500/20 to-purple-500/10 hover:border-violet-300/60"
+                          : "border-white/10 bg-white/5 hover:border-violet-400/30 hover:bg-violet-500/10"
+                      }`}
+                    >
+                      {isLatest && (
+                        <span className="absolute -top-1.5 -right-1.5 text-[9px] font-bold uppercase tracking-wide bg-violet-500 text-white px-1.5 py-0.5 rounded-full shadow-md">
+                          New
+                        </span>
+                      )}
+
+                      <div className="flex items-baseline justify-between gap-1">
+                        <span
+                          className={`text-base font-bold ${
+                            isLatest
+                              ? "text-violet-200"
+                              : "text-white group-hover:text-violet-200"
+                          }`}
+                        >
+                          {paper.year}
+                        </span>
+                        {hasMultipleDays && (
+                          <span className="text-[10px] font-semibold text-violet-300/90 bg-violet-500/15 border border-violet-400/20 rounded px-1.5 py-0.5">
+                            Day {paper.examDay}
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="mt-1 flex items-center gap-1 text-[10px] text-gray-400 group-hover:text-gray-300">
+                        <FileText className="w-3 h-3" />
+                        <span>{paper.questions} Qs</span>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+
+              <div className="mt-3 pt-3 border-t border-white/10 flex items-center justify-between text-[10px] text-gray-500">
+                <span className="flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-violet-400" />
+                  Newest first
+                </span>
+                <span>Scroll for older years ↓</span>
+              </div>
             </div>
           )}
 
@@ -1752,13 +1829,18 @@ export default function CourseDetails() {
     );
   };
 
-  const handleNavigateToPYQ = (year: number) => {
+  const handleNavigateToPYQ = (paper: PYQPaper) => {
     if (!currentUser) {
       setLoginOpen(true);
       return;
     }
-    navigate(`/my-courses/${course.id}/pyq-mock-test`, {
-      state: { year, courseId: course.id },
+    navigate(`/my-courses/${paper.sectionId}/pyq-mock-test`, {
+      state: {
+        year: paper.year,
+        examDay: paper.examDay,
+        sectionId: paper.sectionId,
+        courseId: course.id,
+      },
     });
   };
 
@@ -1911,9 +1993,7 @@ export default function CourseDetails() {
   const getMainButtonText = () => {
     if (isPaying) return "Processing…";
     if (isMasterclass)
-      return isEnrolled
-        ? "View Masterclass 🚀"
-        : " Book Masterclass 🚀";
+      return isEnrolled ? "View Masterclass 🚀" : " Book Masterclass 🚀";
     return isEnrolled ? "Continue Learning 🚀" : "Enroll Now 🚀";
   };
 
