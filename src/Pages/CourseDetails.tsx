@@ -29,11 +29,13 @@ import {
   PlayCircle,
   AlertCircle,
   ArrowLeft,
+  Loader2,
 } from "lucide-react";
 import { AuthContext } from "@/context/AuthContext";
 import Login from "@/components/Login";
 import Register from "@/components/Register";
 import CourseApprovedReviews from "@/components/CourseApprovedReviews";
+import { useCoursePayment } from "@/hooks/useCoursePayment";
 
 const FREE_MOCK_COURSE_ID = "12";
 const PYQ_MOCK_COURSE_ID = "13";
@@ -194,6 +196,47 @@ function getScoreLabel(score: number, total: number) {
   return "Needs Work";
 }
 
+/* ── Pay button — shared across all course page variants ── */
+function PayButton({
+  onClick,
+  disabled,
+  loading,
+  label,
+  accent,
+}: {
+  onClick: () => void;
+  disabled?: boolean;
+  loading?: boolean;
+  label: string;
+  accent: "cyan" | "orange" | "violet" | "emerald";
+}) {
+  const palette = {
+    cyan: "bg-cyan-600 hover:bg-cyan-500",
+    orange: "bg-orange-600 hover:bg-orange-500",
+    violet: "bg-violet-600 hover:bg-violet-500",
+    emerald: "bg-emerald-600 hover:bg-emerald-500",
+  }[accent];
+
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled || loading}
+      className={`w-full py-3 rounded-xl text-base font-semibold text-white transition-all shadow-md active:scale-[0.98] flex items-center justify-center gap-2 ${palette} ${
+        disabled || loading ? "opacity-70 cursor-not-allowed" : ""
+      }`}
+    >
+      {loading ? (
+        <>
+          <Loader2 className="w-5 h-5 animate-spin" />
+          Processing…
+        </>
+      ) : (
+        label
+      )}
+    </button>
+  );
+}
+
 /* ════════════════════════════════════════
    MOCK TEST PAGE  (course id = 12)
 ════════════════════════════════════════ */
@@ -207,6 +250,8 @@ function MockTestCoursePage({
   usedMockTests,
   onTakeMockTest,
   onOpenLogin,
+  onEnroll,
+  isPaying,
 }: {
   course: CourseWithMasterclass;
   currentUser: any;
@@ -217,6 +262,8 @@ function MockTestCoursePage({
   usedMockTests: number;
   onTakeMockTest: () => void;
   onOpenLogin: () => void;
+  onEnroll: () => void;
+  isPaying: boolean;
 }) {
   const createdDate = course.created_at
     ? new Date(course.created_at).toLocaleDateString("en-IN", {
@@ -245,14 +292,6 @@ function MockTestCoursePage({
     ? Math.round(attempts.reduce((s, a) => s + a.score, 0) / attempts.length)
     : null;
 
-  const openWhatsApp = () => {
-    const msg = `Hi, I am interested in "${course.course_name}".\nPrice: ₹${course.price}`;
-    window.open(
-      `https://wa.me/9325217691?text=${encodeURIComponent(msg)}`,
-      "_blank",
-    );
-  };
-
   const handleCTA = () => {
     if (!currentUser) {
       onOpenLogin();
@@ -262,7 +301,7 @@ function MockTestCoursePage({
       onTakeMockTest();
       return;
     }
-    openWhatsApp();
+    onEnroll();
   };
 
   return (
@@ -275,7 +314,6 @@ function MockTestCoursePage({
           className="w-full h-full object-cover brightness-40"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-[#0a1628] via-[#0a1628]/60 to-transparent" />
-        {/* Back button — Mock Test */}
         <button
           onClick={() => window.history.back()}
           className="absolute mt-20 left-4 sm:top-6 sm:left-6 flex items-center gap-1.5 rounded-full bg-black/40 backdrop-blur-sm border border-white/10 px-3 py-1.5 text-sm text-white hover:bg-black/60 transition"
@@ -317,7 +355,6 @@ function MockTestCoursePage({
 
       {/* ── Main Layout ── */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* ── Left Column ── */}
         <div className="lg:col-span-2 space-y-6">
           {/* Exam stat cards */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -354,7 +391,6 @@ function MockTestCoursePage({
             ))}
           </div>
 
-          {/* Topics covered */}
           <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-6">
             <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
               <BookOpen className="w-5 h-5 text-orange-400" />
@@ -381,7 +417,6 @@ function MockTestCoursePage({
             </div>
           </div>
 
-          {/* About */}
           <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-6">
             <h2 className="text-lg font-bold text-white mb-3">
               About this Mock Test
@@ -398,7 +433,7 @@ function MockTestCoursePage({
             </div>
           </div>
 
-          {/* ── Attempt History ── */}
+          {/* Attempt history */}
           <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-6">
             <h2 className="text-lg font-bold text-white mb-1 flex items-center gap-2">
               <Trophy className="w-5 h-5 text-orange-400" />
@@ -436,7 +471,6 @@ function MockTestCoursePage({
               </div>
             ) : (
               <>
-                {/* Stats */}
                 <div className="grid grid-cols-3 gap-3 mb-4">
                   <div className="rounded-xl bg-white/5 border border-white/10 p-3 text-center">
                     <p className="text-xl font-bold text-orange-300">
@@ -464,7 +498,6 @@ function MockTestCoursePage({
                   </div>
                 </div>
 
-                {/* List */}
                 <div className="space-y-2 max-h-72 overflow-y-auto pr-1 [scrollbar-width:thin]">
                   {attempts.map((attempt, idx) => {
                     const pct = Math.round(
@@ -525,10 +558,8 @@ function MockTestCoursePage({
             )}
           </div>
 
-          {/* Reviews */}
           <CourseApprovedReviews courseId={Number(course.id)} />
 
-          {/* Instructor */}
           <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-6">
             <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
               <GraduationCap className="w-5 h-5 text-orange-400" />
@@ -568,7 +599,6 @@ function MockTestCoursePage({
 
         {/* ── Right Sidebar ── */}
         <aside className="lg:sticky lg:top-24 h-fit space-y-4 order-first lg:order-last">
-          {/* Free attempt card — non-enrolled only */}
           {!isEnrolled && (
             <div className="relative overflow-hidden rounded-2xl border border-orange-400/20 bg-gradient-to-br from-orange-500/15 via-red-500/10 to-pink-500/10 p-5 shadow-xl">
               <div className="absolute -top-10 -right-10 h-28 w-28 rounded-full bg-orange-400/20 blur-3xl" />
@@ -663,12 +693,12 @@ function MockTestCoursePage({
                 Start Mock Test
               </button>
             ) : (
-              <button
-                onClick={openWhatsApp}
-                className="w-full py-3 rounded-xl text-base font-semibold text-white bg-orange-600 hover:bg-orange-500 transition active:scale-[0.98]"
-              >
-                Enroll for Unlimited Tests 🚀
-              </button>
+              <PayButton
+                onClick={!currentUser ? onOpenLogin : onEnroll}
+                loading={isPaying}
+                label="Unlock Unlimited Mock Tests 🚀"
+                accent="orange"
+              />
             )}
 
             <div className="pt-2 border-t border-white/10">
@@ -696,7 +726,6 @@ function MockTestCoursePage({
             </div>
           </div>
 
-          {/* Test details */}
           <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-5">
             <p className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
               <BarChart3 className="w-4 h-4 text-orange-400" />
@@ -760,12 +789,16 @@ function PYQMockCoursePage({
   isEnrolled,
   onOpenLogin,
   onNavigateToPYQ,
+  onEnroll,
+  isPaying,
 }: {
   course: CourseWithMasterclass;
   currentUser: any;
   isEnrolled: boolean;
   onOpenLogin: () => void;
   onNavigateToPYQ: (year: number) => void;
+  onEnroll: () => void;
+  isPaying: boolean;
 }) {
   const createdDate = course.created_at
     ? new Date(course.created_at).toLocaleDateString("en-IN", {
@@ -784,21 +817,13 @@ function PYQMockCoursePage({
         )
       : null;
 
-  const openWhatsApp = () => {
-    const msg = `Hi, I am interested in "${course.course_name}".\nPrice: ₹${course.price}`;
-    window.open(
-      `https://wa.me/9325217691?text=${encodeURIComponent(msg)}`,
-      "_blank",
-    );
-  };
-
   const handleStartPYQ = (year: number) => {
     if (!currentUser) {
       onOpenLogin();
       return;
     }
     if (!isEnrolled) {
-      openWhatsApp();
+      onEnroll();
       return;
     }
     onNavigateToPYQ(year);
@@ -806,7 +831,6 @@ function PYQMockCoursePage({
 
   return (
     <section className="bg-gradient-to-b from-[#0a1628] via-[#0f1b3d] to-[#1a237e] text-gray-100 min-h-screen">
-      {/* ── Hero ── */}
       <div className="relative w-full h-[240px] sm:h-[340px] md:h-[400px] overflow-hidden">
         <img
           src={course.image || ""}
@@ -814,7 +838,6 @@ function PYQMockCoursePage({
           className="w-full h-full object-cover brightness-40"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-[#0a1628] via-[#0a1628]/60 to-transparent" />
-        {/* Back button — PYQ */}
         <button
           onClick={() => window.history.back()}
           className="absolute mt-20 left-4 sm:top-6 sm:left-6 flex items-center gap-1.5 rounded-full bg-black/40 backdrop-blur-sm border border-white/10 px-3 py-1.5 text-sm text-white hover:bg-black/60 transition"
@@ -854,11 +877,8 @@ function PYQMockCoursePage({
         </div>
       </div>
 
-      {/* ── Main Layout ── */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* ── Left Column ── */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Stat cards */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {[
               {
@@ -893,7 +913,6 @@ function PYQMockCoursePage({
             ))}
           </div>
 
-          {/* What's covered */}
           <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-6">
             <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
               <BookOpen className="w-5 h-5 text-violet-400" />
@@ -920,7 +939,6 @@ function PYQMockCoursePage({
             </div>
           </div>
 
-          {/* About */}
           <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-6">
             <h2 className="text-lg font-bold text-white mb-3">
               About this PYQ Series
@@ -937,10 +955,8 @@ function PYQMockCoursePage({
             </div>
           </div>
 
-          {/* Reviews */}
           <CourseApprovedReviews courseId={Number(course.id)} />
 
-          {/* Instructor */}
           <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-6">
             <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
               <GraduationCap className="w-5 h-5 text-violet-400" />
@@ -978,9 +994,7 @@ function PYQMockCoursePage({
           </div>
         </div>
 
-        {/* ── Right Sidebar ── */}
         <aside className="lg:sticky lg:top-24 h-fit space-y-4 order-first lg:order-last">
-          {/* Price + CTA */}
           <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-5 space-y-4">
             {!isEnrolled && (
               <div className="text-center">
@@ -1020,12 +1034,12 @@ function PYQMockCoursePage({
                 </p>
               </div>
             ) : (
-              <button
-                onClick={!currentUser ? onOpenLogin : openWhatsApp}
-                className="w-full py-3 rounded-xl text-base font-semibold text-white bg-violet-600 hover:bg-violet-500 transition active:scale-[0.98]"
-              >
-                Enroll for Full Access 🚀
-              </button>
+              <PayButton
+                onClick={!currentUser ? onOpenLogin : onEnroll}
+                loading={isPaying}
+                label=" Get Full Access 🚀"
+                accent="violet"
+              />
             )}
 
             <div className="pt-2 border-t border-white/10">
@@ -1053,7 +1067,6 @@ function PYQMockCoursePage({
             </div>
           </div>
 
-          {/* Years quick access — enrolled only */}
           {isEnrolled && (
             <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-5">
               <p className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
@@ -1077,7 +1090,6 @@ function PYQMockCoursePage({
             </div>
           )}
 
-          {/* Details */}
           <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-5">
             <p className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
               <BarChart3 className="w-4 h-4 text-violet-400" />
@@ -1180,11 +1192,15 @@ function ResourcesCoursePage({
   currentUser,
   isEnrolled,
   onOpenLogin,
+  onEnroll,
+  isPaying,
 }: {
   course: CourseWithMasterclass;
   currentUser: any;
   isEnrolled: boolean;
   onOpenLogin: () => void;
+  onEnroll: () => void;
+  isPaying: boolean;
 }) {
   const navigate = useNavigate();
 
@@ -1205,21 +1221,13 @@ function ResourcesCoursePage({
         )
       : null;
 
-  const openWhatsApp = () => {
-    const msg = `Hi, I am interested in "${course.course_name}".\nPrice: ₹${course.price}`;
-    window.open(
-      `https://wa.me/9325217691?text=${encodeURIComponent(msg)}`,
-      "_blank",
-    );
-  };
-
   const handleAccess = () => {
     if (!currentUser) {
       onOpenLogin();
       return;
     }
     if (!isEnrolled) {
-      openWhatsApp();
+      onEnroll();
       return;
     }
     navigate(`/my-courses/${course.id}`);
@@ -1227,7 +1235,6 @@ function ResourcesCoursePage({
 
   return (
     <section className="bg-gradient-to-b from-[#0a1628] via-[#0f1b3d] to-[#1a237e] text-gray-100 min-h-screen">
-      {/* ── Hero ── */}
       <div className="relative w-full h-[240px] sm:h-[340px] md:h-[400px] overflow-hidden">
         <img
           src={course.image || ""}
@@ -1235,7 +1242,6 @@ function ResourcesCoursePage({
           className="w-full h-full object-cover brightness-40"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-[#0a1628] via-[#0a1628]/60 to-transparent" />
-        {/* Back button — Resources */}
         <button
           onClick={() => window.history.back()}
           className="absolute mt-20 left-4 sm:top-6 sm:left-6 flex items-center gap-1.5 rounded-full bg-black/40 backdrop-blur-sm border border-white/10 px-3 py-1.5 text-sm text-white hover:bg-black/60 transition"
@@ -1275,11 +1281,8 @@ function ResourcesCoursePage({
         </div>
       </div>
 
-      {/* ── Main Layout ── */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* ── Left Column ── */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Stat cards */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {[
               {
@@ -1314,13 +1317,11 @@ function ResourcesCoursePage({
             ))}
           </div>
 
-          {/* What's inside */}
           <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-6">
             <h2 className="text-lg font-bold text-white mb-5 flex items-center gap-2">
               <BookOpen className="w-5 h-5 text-emerald-400" />
               What's Inside
             </h2>
-
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {RESOURCE_ITEMS.map(
                 ({ icon, title, desc, badge, color, badgeColor }) => (
@@ -1344,8 +1345,6 @@ function ResourcesCoursePage({
                     <p className="text-xs text-gray-300 leading-relaxed">
                       {desc}
                     </p>
-
-                    {/* Lock overlay for non-enrolled */}
                     {!isEnrolled && (
                       <div className="absolute inset-0 rounded-2xl bg-black/40 backdrop-blur-[2px] flex items-center justify-center">
                         <div className="flex flex-col items-center gap-1">
@@ -1362,7 +1361,6 @@ function ResourcesCoursePage({
             </div>
           </div>
 
-          {/* Access CTA — enrolled */}
           {isEnrolled && (
             <div className="rounded-2xl border border-emerald-400/20 bg-emerald-500/8 p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
               <div>
@@ -1384,7 +1382,6 @@ function ResourcesCoursePage({
             </div>
           )}
 
-          {/* About */}
           <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-6">
             <h2 className="text-lg font-bold text-white mb-3">
               About this Resource Pack
@@ -1401,7 +1398,6 @@ function ResourcesCoursePage({
             </div>
           </div>
 
-          {/* Topics / What you get checklist */}
           <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-6">
             <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
               <CheckCircle2 className="w-5 h-5 text-emerald-400" />
@@ -1428,10 +1424,8 @@ function ResourcesCoursePage({
             </div>
           </div>
 
-          {/* Reviews */}
           <CourseApprovedReviews courseId={Number(course.id)} />
 
-          {/* Instructor */}
           <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-6">
             <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
               <GraduationCap className="w-5 h-5 text-emerald-400" />
@@ -1468,9 +1462,7 @@ function ResourcesCoursePage({
           </div>
         </div>
 
-        {/* ── Right Sidebar ── */}
         <aside className="lg:sticky lg:top-24 h-fit space-y-4 order-first lg:order-last">
-          {/* Price + CTA */}
           <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-5 space-y-4">
             {!isEnrolled && (
               <div className="text-center">
@@ -1509,12 +1501,12 @@ function ResourcesCoursePage({
                 Access My Resources
               </button>
             ) : (
-              <button
-                onClick={!currentUser ? onOpenLogin : openWhatsApp}
-                className="w-full py-3 rounded-xl text-base font-semibold text-white bg-emerald-600 hover:bg-emerald-500 transition active:scale-[0.98]"
-              >
-                Get Full Access 🚀
-              </button>
+              <PayButton
+                onClick={!currentUser ? onOpenLogin : onEnroll}
+                loading={isPaying}
+                label="Get Full Access 🚀"
+                accent="emerald"
+              />
             )}
 
             <div className="pt-2 border-t border-white/10">
@@ -1542,7 +1534,6 @@ function ResourcesCoursePage({
             </div>
           </div>
 
-          {/* Details card */}
           <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-5">
             <p className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
               <BarChart3 className="w-4 h-4 text-emerald-400" />
@@ -1614,6 +1605,12 @@ export default function CourseDetails() {
   const [attempts, setAttempts] = useState<MockAttempt[]>([]);
   const [attemptsLoading, setAttemptsLoading] = useState(false);
 
+  // Toast / banner state for payment outcomes
+  const [toast, setToast] = useState<{
+    type: "success" | "error";
+    message: string;
+  } | null>(null);
+
   const { user } = useContext(AuthContext);
 
   const storedUser = useMemo(() => {
@@ -1628,6 +1625,46 @@ export default function CourseDetails() {
   const isMockCourse = String(id) === FREE_MOCK_COURSE_ID;
   const isPYQCourse = String(id) === PYQ_MOCK_COURSE_ID;
   const isResourcesCourse = String(id) === RESOURCES_COURSE_ID;
+
+  // 💳 Payment hook — shared across every page variant
+  const { pay, isBusy: isPaying } = useCoursePayment({
+    currentUser,
+    onSuccess: ({ invoiceNumber }) => {
+      setIsEnrolled(true);
+      // Append current user to local enrolled list to keep UI consistent
+      setCourse((prev) =>
+        prev
+          ? {
+              ...prev,
+              students_enrolled: [
+                ...(prev.students_enrolled || []),
+                Number(currentUser?.id),
+              ],
+            }
+          : prev,
+      );
+      setToast({
+        type: "success",
+        message: invoiceNumber
+          ? `Payment successful! Invoice ${invoiceNumber} sent to your email.`
+          : "Payment successful! You are now enrolled.",
+      });
+      setTimeout(() => setToast(null), 6000);
+    },
+    onFailure: (message) => {
+      setToast({ type: "error", message });
+      setTimeout(() => setToast(null), 6000);
+    },
+  });
+
+  const handleEnroll = () => {
+    if (!currentUser) {
+      setLoginOpen(true);
+      return;
+    }
+    if (!course) return;
+    pay(course.id, course.course_name);
+  };
 
   useEffect(() => {
     const fetchCourse = async () => {
@@ -1656,13 +1693,12 @@ export default function CourseDetails() {
             const data: MockAttempt[] = res.data?.data || [];
             setAttempts(data);
             setUsedMockTests(data.length);
-            // if enrolled, unlimited — free limit only applies to non-enrolled
             if (!userEnrolled) {
               setFreeMockTestsLeft(
                 Math.max(TOTAL_FREE_MOCK_TESTS - data.length, 0),
               );
             } else {
-              setFreeMockTestsLeft(999); // unlimited
+              setFreeMockTestsLeft(999);
             }
           } catch {
             setAttempts([]);
@@ -1709,12 +1745,7 @@ export default function CourseDetails() {
   };
 
   const openWhatsApp = () => {
-    const msg = `Hi, I am interested in "${course.course_name}".\nCurrent price: ₹${course.price ?? 0}${
-      course.price_without_discount &&
-      course.price_without_discount > (course.price || 0)
-        ? `\nOriginal price: ₹${course.price_without_discount}`
-        : ""
-    }`;
+    const msg = `Hi, I have a question about "${course.course_name}".`;
     window.open(
       `https://wa.me/9325217691?text=${encodeURIComponent(msg)}`,
       "_blank",
@@ -1731,6 +1762,26 @@ export default function CourseDetails() {
     });
   };
 
+  /* ── Toast overlay (shared) ── */
+  const toastNode = toast ? (
+    <div
+      className={`fixed top-24 right-4 z-50 max-w-sm rounded-xl border px-4 py-3 shadow-xl backdrop-blur-md ${
+        toast.type === "success"
+          ? "border-emerald-400/30 bg-emerald-500/20 text-emerald-100"
+          : "border-red-400/30 bg-red-500/20 text-red-100"
+      }`}
+    >
+      <div className="flex items-start gap-2">
+        {toast.type === "success" ? (
+          <CheckCircle2 className="w-5 h-5 shrink-0 mt-0.5" />
+        ) : (
+          <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
+        )}
+        <p className="text-sm font-medium leading-snug">{toast.message}</p>
+      </div>
+    </div>
+  ) : null;
+
   /* ── Route to mock test page ── */
   if (isMockCourse) {
     return (
@@ -1745,7 +1796,10 @@ export default function CourseDetails() {
           usedMockTests={usedMockTests}
           onTakeMockTest={handleTakeMockTest}
           onOpenLogin={() => setLoginOpen(true)}
+          onEnroll={handleEnroll}
+          isPaying={isPaying}
         />
+        {toastNode}
         <Login
           open={loginOpen}
           onOpenChange={setLoginOpen}
@@ -1759,7 +1813,6 @@ export default function CourseDetails() {
     );
   }
 
-  /* ── Route to PYQ mock test page ── */
   if (isPYQCourse) {
     return (
       <>
@@ -1769,7 +1822,10 @@ export default function CourseDetails() {
           isEnrolled={isEnrolled}
           onOpenLogin={() => setLoginOpen(true)}
           onNavigateToPYQ={handleNavigateToPYQ}
+          onEnroll={handleEnroll}
+          isPaying={isPaying}
         />
+        {toastNode}
         <Login
           open={loginOpen}
           onOpenChange={setLoginOpen}
@@ -1783,7 +1839,6 @@ export default function CourseDetails() {
     );
   }
 
-  /* ── Route to resources page ── */
   if (isResourcesCourse) {
     return (
       <>
@@ -1792,7 +1847,10 @@ export default function CourseDetails() {
           currentUser={currentUser}
           isEnrolled={isEnrolled}
           onOpenLogin={() => setLoginOpen(true)}
+          onEnroll={handleEnroll}
+          isPaying={isPaying}
         />
+        {toastNode}
         <Login
           open={loginOpen}
           onOpenChange={setLoginOpen}
@@ -1847,12 +1905,15 @@ export default function CourseDetails() {
       return;
     }
     if (isEnrolled) navigate(`/my-courses/${course.id}`);
-    else openWhatsApp();
+    else handleEnroll();
   };
 
   const getMainButtonText = () => {
+    if (isPaying) return "Processing…";
     if (isMasterclass)
-      return isEnrolled ? "View Masterclass 🚀" : "Book Masterclass 🚀";
+      return isEnrolled
+        ? "View Masterclass 🚀"
+        : " Book Masterclass 🚀";
     return isEnrolled ? "Continue Learning 🚀" : "Enroll Now 🚀";
   };
 
@@ -1876,7 +1937,6 @@ export default function CourseDetails() {
           className="w-full h-full object-cover brightness-50"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-[#0a1628] via-[#0a1628]/60 to-transparent" />
-        {/* Back button */}
         <button
           onClick={() => window.history.back()}
           className="absolute mt-20 left-4 sm:top-6 sm:left-6 flex items-center gap-1.5 rounded-full bg-black/40 backdrop-blur-sm border border-white/10 px-3 py-1.5 text-sm text-white hover:bg-black/60 transition"
@@ -2141,8 +2201,14 @@ export default function CourseDetails() {
             )}
             <button
               onClick={handleMainButton}
-              className={`w-full px-6 py-3 rounded-xl text-base font-semibold text-white transition-all shadow-md active:scale-[0.98] ${isEnrolled ? "bg-green-600 hover:bg-green-500" : "bg-cyan-600 hover:bg-cyan-500"}`}
+              disabled={isPaying}
+              className={`w-full px-6 py-3 rounded-xl text-base font-semibold text-white transition-all shadow-md active:scale-[0.98] flex items-center justify-center gap-2 ${
+                isEnrolled
+                  ? "bg-green-600 hover:bg-green-500"
+                  : "bg-cyan-600 hover:bg-cyan-500"
+              } ${isPaying ? "opacity-70 cursor-not-allowed" : ""}`}
             >
+              {isPaying && <Loader2 className="w-5 h-5 animate-spin" />}
               {getMainButtonText()}
             </button>
             {!isEnrolled && (
@@ -2151,7 +2217,7 @@ export default function CourseDetails() {
                 className="w-full px-6 py-3 rounded-xl text-base font-semibold text-white bg-[#25D366] hover:bg-[#20bd5a] transition-all shadow-md active:scale-[0.98] flex items-center justify-center gap-2"
               >
                 <MessageCircle className="w-5 h-5" />
-                Message on WhatsApp
+                Ask on WhatsApp
               </button>
             )}
             {!isMasterclass &&
@@ -2260,6 +2326,8 @@ export default function CourseDetails() {
           </div>
         </aside>
       </div>
+
+      {toastNode}
 
       <Login
         open={loginOpen}
