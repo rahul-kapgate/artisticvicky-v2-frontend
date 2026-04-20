@@ -2,7 +2,6 @@ import { Outlet, useLocation } from "react-router-dom";
 import Header from "./Header";
 import Footer from "./Footer";
 import { Toaster } from "@/components/ui/sonner";
-import TrustStrip from "./TrustStrip";
 
 /**
  * Layout wrapper for all pages
@@ -23,7 +22,7 @@ export default function Layout() {
 
   return (
     <>
-      <Toaster richColors position="bottom-right" />
+      <Toaster richColors position="top-center" />
       {!hideLayout && <Header />}
 
       <main className={hideLayout ? "min-h-screen" : ""}>
@@ -31,7 +30,7 @@ export default function Layout() {
         <Outlet />
       </main>
 
-      {!hideLayout && <> <Footer /> <TrustStrip /> </>}
+      {!hideLayout && <Footer />}
     </>
   );
 }
