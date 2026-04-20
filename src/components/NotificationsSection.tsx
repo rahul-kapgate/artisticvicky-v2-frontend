@@ -29,6 +29,29 @@ const formatDate = (iso: string | null | undefined) => {
   });
 };
 
+// ✅ Moved OUTSIDE the component — stable identity, never remounts
+function NotificationsWrapper({ children }: { children: React.ReactNode }) {
+  return (
+    <section className="py-10 px-6 bg-gradient-to-b from-[#020617] via-[#020617] to-[#020817] text-gray-100">
+      <div className="max-w-6xl mx-auto">
+        <div className="relative rounded-2xl border border-cyan-500/40 bg-gradient-to-br from-[#020617] via-[#02091f] to-[#050b24] shadow-[0_0_35px_rgba(8,47,73,0.55)] overflow-hidden">
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-cyan-400/80 to-transparent" />
+          <div className="relative px-4 sm:px-6 py-6 sm:py-7">{children}</div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+const NotificationHeader = () => (
+  <div className="flex items-center gap-2 mb-4">
+    <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-cyan-500/20 border border-cyan-400/60">
+      <Bell className="w-5 h-5 text-cyan-300" />
+    </span>
+    <h2 className="text-2xl font-semibold">Latest Updates</h2>
+  </div>
+);
+
 export default function NotificationsSection() {
   const [notifications, setNotifications] = useState<PublicNotification[]>([]);
   const [lastUpdatedAt, setLastUpdatedAt] = useState<string | null>(null);
@@ -36,57 +59,30 @@ export default function NotificationsSection() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchNotifications = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-
-        const res = await apiClient.get<PublicNotificationResponse>(
-          "/api/notifications/public",
-          { params: { limit: 6 } }
-        );
-
+    // ✅ Removed redundant setLoading(true) — already true on mount
+    apiClient
+      .get<PublicNotificationResponse>("/api/notifications/public", {
+        params: { limit: 6 },
+      })
+      .then((res) => {
         setNotifications(res.data.items || []);
         setLastUpdatedAt(res.data.last_updated_at || null);
-      } catch (err: any) {
+      })
+      .catch((err: any) => {
         console.error("Error fetching notifications:", err);
         setError(
           err?.response?.data?.message ||
             err.message ||
-            "Failed to load notifications"
+            "Failed to load notifications",
         );
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchNotifications();
+      })
+      .finally(() => setLoading(false));
   }, []);
-
-  // 🔹 Shared wrapper – this is the part you said is working great
-  const Wrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-    <section className="py-10 px-6 bg-gradient-to-b from-[#020617] via-[#020617] to-[#020817] text-gray-100">
-      <div className="max-w-6xl mx-auto">
-        <div className="relative rounded-2xl border border-cyan-500/40 bg-gradient-to-br from-[#020617] via-[#02091f] to-[#050b24] shadow-[0_0_35px_rgba(8,47,73,0.55)] overflow-hidden">
-          {/* top glow */}
-          <div className="pointer-events-none absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-cyan-400/80 to-transparent" />
-          <div className="relative px-4 sm:px-6 py-6 sm:py-7">
-            {children}
-          </div>
-        </div>
-      </div>
-    </section>
-  );
 
   if (loading) {
     return (
-      <Wrapper>
-        <div className="flex items-center gap-2 mb-4">
-          <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-cyan-500/20 border border-cyan-400/60">
-            <Bell className="w-5 h-5 text-cyan-300" />
-          </span>
-          <h2 className="text-2xl font-semibold">Latest Updates</h2>
-        </div>
+      <NotificationsWrapper>
+        <NotificationHeader />
         <div className="space-y-3 animate-pulse">
           {Array.from({ length: 3 }).map((_, i) => (
             <div
@@ -95,13 +91,13 @@ export default function NotificationsSection() {
             />
           ))}
         </div>
-      </Wrapper>
+      </NotificationsWrapper>
     );
   }
 
   if (error) {
     return (
-      <Wrapper>
+      <NotificationsWrapper>
         <div className="flex items-center gap-2 mb-3">
           <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-red-500/10 border border-red-400/70">
             <AlertCircle className="w-5 h-5 text-red-300" />
@@ -109,28 +105,23 @@ export default function NotificationsSection() {
           <h2 className="text-2xl font-semibold">Latest Updates</h2>
         </div>
         <p className="text-red-300 text-sm">{error}</p>
-      </Wrapper>
+      </NotificationsWrapper>
     );
   }
 
   if (!notifications.length) {
     return (
-      <Wrapper>
-        <div className="flex items-center gap-2 mb-3">
-          <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-cyan-500/20 border border-cyan-400/60">
-            <Bell className="w-5 h-5 text-cyan-300" />
-          </span>
-          <h2 className="text-2xl font-semibold">Latest Updates</h2>
-        </div>
+      <NotificationsWrapper>
+        <NotificationHeader />
         <p className="text-gray-300 text-sm">
           No notifications at the moment. Stay tuned for MAH AAC CET updates ✨
         </p>
-      </Wrapper>
+      </NotificationsWrapper>
     );
   }
 
   return (
-    <Wrapper>
+    <NotificationsWrapper>
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
         <div className="flex items-center gap-3">
@@ -142,11 +133,11 @@ export default function NotificationsSection() {
               Latest Updates &amp; Notifications
             </h2>
             <p className="text-xs text-gray-300 mt-1">
-              Important announcements related to MAH AAC CET and Artistic Vickey.
+              Important announcements related to MAH AAC CET and Artistic
+              Vickey.
             </p>
           </div>
         </div>
-
         {lastUpdatedAt && (
           <p className="text-xs text-gray-300">
             Updated on{" "}
@@ -157,7 +148,7 @@ export default function NotificationsSection() {
         )}
       </div>
 
-      {/* 📋 Real table – clean and aligned */}
+      {/* Table */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -168,37 +159,26 @@ export default function NotificationsSection() {
           <table className="min-w-full text-sm text-left">
             <thead>
               <tr className="border-b border-slate-700/80 bg-slate-900/80">
-                <th className="px-3 sm:px-4 py-2 text-[11px] sm:text-xs font-medium uppercase tracking-wide text-slate-300/80">
-                  Date
-                </th>
-                <th className="px-3 sm:px-4 py-2 text-[11px] sm:text-xs font-medium uppercase tracking-wide text-slate-300/80">
-                  Notification
-                </th>
-                <th className="px-3 sm:px-4 py-2 text-[11px] sm:text-xs font-medium uppercase tracking-wide text-slate-300/80">
-                  Category
-                </th>
-                <th className="px-3 sm:px-4 py-2 text-[11px] sm:text-xs font-medium uppercase tracking-wide text-right text-slate-300/80">
-                  Link
-                </th>
+                {["Date", "Notification", "Category", "Link"].map((h, i) => (
+                  <th
+                    key={h}
+                    className={`px-3 sm:px-4 py-2 text-[11px] sm:text-xs font-medium uppercase tracking-wide text-slate-300/80 ${i === 3 ? "text-right" : ""}`}
+                  >
+                    {h}
+                  </th>
+                ))}
               </tr>
             </thead>
             <tbody>
               {notifications.map((n) => (
                 <tr
                   key={n.id}
-                  className={`border-b border-slate-800/80 last:border-b-0 hover:bg-slate-900/80 transition-colors ${
-                    n.is_important
-                      ? "bg-slate-900/70"
-                      : ""
-                  }`}
+                  className={`border-b border-slate-800/80 last:border-b-0 hover:bg-slate-900/80 transition-colors ${n.is_important ? "bg-slate-900/70" : ""}`}
                 >
-                  {/* Date */}
                   <td className="px-3 sm:px-4 py-2 align-top whitespace-nowrap">
                     <div className="flex items-center gap-2">
                       <span
-                        className={`inline-block h-2.5 w-2.5 rounded-full mt-[2px] ${
-                          n.is_important ? "bg-red-400" : "bg-cyan-300"
-                        }`}
+                        className={`inline-block h-2.5 w-2.5 rounded-full mt-[2px] ${n.is_important ? "bg-red-400" : "bg-cyan-300"}`}
                       />
                       <span className="text-xs text-gray-300">
                         {formatDate(n.published_at)}
@@ -206,7 +186,6 @@ export default function NotificationsSection() {
                     </div>
                   </td>
 
-                  {/* Notification text */}
                   <td className="px-3 sm:px-4 py-2 align-top">
                     <div className="text-xs sm:text-sm text-gray-100">
                       {n.url ? (
@@ -229,7 +208,6 @@ export default function NotificationsSection() {
                     )}
                   </td>
 
-                  {/* Category */}
                   <td className="px-3 sm:px-4 py-2 align-top whitespace-nowrap">
                     {n.category ? (
                       <span className="inline-flex items-center px-2 py-1 rounded-full bg-slate-900 border border-slate-600 text-[11px] text-gray-200">
@@ -240,7 +218,6 @@ export default function NotificationsSection() {
                     )}
                   </td>
 
-                  {/* Link column */}
                   <td className="px-3 sm:px-4 py-2 align-top text-right whitespace-nowrap">
                     {n.url ? (
                       <a
@@ -262,6 +239,6 @@ export default function NotificationsSection() {
           </table>
         </div>
       </motion.div>
-    </Wrapper>
+    </NotificationsWrapper>
   );
 }
