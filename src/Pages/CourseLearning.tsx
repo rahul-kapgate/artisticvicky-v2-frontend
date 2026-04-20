@@ -467,7 +467,7 @@ export default function CourseLearning() {
 
       {Number(id) > 0 && (!isMasterclass || isMasterclassCompleted()) && (
         <div className="max-w-6xl mx-auto mt-10">
-          <CourseReviewGate courseId={Number(id)} autoOpen />
+          <CourseReviewGate courseId={Number(id)} autoOpen={false}  />
         </div>
       )}
 
