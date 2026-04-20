@@ -30,6 +30,7 @@ import {
   AlertCircle,
   ArrowLeft,
   Loader2,
+  Ban,
 } from "lucide-react";
 import { AuthContext } from "@/context/AuthContext";
 import Login from "@/components/Login";
@@ -87,6 +88,7 @@ type CourseWithMasterclass = Course & {
   course_type?: "course" | "masterclass";
   masterclass_details?: MasterclassDetails | null;
   students_enrolled?: number[];
+  blocked_users?: number[]; // NEW
   tags?: string[];
   rating?: number;
   price_without_discount?: number;
@@ -224,6 +226,40 @@ function getScoreLabel(score: number, total: number) {
   return "Needs Work";
 }
 
+/* ── Reusable Blocked-Access banner ── */
+function BlockedAccessBanner({
+  onContactSupport,
+}: {
+  onContactSupport: () => void;
+}) {
+  return (
+    <div className="rounded-2xl border border-red-400/30 bg-red-500/10 p-5 space-y-3">
+      <div className="flex items-start gap-3">
+        <div className="rounded-xl bg-red-500/20 p-2 border border-red-400/30 shrink-0">
+          <Ban className="w-5 h-5 text-red-300" />
+        </div>
+        <div className="flex-1">
+          <h3 className="text-base font-bold text-red-200">
+            Access Suspended
+          </h3>
+          <p className="text-sm text-red-100/80 mt-1 leading-relaxed">
+            Your access to this course has been temporarily blocked by the
+            administrator. You're still enrolled, but cannot open the course
+            content until access is restored.
+          </p>
+        </div>
+      </div>
+      <button
+        onClick={onContactSupport}
+        className="w-full py-2.5 rounded-xl text-sm font-semibold text-white bg-[#25D366] hover:bg-[#20bd5a] transition flex items-center justify-center gap-2"
+      >
+        <MessageCircle className="w-4 h-4" />
+        Contact Support on WhatsApp
+      </button>
+    </div>
+  );
+}
+
 /* ── Pay button — shared across all course page variants ── */
 function PayButton({
   onClick,
@@ -272,6 +308,7 @@ function MockTestCoursePage({
   course,
   currentUser,
   isEnrolled,
+  isBlocked,
   attempts,
   attemptsLoading,
   freeMockTestsLeft,
@@ -279,11 +316,13 @@ function MockTestCoursePage({
   onTakeMockTest,
   onOpenLogin,
   onEnroll,
+  onContactSupport,
   isPaying,
 }: {
   course: CourseWithMasterclass;
   currentUser: any;
   isEnrolled: boolean;
+  isBlocked: boolean;
   attempts: MockAttempt[];
   attemptsLoading: boolean;
   freeMockTestsLeft: number;
@@ -291,6 +330,7 @@ function MockTestCoursePage({
   onTakeMockTest: () => void;
   onOpenLogin: () => void;
   onEnroll: () => void;
+  onContactSupport: () => void;
   isPaying: boolean;
 }) {
   const createdDate = course.created_at
@@ -325,6 +365,7 @@ function MockTestCoursePage({
       onOpenLogin();
       return;
     }
+    if (isBlocked) return; // blocked -> do nothing; banner handles UX
     if (isEnrolled || freeMockTestsLeft > 0) {
       onTakeMockTest();
       return;
@@ -627,7 +668,12 @@ function MockTestCoursePage({
 
         {/* ── Right Sidebar ── */}
         <aside className="lg:sticky lg:top-24 h-fit space-y-4 order-first lg:order-last">
-          {!isEnrolled && (
+          {/* Blocked banner takes priority */}
+          {isBlocked && (
+            <BlockedAccessBanner onContactSupport={onContactSupport} />
+          )}
+
+          {!isEnrolled && !isBlocked && (
             <div className="relative overflow-hidden rounded-2xl border border-orange-400/20 bg-gradient-to-br from-orange-500/15 via-red-500/10 to-pink-500/10 p-5 shadow-xl">
               <div className="absolute -top-10 -right-10 h-28 w-28 rounded-full bg-orange-400/20 blur-3xl" />
               <div className="absolute -bottom-8 -left-8 h-24 w-24 rounded-full bg-red-500/20 blur-3xl" />
@@ -684,7 +730,7 @@ function MockTestCoursePage({
 
           {/* Price + Enroll / Start Test */}
           <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-5 space-y-4">
-            {!isEnrolled && (
+            {!isEnrolled && !isBlocked && (
               <div className="text-center">
                 <div className="flex items-end justify-center gap-3">
                   <span className="text-4xl font-extrabold text-emerald-400">
@@ -712,7 +758,7 @@ function MockTestCoursePage({
               </div>
             )}
 
-            {isEnrolled ? (
+            {isEnrolled && !isBlocked ? (
               <button
                 onClick={onTakeMockTest}
                 className="w-full py-3 rounded-xl text-base font-semibold text-white bg-orange-600 hover:bg-orange-500 transition flex items-center justify-center gap-2 active:scale-[0.98]"
@@ -720,14 +766,14 @@ function MockTestCoursePage({
                 <PlayCircle className="w-5 h-5" />
                 Start Mock Test
               </button>
-            ) : (
+            ) : !isBlocked ? (
               <PayButton
                 onClick={!currentUser ? onOpenLogin : onEnroll}
                 loading={isPaying}
                 label="Unlock Unlimited Mock Tests 🚀"
                 accent="orange"
               />
-            )}
+            ) : null}
 
             <div className="pt-2 border-t border-white/10">
               <p className="text-sm font-semibold text-white mb-3">
@@ -815,17 +861,21 @@ function PYQMockCoursePage({
   course,
   currentUser,
   isEnrolled,
+  isBlocked,
   onOpenLogin,
   onNavigateToPYQ,
   onEnroll,
+  onContactSupport,
   isPaying,
 }: {
   course: CourseWithMasterclass;
   currentUser: any;
   isEnrolled: boolean;
+  isBlocked: boolean;
   onOpenLogin: () => void;
   onNavigateToPYQ: (paper: PYQPaper) => void;
   onEnroll: () => void;
+  onContactSupport: () => void;
   isPaying: boolean;
 }) {
   const createdDate = course.created_at
@@ -854,6 +904,7 @@ function PYQMockCoursePage({
       onEnroll();
       return;
     }
+    if (isBlocked) return;
     onNavigateToPYQ(paper);
   };
 
@@ -1023,8 +1074,12 @@ function PYQMockCoursePage({
         </div>
 
         <aside className="lg:sticky lg:top-24 h-fit space-y-4 order-first lg:order-last">
+          {isBlocked && (
+            <BlockedAccessBanner onContactSupport={onContactSupport} />
+          )}
+
           <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-5 space-y-4">
-            {!isEnrolled && (
+            {!isEnrolled && !isBlocked && (
               <div className="text-center">
                 <div className="flex items-end justify-center gap-3">
                   <span className="text-4xl font-extrabold text-emerald-400">
@@ -1052,7 +1107,7 @@ function PYQMockCoursePage({
               </div>
             )}
 
-            {isEnrolled ? (
+            {isEnrolled && !isBlocked ? (
               <div className="rounded-xl border border-violet-400/20 bg-violet-500/10 px-4 py-3 text-center">
                 <p className="text-sm font-semibold text-violet-200">
                   ✅ You're Enrolled
@@ -1061,14 +1116,14 @@ function PYQMockCoursePage({
                   Select any year above to start practicing
                 </p>
               </div>
-            ) : (
+            ) : !isBlocked ? (
               <PayButton
                 onClick={!currentUser ? onOpenLogin : onEnroll}
                 loading={isPaying}
                 label=" Get Full Access 🚀"
                 accent="violet"
               />
-            )}
+            ) : null}
 
             <div className="pt-2 border-t border-white/10">
               <p className="text-sm font-semibold text-white mb-3">
@@ -1095,7 +1150,7 @@ function PYQMockCoursePage({
             </div>
           </div>
 
-          {isEnrolled && (
+          {isEnrolled && !isBlocked && (
             <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-5">
               <div className="flex items-center justify-between mb-1">
                 <p className="text-sm font-semibold text-white flex items-center gap-2">
@@ -1268,15 +1323,19 @@ function ResourcesCoursePage({
   course,
   currentUser,
   isEnrolled,
+  isBlocked,
   onOpenLogin,
   onEnroll,
+  onContactSupport,
   isPaying,
 }: {
   course: CourseWithMasterclass;
   currentUser: any;
   isEnrolled: boolean;
+  isBlocked: boolean;
   onOpenLogin: () => void;
   onEnroll: () => void;
+  onContactSupport: () => void;
   isPaying: boolean;
 }) {
   const navigate = useNavigate();
@@ -1307,8 +1366,12 @@ function ResourcesCoursePage({
       onEnroll();
       return;
     }
+    if (isBlocked) return;
     navigate(`/my-courses/${course.id}`);
   };
+
+  // Resources are unlocked only if enrolled AND not blocked
+  const hasActiveAccess = isEnrolled && !isBlocked;
 
   return (
     <section className="bg-gradient-to-b from-[#0a1628] via-[#0f1b3d] to-[#1a237e] text-gray-100 min-h-screen">
@@ -1422,12 +1485,14 @@ function ResourcesCoursePage({
                     <p className="text-xs text-gray-300 leading-relaxed">
                       {desc}
                     </p>
-                    {!isEnrolled && (
+                    {!hasActiveAccess && (
                       <div className="absolute inset-0 rounded-2xl bg-black/40 backdrop-blur-[2px] flex items-center justify-center">
                         <div className="flex flex-col items-center gap-1">
                           <Lock className="w-5 h-5 text-white/60" />
                           <span className="text-[10px] text-white/60 font-medium">
-                            Enroll to unlock
+                            {isBlocked
+                              ? "Access suspended"
+                              : "Enroll to unlock"}
                           </span>
                         </div>
                       </div>
@@ -1438,7 +1503,7 @@ function ResourcesCoursePage({
             </div>
           </div>
 
-          {isEnrolled && (
+          {hasActiveAccess && (
             <div className="rounded-2xl border border-emerald-400/20 bg-emerald-500/8 p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
               <div>
                 <h3 className="font-bold text-white text-base mb-1">
@@ -1540,8 +1605,12 @@ function ResourcesCoursePage({
         </div>
 
         <aside className="lg:sticky lg:top-24 h-fit space-y-4 order-first lg:order-last">
+          {isBlocked && (
+            <BlockedAccessBanner onContactSupport={onContactSupport} />
+          )}
+
           <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-5 space-y-4">
-            {!isEnrolled && (
+            {!isEnrolled && !isBlocked && (
               <div className="text-center">
                 <div className="flex items-end justify-center gap-3">
                   <span className="text-4xl font-extrabold text-emerald-400">
@@ -1569,7 +1638,7 @@ function ResourcesCoursePage({
               </div>
             )}
 
-            {isEnrolled ? (
+            {hasActiveAccess ? (
               <button
                 onClick={handleAccess}
                 className="w-full py-3 rounded-xl text-base font-semibold text-white bg-emerald-600 hover:bg-emerald-500 transition flex items-center justify-center gap-2 active:scale-[0.98]"
@@ -1577,14 +1646,14 @@ function ResourcesCoursePage({
                 <BookOpen className="w-5 h-5" />
                 Access My Resources
               </button>
-            ) : (
+            ) : !isBlocked ? (
               <PayButton
                 onClick={!currentUser ? onOpenLogin : onEnroll}
                 loading={isPaying}
                 label="Get Full Access 🚀"
                 accent="emerald"
               />
-            )}
+            ) : null}
 
             <div className="pt-2 border-t border-white/10">
               <p className="text-sm font-semibold text-white mb-3">
@@ -1673,6 +1742,7 @@ export default function CourseDetails() {
   const [loginOpen, setLoginOpen] = useState(false);
   const [registerOpen, setRegisterOpen] = useState(false);
   const [isEnrolled, setIsEnrolled] = useState(false);
+  const [isBlocked, setIsBlocked] = useState(false); // NEW
   const [expandedModule, setExpandedModule] = useState<number | null>(0);
 
   const [freeMockTestsLeft, setFreeMockTestsLeft] = useState(
@@ -1743,6 +1813,17 @@ export default function CourseDetails() {
     pay(course.id, course.course_name);
   };
 
+  // Shared: open WhatsApp support (used by blocked banner too)
+  const openWhatsApp = () => {
+    const msg = course
+      ? `Hi, I need help with my access to "${course.course_name}".`
+      : `Hi, I need help with my course access.`;
+    window.open(
+      `https://wa.me/9325217691?text=${encodeURIComponent(msg)}`,
+      "_blank",
+    );
+  };
+
   useEffect(() => {
     const fetchCourse = async () => {
       try {
@@ -1753,9 +1834,14 @@ export default function CourseDetails() {
         setCourse(fetchedCourse);
 
         const enrolledList = fetchedCourse?.students_enrolled || [];
-        const userEnrolled =
-          !!currentUser?.id && enrolledList.includes(Number(currentUser.id));
+        const blockedList = fetchedCourse?.blocked_users || [];
+        const userId = Number(currentUser?.id);
+
+        const userEnrolled = !!currentUser?.id && enrolledList.includes(userId);
+        const userBlocked = !!currentUser?.id && blockedList.includes(userId);
+
         setIsEnrolled(userEnrolled);
+        setIsBlocked(userBlocked);
 
         const isFreeMock =
           String(fetchedCourse?.id) === FREE_MOCK_COURSE_ID &&
@@ -1815,18 +1901,11 @@ export default function CourseDetails() {
       setLoginOpen(true);
       return;
     }
+    if (isBlocked) return;
     if (!isEnrolled && freeMockTestsLeft <= 0) return;
     navigate(`/my-courses/${course.id}/mock-test`, {
       state: { source: "free-mock", courseId: course.id },
     });
-  };
-
-  const openWhatsApp = () => {
-    const msg = `Hi, I have a question about "${course.course_name}".`;
-    window.open(
-      `https://wa.me/9325217691?text=${encodeURIComponent(msg)}`,
-      "_blank",
-    );
   };
 
   const handleNavigateToPYQ = (paper: PYQPaper) => {
@@ -1834,6 +1913,7 @@ export default function CourseDetails() {
       setLoginOpen(true);
       return;
     }
+    if (isBlocked) return;
     navigate(`/my-courses/${paper.sectionId}/pyq-mock-test`, {
       state: {
         year: paper.year,
@@ -1872,6 +1952,7 @@ export default function CourseDetails() {
           course={course}
           currentUser={currentUser}
           isEnrolled={isEnrolled}
+          isBlocked={isBlocked}
           attempts={attempts}
           attemptsLoading={attemptsLoading}
           freeMockTestsLeft={freeMockTestsLeft}
@@ -1879,6 +1960,7 @@ export default function CourseDetails() {
           onTakeMockTest={handleTakeMockTest}
           onOpenLogin={() => setLoginOpen(true)}
           onEnroll={handleEnroll}
+          onContactSupport={openWhatsApp}
           isPaying={isPaying}
         />
         {toastNode}
@@ -1902,9 +1984,11 @@ export default function CourseDetails() {
           course={course}
           currentUser={currentUser}
           isEnrolled={isEnrolled}
+          isBlocked={isBlocked}
           onOpenLogin={() => setLoginOpen(true)}
           onNavigateToPYQ={handleNavigateToPYQ}
           onEnroll={handleEnroll}
+          onContactSupport={openWhatsApp}
           isPaying={isPaying}
         />
         {toastNode}
@@ -1928,8 +2012,10 @@ export default function CourseDetails() {
           course={course}
           currentUser={currentUser}
           isEnrolled={isEnrolled}
+          isBlocked={isBlocked}
           onOpenLogin={() => setLoginOpen(true)}
           onEnroll={handleEnroll}
+          onContactSupport={openWhatsApp}
           isPaying={isPaying}
         />
         {toastNode}
@@ -1975,9 +2061,11 @@ export default function CourseDetails() {
     return value.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
   };
 
+  // PPT only visible if enrolled AND not blocked
   const isPptVisible = () =>
     isMasterclass &&
     isEnrolled &&
+    !isBlocked &&
     masterclass?.masterclass_status === "completed" &&
     !!masterclass?.ppt_file_url;
 
@@ -1986,6 +2074,7 @@ export default function CourseDetails() {
       setLoginOpen(true);
       return;
     }
+    if (isBlocked) return;
     if (isEnrolled) navigate(`/my-courses/${course.id}`);
     else handleEnroll();
   };
@@ -2251,8 +2340,10 @@ export default function CourseDetails() {
         </div>
 
         <aside className="lg:sticky lg:top-24 h-fit space-y-4 order-first lg:order-last">
+          {isBlocked && <BlockedAccessBanner onContactSupport={openWhatsApp} />}
+
           <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-5 space-y-4">
-            {(!currentUser || !isEnrolled) && (
+            {(!currentUser || !isEnrolled) && !isBlocked && (
               <div className="text-center">
                 <div className="flex items-end justify-center gap-3">
                   <span className="text-4xl font-extrabold text-emerald-400">
@@ -2279,19 +2370,24 @@ export default function CourseDetails() {
                 )}
               </div>
             )}
-            <button
-              onClick={handleMainButton}
-              disabled={isPaying}
-              className={`w-full px-6 py-3 rounded-xl text-base font-semibold text-white transition-all shadow-md active:scale-[0.98] flex items-center justify-center gap-2 ${
-                isEnrolled
-                  ? "bg-green-600 hover:bg-green-500"
-                  : "bg-cyan-600 hover:bg-cyan-500"
-              } ${isPaying ? "opacity-70 cursor-not-allowed" : ""}`}
-            >
-              {isPaying && <Loader2 className="w-5 h-5 animate-spin" />}
-              {getMainButtonText()}
-            </button>
-            {!isEnrolled && (
+
+            {/* Hide main enroll/continue button when blocked — banner is the primary CTA */}
+            {!isBlocked && (
+              <button
+                onClick={handleMainButton}
+                disabled={isPaying}
+                className={`w-full px-6 py-3 rounded-xl text-base font-semibold text-white transition-all shadow-md active:scale-[0.98] flex items-center justify-center gap-2 ${
+                  isEnrolled
+                    ? "bg-green-600 hover:bg-green-500"
+                    : "bg-cyan-600 hover:bg-cyan-500"
+                } ${isPaying ? "opacity-70 cursor-not-allowed" : ""}`}
+              >
+                {isPaying && <Loader2 className="w-5 h-5 animate-spin" />}
+                {getMainButtonText()}
+              </button>
+            )}
+
+            {!isEnrolled && !isBlocked && (
               <button
                 onClick={openWhatsApp}
                 className="w-full px-6 py-3 rounded-xl text-base font-semibold text-white bg-[#25D366] hover:bg-[#20bd5a] transition-all shadow-md active:scale-[0.98] flex items-center justify-center gap-2"
