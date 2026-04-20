@@ -114,7 +114,7 @@ const RefundPolicy: React.FC = () => {
       </p>
 
       <p className="mt-4 text-sm text-gray-500">
-        <em>Last updated: [ 01-05-2026 created by Vickey]</em>
+        <em>Last updated: [ 01-11-2025 created by Vickey]</em>
       </p>
     </div>
   );
