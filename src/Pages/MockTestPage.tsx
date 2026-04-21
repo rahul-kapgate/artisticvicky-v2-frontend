@@ -14,7 +14,6 @@ import {
   AlertTriangle,
   ArrowLeft,
   CheckCircle2,
-  Circle,
   Shield,
   Zap,
   BookOpen,

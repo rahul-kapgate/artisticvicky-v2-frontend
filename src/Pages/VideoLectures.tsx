@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, useCallback, useRef } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import { apiClient } from "@/utils/axiosConfig";
 import { toast } from "sonner";
 import {
@@ -14,7 +14,6 @@ import {
   X,
   SkipForward,
   SkipBack,
-  Loader2,
 } from "lucide-react";
 
 /* ------------------------------------------------------------------ */
@@ -195,7 +194,6 @@ export default function VideoLectures() {
   const [showMobileContent, setShowMobileContent] = useState(false);
   const [showSidebar, setShowSidebar] = useState(true);
   const [search, setSearch] = useState("");
-  const activeVideoRef = useRef<HTMLButtonElement | null>(null);
 
   /* ── Fetch data ─────────────────────────────────────────────── */
   useEffect(() => {
