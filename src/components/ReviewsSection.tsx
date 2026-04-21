@@ -263,13 +263,14 @@ function ReviewMarquee({ reviews }: { reviews: HomePageReview[] }) {
 
   useEffect(() => {
     if (!reviews.length) return;
+
     const track = trackRef.current;
     const first = firstRef.current;
     if (!track || !first) return;
 
     const speed = 0.6;
 
-    // ── Mouse drag ──
+    // ── Mouse drag (desktop) ──
     let isMouseDown = false;
     let startX = 0;
     let scrollStart = 0;
@@ -280,49 +281,48 @@ function ReviewMarquee({ reviews }: { reviews: HomePageReview[] }) {
       startX = e.pageX;
       scrollStart = track.scrollLeft;
     };
+
     const onMouseMove = (e: MouseEvent) => {
       if (!isMouseDown) return;
       track.scrollLeft = scrollStart - (e.pageX - startX);
     };
+
     const onMouseUp = () => {
       isMouseDown = false;
       pausedRef.current = false;
     };
 
-    // ── Touch drag ──
-    let startTouchX = 0;
-    let scrollTouchStart = 0;
-
-    const onTouchStart = (e: TouchEvent) => {
+    // ── Touch (mobile) - ONLY pause/resume ─────────────────────────────
+    const onTouchStart = () => {
       pausedRef.current = true;
-      startTouchX = e.touches[0].pageX;
-      scrollTouchStart = track.scrollLeft;
-    };
-    const onTouchMove = (e: TouchEvent) => {
-      track.scrollLeft = scrollTouchStart - (e.touches[0].pageX - startTouchX);
-    };
-    const onTouchEnd = () => {
-      pausedRef.current = false;
     };
 
+    const onTouchEnd = () => {
+      setTimeout(() => {
+        pausedRef.current = false;
+      }, 350);
+    };
+
+    // Attach listeners
     track.addEventListener("mousedown", onMouseDown);
     window.addEventListener("mousemove", onMouseMove);
     window.addEventListener("mouseup", onMouseUp);
-    track.addEventListener("touchstart", onTouchStart, { passive: true });
-    track.addEventListener("touchmove", onTouchMove, { passive: true });
-    track.addEventListener("touchend", onTouchEnd);
 
-    // ── Auto-scroll loop ──
+    track.addEventListener("touchstart", onTouchStart, { passive: true });
+    track.addEventListener("touchend", onTouchEnd, { passive: true });
+
+    // Auto-scroll loop
     const step = () => {
       if (!pausedRef.current) {
         const w = first.offsetWidth;
         if (w > 0) {
-          if (track.scrollLeft >= w) track.scrollLeft -= w;
+          if (track.scrollLeft >= w) track.scrollLeft -= w; // seamless loop
           track.scrollLeft += speed;
         }
       }
       rafRef.current = requestAnimationFrame(step);
     };
+
     rafRef.current = requestAnimationFrame(step);
 
     return () => {
@@ -331,7 +331,6 @@ function ReviewMarquee({ reviews }: { reviews: HomePageReview[] }) {
       window.removeEventListener("mousemove", onMouseMove);
       window.removeEventListener("mouseup", onMouseUp);
       track.removeEventListener("touchstart", onTouchStart);
-      track.removeEventListener("touchmove", onTouchMove);
       track.removeEventListener("touchend", onTouchEnd);
     };
   }, [reviews.length]);
@@ -358,7 +357,9 @@ function ReviewMarquee({ reviews }: { reviews: HomePageReview[] }) {
         <div className="flex items-start justify-between gap-3 mb-3">
           <div className="flex items-center gap-3 min-w-0">
             <div
-              className={`relative shrink-0 w-10 h-10 rounded-full p-[2px] bg-gradient-to-br ${getAvatarGradient(review.user?.user_name)}`}
+              className={`relative shrink-0 w-10 h-10 rounded-full p-[2px] bg-gradient-to-br ${getAvatarGradient(
+                review.user?.user_name,
+              )}`}
             >
               <div className="w-full h-full rounded-full bg-[#0b1120] flex items-center justify-center text-white font-semibold text-sm">
                 {getReviewerInitials(review.user?.user_name)}
@@ -374,7 +375,7 @@ function ReviewMarquee({ reviews }: { reviews: HomePageReview[] }) {
               {review.course?.course_name && (
                 <span
                   className="inline-flex items-center gap-1 mt-0.5 rounded-full border border-cyan-400/20
-                bg-cyan-500/10 px-2 py-0.5 text-[10px] text-cyan-300 truncate max-w-[160px]"
+                  bg-cyan-500/10 px-2 py-0.5 text-[10px] text-cyan-300 truncate max-w-[160px]"
                 >
                   {review.course.course_name}
                 </span>

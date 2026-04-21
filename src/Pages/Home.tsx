@@ -463,20 +463,20 @@ function Home() {
   }, [fetchCourses, fetchStudentArtworks, fetchHomePageReviews]);
 
   // ── Artwork auto-scroll ──────────────────────────────────────────────────
-
   useEffect(() => {
     if (artworkLoading || studentArtworks.length === 0) return;
+
     const container = scrollContainerRef.current;
     const firstRow = firstRowRef.current;
     if (!container || !firstRow) return;
 
     let rafId: number;
     let isPaused = false;
+
+    // Mouse drag (desktop)
     let isMouseDown = false;
-    let startX = 0,
-      scrollStart = 0;
-    let startTouchX = 0,
-      scrollTouchStart = 0;
+    let startX = 0;
+    let scrollStart = 0;
 
     const onMouseDown = (e: MouseEvent) => {
       isMouseDown = true;
@@ -484,53 +484,61 @@ function Home() {
       startX = e.pageX;
       scrollStart = container.scrollLeft;
     };
+
     const onMouseMove = (e: MouseEvent) => {
-      if (isMouseDown) container.scrollLeft = scrollStart - (e.pageX - startX);
+      if (isMouseDown) {
+        container.scrollLeft = scrollStart - (e.pageX - startX);
+      }
     };
+
     const onMouseUp = () => {
       isMouseDown = false;
       isPaused = false;
     };
-    const onTouchStart = (e: TouchEvent) => {
+
+    // ── TOUCH (mobile) - ONLY pause/resume ─────────────────────────────
+    const onTouchStart = () => {
       isPaused = true;
-      startTouchX = e.touches[0].pageX;
-      scrollTouchStart = container.scrollLeft;
-    };
-    const onTouchMove = (e: TouchEvent) => {
-      container.scrollLeft =
-        scrollTouchStart - (e.touches[0].pageX - startTouchX);
-    };
-    const onTouchEnd = () => {
-      isPaused = false;
     };
 
+    const onTouchEnd = () => {
+      setTimeout(() => {
+        isPaused = false;
+      }, 400);
+    };
+
+    // Attach listeners
     container.addEventListener("mousedown", onMouseDown);
-    container.addEventListener("touchstart", onTouchStart, { passive: true });
-    container.addEventListener("touchmove", onTouchMove, { passive: true });
-    container.addEventListener("touchend", onTouchEnd);
     window.addEventListener("mousemove", onMouseMove);
     window.addEventListener("mouseup", onMouseUp);
 
+    container.addEventListener("touchstart", onTouchStart, { passive: true });
+    container.addEventListener("touchend", onTouchEnd, { passive: true });
+
+    // Auto-scroll loop
     const tick = () => {
       if (!isPaused) {
         const w = firstRow.offsetWidth;
         if (w > 0) {
-          if (container.scrollLeft >= w) container.scrollLeft -= w;
+          if (container.scrollLeft >= w) {
+            container.scrollLeft -= w; // seamless loop
+          }
           container.scrollLeft += 0.9;
         }
       }
       rafId = requestAnimationFrame(tick);
     };
+
     rafId = requestAnimationFrame(tick);
 
+    // Cleanup
     return () => {
       cancelAnimationFrame(rafId);
       container.removeEventListener("mousedown", onMouseDown);
-      container.removeEventListener("touchstart", onTouchStart);
-      container.removeEventListener("touchmove", onTouchMove);
-      container.removeEventListener("touchend", onTouchEnd);
       window.removeEventListener("mousemove", onMouseMove);
       window.removeEventListener("mouseup", onMouseUp);
+      container.removeEventListener("touchstart", onTouchStart);
+      container.removeEventListener("touchend", onTouchEnd);
     };
   }, [artworkLoading, studentArtworks.length]);
 
