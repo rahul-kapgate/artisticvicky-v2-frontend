@@ -10,6 +10,7 @@ import {
   Link as LinkIcon,
   ChevronRight,
   AlertCircle,
+  ChevronLeft,
 } from "lucide-react";
 import PYQPaperDialog from "@/components/PYQPaperDialog";
 import { useState, useEffect, useMemo } from "react";
@@ -273,6 +274,17 @@ export default function CourseLearning() {
       <div className="relative max-w-6xl mx-auto">
         {/* Header */}
         <header className="mb-16 text-center">
+          <div className="flex justify-start mb-6">
+            <button
+              onClick={() => navigate("/my-courses")}
+              className="group/back flex items-center gap-2 text-sm text-gray-400 hover:text-cyan-300 transition-colors"
+            >
+              <div className="flex items-center justify-center w-8 h-8 rounded-full border border-white/10 group-hover/back:border-cyan-400/40 group-hover/back:bg-cyan-400/5 transition-all">
+                <ChevronLeft size={16} />
+              </div>
+              <span>Back to My Courses</span>
+            </button>
+          </div>
           <div className="flex justify-center mb-4">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-cyan-400/20 bg-cyan-400/5">
               <div className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />

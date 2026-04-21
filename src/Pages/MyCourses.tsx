@@ -7,6 +7,7 @@ import {
   MessageCircle,
   ArrowUpRight,
   Sparkles,
+  ChevronLeft,
 } from "lucide-react";
 import { apiClient } from "@/utils/axiosConfig";
 import { toast } from "sonner";
@@ -20,7 +21,6 @@ interface Course {
   rating: number;
   duration: string | null;
   image?: string;
-  course_type?: "course" | "masterclass";
   blocked_users?: number[];
   progress?: number; // 0-100, optional
 }
@@ -70,11 +70,6 @@ export default function MyCourses() {
     fetchEnrolledCourses();
   }, []);
 
-  const regularCourses = useMemo(
-    () => courses.filter((c) => c.course_type !== "masterclass"),
-    [courses],
-  );
-
   const isCourseBlocked = (course: Course) =>
     !!currentUserId && (course.blocked_users || []).includes(currentUserId);
 
@@ -109,6 +104,16 @@ export default function MyCourses() {
       <div className="relative max-w-6xl mx-auto">
         {/* Editorial header */}
         <header className="mb-14">
+          <button
+            onClick={() => navigate("/")}
+            className="group/back flex items-center gap-1.5 text-sm text-gray-500 hover:text-cyan-300 transition-colors mb-6"
+          >
+            <div className="flex items-center justify-center w-7 h-7 rounded-full border border-white/10 group-hover/back:border-cyan-400/30 group-hover/back:bg-cyan-400/5 transition-all">
+              <ChevronLeft size={14} />
+            </div>
+            <span>Back</span>
+          </button>
+
           <div className="flex items-center gap-2 mb-4">
             <div className="h-px w-8 bg-cyan-400/60" />
             <span className="text-xs font-medium uppercase tracking-[0.2em] text-cyan-300/80">
@@ -120,12 +125,12 @@ export default function MyCourses() {
               My{" "}
               <span className="italic font-light text-cyan-300">Courses</span>
             </h1>
-            {!loading && regularCourses.length > 0 && (
+            {!loading && courses.length > 0 && (
               <div className="text-sm text-gray-400">
                 <span className="text-white font-semibold text-lg">
-                  {regularCourses.length}
+                  {courses.length}
                 </span>{" "}
-                {regularCourses.length === 1 ? "course" : "courses"} enrolled
+                {courses.length === 1 ? "course" : "courses"} enrolled
               </div>
             )}
           </div>
@@ -152,17 +157,17 @@ export default function MyCourses() {
         )}
 
         {/* Courses grid */}
-        {!loading && regularCourses.length > 0 && (
+        {!loading && courses.length > 0 && (
           <div
             className={`grid gap-6 ${
-              regularCourses.length === 1
+              courses.length === 1
                 ? "grid-cols-1 max-w-md mx-auto"
-                : regularCourses.length === 2
+                : courses.length === 2
                   ? "grid-cols-1 sm:grid-cols-2 max-w-4xl mx-auto"
                   : "sm:grid-cols-2 lg:grid-cols-3"
             }`}
           >
-            {regularCourses.map((course) => {
+            {courses.map((course) => {
               const blocked = isCourseBlocked(course);
               const progress = Math.max(0, Math.min(100, course.progress ?? 0));
 
@@ -297,7 +302,7 @@ export default function MyCourses() {
         )}
 
         {/* Empty state */}
-        {!loading && regularCourses.length === 0 && (
+        {!loading && courses.length === 0 && (
           <div className="flex flex-col items-center justify-center min-h-[50vh] text-center">
             <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-cyan-500/20 to-purple-500/20 border border-white/10 flex items-center justify-center mb-6">
               <BookOpen className="w-9 h-9 text-cyan-300" />
