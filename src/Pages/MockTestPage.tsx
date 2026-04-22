@@ -346,8 +346,29 @@ function RulesScreen({
 
       <div className="relative max-w-xl w-full">
         {loading ? (
-          <div className="flex items-center justify-center py-20">
-            <Loader2 className="w-8 h-8 text-cyan-400 animate-spin" />
+          <div className="bg-white/[0.03] border border-white/[0.07] rounded-2xl p-6 sm:p-8 animate-pulse">
+            {/* Header skeleton */}
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 rounded-xl bg-white/[0.06]" />
+              <div>
+                <div className="h-5 w-32 rounded bg-white/[0.06] mb-2" />
+                <div className="h-3 w-40 rounded bg-white/[0.04]" />
+              </div>
+            </div>
+            {/* Rule rows skeleton */}
+            <div className="space-y-3 mb-8">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <div
+                  key={i}
+                  className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.02] border border-white/[0.05]"
+                >
+                  <div className="w-4 h-4 rounded bg-white/[0.06] shrink-0" />
+                  <div className="flex-1 h-3.5 rounded bg-white/[0.05]" />
+                </div>
+              ))}
+            </div>
+            {/* Button skeleton */}
+            <div className="h-12 w-full rounded-xl bg-white/[0.06]" />
           </div>
         ) : fetchError ? (
           <div className="flex flex-col items-center py-16 text-center">
@@ -756,8 +777,64 @@ export default function MockTestPage({ type }: MockTestPageProps) {
   /* ── Render: Loading ─────────────────────────────────────────── */
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-[#07090f]">
-        <Loader2 className="w-8 h-8 text-cyan-400 animate-spin" />
+      <div className="min-h-screen flex bg-[#07090f] text-gray-100">
+        {/* Sidebar skeleton — desktop only */}
+        <aside className="hidden lg:flex flex-col w-72 bg-[#0a0e1a] border-r border-white/[0.06] h-screen animate-pulse">
+          <div className="p-4 border-b border-white/[0.06]">
+            <div className="h-4 w-32 rounded bg-white/[0.06] mb-3" />
+            <div className="h-9 w-full rounded-xl bg-white/[0.05]" />
+          </div>
+          <div className="p-4 grid grid-cols-5 gap-2">
+            {Array.from({ length: 20 }).map((_, i) => (
+              <div
+                key={i}
+                className="aspect-square rounded-xl bg-white/[0.04]"
+              />
+            ))}
+          </div>
+        </aside>
+
+        {/* Main area skeleton */}
+        <main className="flex-1 flex flex-col animate-pulse">
+          {/* Top bar */}
+          <div className="border-b border-white/[0.05] px-4 sm:px-6 py-3">
+            <div className="flex items-center justify-between max-w-3xl mx-auto">
+              <div className="h-3 w-16 rounded bg-white/[0.06]" />
+              <div className="h-7 w-24 rounded-xl bg-white/[0.05] lg:hidden" />
+              <div className="h-3 w-20 rounded bg-white/[0.05] hidden sm:block" />
+            </div>
+            <div className="max-w-3xl mx-auto mt-2">
+              <div className="h-1 w-full rounded-full bg-white/[0.06]" />
+            </div>
+          </div>
+
+          {/* Question skeleton */}
+          <div className="flex-1 flex items-center justify-center px-4 sm:px-6 py-8">
+            <div className="w-full max-w-3xl">
+              <div className="h-5 w-3/4 rounded bg-white/[0.06] mb-3" />
+              <div className="h-4 w-1/2 rounded bg-white/[0.04] mb-6" />
+              <div className="space-y-2.5">
+                {[1, 2, 3, 4].map((i) => (
+                  <div
+                    key={i}
+                    className="flex items-center gap-3 p-3.5 rounded-xl border border-white/[0.07]"
+                  >
+                    <div className="w-8 h-8 rounded-lg bg-white/[0.05]" />
+                    <div className="flex-1 h-3.5 rounded bg-white/[0.05]" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Footer skeleton */}
+          <div className="border-t border-white/[0.05] px-4 sm:px-6 py-3">
+            <div className="flex items-center justify-between max-w-3xl mx-auto">
+              <div className="h-9 w-20 rounded-xl bg-white/[0.05]" />
+              <div className="h-9 w-20 rounded-xl bg-white/[0.05]" />
+            </div>
+          </div>
+        </main>
       </div>
     );
   }
