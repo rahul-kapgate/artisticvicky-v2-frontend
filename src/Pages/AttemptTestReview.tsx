@@ -4,7 +4,6 @@ import { apiClient } from "@/utils/axiosConfig";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import {
-  Trophy,
   ChevronLeft,
   ChevronRight,
   CheckCircle2,
@@ -264,7 +263,6 @@ function OptionRow({
   index,
   isSelected,
   isCorrect,
-  skipped,
 }: {
   option: Option;
   index: number;
