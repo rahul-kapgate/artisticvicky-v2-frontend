@@ -338,7 +338,7 @@ function ReviewMarquee({ reviews }: { reviews: HomePageReview[] }) {
     <div
       ref={trackRef}
       className="overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-      style={{ touchAction: "pan-x", WebkitOverflowScrolling: "touch" } as React.CSSProperties}
+      style={{ touchAction: "pan-x pan-y", WebkitOverflowScrolling: "touch" } as React.CSSProperties}
     >
       <div className="flex py-2">
         {/* Set A */}
