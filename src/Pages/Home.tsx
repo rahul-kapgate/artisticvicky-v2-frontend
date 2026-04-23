@@ -911,7 +911,7 @@ function Home() {
                       <img
                         src={course.image}
                         alt={course.course_name}
-                        className="rounded-xl mb-4 h-48 w-full object-cover border border-white/10 group-hover:border-white/30 transition-all duration-300"
+                        className="rounded-xl mb-4 lg:h-80 h-55 w-full object-cover border border-white/10 group-hover:border-white/30 transition-all duration-300"
                         onError={(e) => {
                           e.currentTarget.onerror = null;
                         }}
@@ -921,9 +921,6 @@ function Home() {
                       >
                         {course.course_name}
                       </h3>
-                      <p className="text-gray-300 mb-3 line-clamp-3">
-                        {course.description}
-                      </p>
                       <div className="flex justify-between text-sm text-gray-300 mb-3">
                         <span>
                           {isMasterclass
