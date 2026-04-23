@@ -462,6 +462,13 @@ function Home() {
     fetchHomePageReviews();
   }, [fetchCourses, fetchStudentArtworks, fetchHomePageReviews]);
 
+  const ORDER = [1, 26, 16, 12, 13, 24, 25];
+  const sortedCourses = [...courses].sort((a, b) => {
+    const aPos = ORDER.indexOf(a.id) === -1 ? 999 : ORDER.indexOf(a.id);
+    const bPos = ORDER.indexOf(b.id) === -1 ? 999 : ORDER.indexOf(b.id);
+    return aPos - bPos;
+  });
+
   // ── Artwork auto-scroll ──────────────────────────────────────────────────
   useEffect(() => {
     if (artworkLoading || studentArtworks.length === 0) return;
@@ -891,9 +898,10 @@ function Home() {
               }}
             >
               <div className="flex gap-6">
-                {courses.map((course, index) => {
+                {sortedCourses.map((course, index) => {
                   const s = CARD_STYLES[index % 3];
                   const isMasterclass = course.course_type === "masterclass";
+                  const isStudyMaterial = course.id === 16;
                   return (
                     <article
                       key={course.id}
@@ -952,7 +960,9 @@ function Home() {
                       >
                         {isMasterclass
                           ? "View Masterclass ✨"
-                          : "Enroll Now ✨"}
+                          : isStudyMaterial
+                            ? "Buy Now ✨"
+                            : "Enroll Now ✨"}
                       </button>
                     </article>
                   );
