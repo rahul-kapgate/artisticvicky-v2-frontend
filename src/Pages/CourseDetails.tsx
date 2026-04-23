@@ -632,14 +632,14 @@ function MockTestCoursePage({
           <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-6">
             <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
               <GraduationCap className="w-5 h-5 text-orange-400" />
-              Your Instructor
+              Your Mentor
             </h2>
             <div className="flex items-start gap-4">
               <div className="w-14 h-14 rounded-full bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center text-xl font-bold text-white shrink-0">
                 V
               </div>
               <div>
-                <h3 className="font-bold text-white text-base">Vicky Sir</h3>
+                <h3 className="font-bold text-white text-base">Vickey Sir</h3>
                 <p className="text-orange-300 text-sm mb-2">
                   MAH AAC CET Expert & BFA Coach
                 </p>
@@ -1039,14 +1039,14 @@ function PYQMockCoursePage({
           <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-6">
             <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
               <GraduationCap className="w-5 h-5 text-violet-400" />
-              Your Instructor
+              Your Mentor
             </h2>
             <div className="flex items-start gap-4">
               <div className="w-14 h-14 rounded-full bg-gradient-to-br from-violet-400 to-purple-600 flex items-center justify-center text-xl font-bold text-white shrink-0">
                 V
               </div>
               <div>
-                <h3 className="font-bold text-white text-base">Vicky Sir</h3>
+                <h3 className="font-bold text-white text-base">Vickey Sir</h3>
                 <p className="text-violet-300 text-sm mb-2">
                   MAH AAC CET Expert & BFA Coach
                 </p>
@@ -1578,7 +1578,7 @@ function ResourcesCoursePage({
                 V
               </div>
               <div>
-                <h3 className="font-bold text-white text-base">Vicky Sir</h3>
+                <h3 className="font-bold text-white text-base">Vickey Sir</h3>
                 <p className="text-emerald-300 text-sm mb-2">
                   MAH AAC CET Expert & BFA Coach
                 </p>
@@ -1596,7 +1596,7 @@ function ResourcesCoursePage({
                   </span>
                 </div>
                 <p className="text-gray-300 text-sm leading-relaxed">
-                  All resources are personally curated and updated by Vicky Sir
+                  All resources are personally curated and updated by Vickey Sir
                   to match the latest MAH AAC CET syllabus and exam pattern.
                 </p>
               </div>
@@ -2306,14 +2306,14 @@ export default function CourseDetails() {
           <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-6">
             <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
               <GraduationCap className="w-5 h-5 text-cyan-400" />
-              Your Instructor
+              Your Mentor
             </h2>
             <div className="flex items-start gap-4">
               <div className="w-14 h-14 rounded-full bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center text-xl font-bold text-white shrink-0">
                 V
               </div>
               <div>
-                <h3 className="font-bold text-white text-base">Vicky Sir</h3>
+                <h3 className="font-bold text-white text-base">Vickey Sir</h3>
                 <p className="text-cyan-300 text-sm mb-2">
                   MAH AAC CET Expert & BFA Coach
                 </p>

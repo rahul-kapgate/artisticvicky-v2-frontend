@@ -557,7 +557,7 @@ export default function MasterClassDetails() {
           <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-6">
             <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
               <GraduationCap className="w-5 h-5 text-violet-400" />
-              Your Instructor
+              Your Mentor
             </h2>
             <div className="flex items-start gap-4">
               <div className="w-14 h-14 rounded-full bg-gradient-to-br from-violet-400 to-blue-600 flex items-center justify-center text-xl font-bold text-white shrink-0">
