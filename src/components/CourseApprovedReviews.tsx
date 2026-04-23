@@ -74,7 +74,9 @@ export default function CourseApprovedReviews({ courseId }: Props) {
     const fetch = async () => {
       try {
         setLoading(true);
-        const { data } = await apiClient.get(`/api/course-reviews/course/${courseId}`);
+        const { data } = await apiClient.get(
+          `/api/course-reviews/course/${courseId}`,
+        );
         if (!mounted) return;
         setReviews(data?.data || []);
       } catch {
@@ -85,7 +87,9 @@ export default function CourseApprovedReviews({ courseId }: Props) {
       }
     };
     if (courseId) fetch();
-    return () => { mounted = false; };
+    return () => {
+      mounted = false;
+    };
   }, [courseId]);
 
   const averageRating = useMemo(() => {
@@ -104,8 +108,10 @@ export default function CourseApprovedReviews({ courseId }: Props) {
     return dist;
   }, [reviews]);
 
-  const scrollLeft = () => scrollRef.current?.scrollBy({ left: -360, behavior: "smooth" });
-  const scrollRight = () => scrollRef.current?.scrollBy({ left: 360, behavior: "smooth" });
+  const scrollLeft = () =>
+    scrollRef.current?.scrollBy({ left: -360, behavior: "smooth" });
+  const scrollRight = () =>
+    scrollRef.current?.scrollBy({ left: 360, behavior: "smooth" });
 
   if (loading) {
     return (
@@ -113,7 +119,10 @@ export default function CourseApprovedReviews({ courseId }: Props) {
         <div className="h-6 w-44 rounded bg-white/10 mb-4" />
         <div className="flex gap-4">
           {[0, 1].map((i) => (
-            <div key={i} className="w-72 shrink-0 rounded-2xl border border-white/10 bg-white/5 p-4 h-40" />
+            <div
+              key={i}
+              className="w-72 shrink-0 rounded-2xl border border-white/10 bg-white/5 p-4 h-40"
+            />
           ))}
         </div>
       </section>
@@ -123,7 +132,7 @@ export default function CourseApprovedReviews({ courseId }: Props) {
   if (!reviews.length) return null;
 
   return (
-    <section className="overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-6">
+    <section className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-6">
       {/* Header */}
       <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between mb-6">
         <div>
@@ -131,14 +140,20 @@ export default function CourseApprovedReviews({ courseId }: Props) {
             <MessageSquareText className="h-3.5 w-3.5" />
             Student Feedback
           </div>
-          <h2 className="text-xl font-bold text-white">What students are saying</h2>
-          <p className="mt-1 text-sm text-gray-400">{reviews.length} reviews for this course</p>
+          <h2 className="text-xl font-bold text-white">
+            What students are saying
+          </h2>
+          <p className="mt-1 text-sm text-gray-400">
+            {reviews.length} reviews for this course
+          </p>
         </div>
 
         {/* Rating Summary */}
         <div className="rounded-2xl border border-yellow-400/20 bg-yellow-400/5 p-4 min-w-[180px]">
           <div className="flex items-center gap-3 mb-3">
-            <span className="text-4xl font-extrabold text-yellow-300 leading-none">{averageRating}</span>
+            <span className="text-4xl font-extrabold text-yellow-300 leading-none">
+              {averageRating}
+            </span>
             <div>
               {renderStars(Math.round(averageRating), "h-4 w-4")}
               <p className="text-xs text-gray-400 mt-1">Course Rating</p>
@@ -148,10 +163,14 @@ export default function CourseApprovedReviews({ courseId }: Props) {
           <div className="space-y-1.5">
             {[5, 4, 3, 2, 1].map((star) => {
               const count = ratingDist[star] || 0;
-              const pct = reviews.length ? Math.round((count / reviews.length) * 100) : 0;
+              const pct = reviews.length
+                ? Math.round((count / reviews.length) * 100)
+                : 0;
               return (
                 <div key={star} className="flex items-center gap-2">
-                  <span className="text-xs text-gray-400 w-3 text-right">{star}</span>
+                  <span className="text-xs text-gray-400 w-3 text-right">
+                    {star}
+                  </span>
                   <Star className="h-3 w-3 text-yellow-400 fill-yellow-400 shrink-0" />
                   <div className="flex-1 h-1.5 rounded-full bg-white/10 overflow-hidden">
                     <div
@@ -159,7 +178,9 @@ export default function CourseApprovedReviews({ courseId }: Props) {
                       style={{ width: `${pct}%` }}
                     />
                   </div>
-                  <span className="text-xs text-gray-400 w-7 text-right">{pct}%</span>
+                  <span className="text-xs text-gray-400 w-7 text-right">
+                    {pct}%
+                  </span>
                 </div>
               );
             })}
@@ -188,13 +209,13 @@ export default function CourseApprovedReviews({ courseId }: Props) {
       {/* Review Cards */}
       <div
         ref={scrollRef}
-        className="overflow-x-auto pb-2 touch-pan-x [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="overflow-x-auto pb-2 touch-pan-x touch-pan-y [scrollbar-width:none] [&::-webkit-scrollbar]:hidden -mx-6 px-6 scroll-pl-6"
       >
         <div className="flex gap-4 snap-x snap-mandatory">
           {reviews.map((review, index) => (
             <article
               key={review.id}
-              className="w-[85vw] sm:w-[340px] shrink-0 snap-start rounded-2xl border border-white/10 bg-white/5 p-5 hover:border-cyan-400/20 hover:bg-white/8 transition-all duration-300"
+              className="w-[75vw] sm:w-[340px] shrink-0 snap-start rounded-2xl border border-white/10 bg-white/5 p-5 hover:border-cyan-400/20 hover:bg-white/8 transition-all duration-300"
             >
               {/* User info */}
               <div className="flex items-start justify-between gap-3 mb-4">
@@ -223,7 +244,9 @@ export default function CourseApprovedReviews({ courseId }: Props) {
               <div className="rounded-xl border border-white/10 bg-slate-900/30 p-4">
                 <div className="flex items-center gap-1.5 text-cyan-300 mb-2">
                   <Quote className="h-3.5 w-3.5 shrink-0" />
-                  <span className="text-[10px] font-semibold uppercase tracking-wide">Review</span>
+                  <span className="text-[10px] font-semibold uppercase tracking-wide">
+                    Review
+                  </span>
                 </div>
                 <p className="text-sm leading-6 text-slate-200 break-words whitespace-pre-wrap line-clamp-5">
                   {review.review_text?.trim() || "No review text provided."}
