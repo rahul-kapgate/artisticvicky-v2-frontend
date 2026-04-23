@@ -239,9 +239,7 @@ function BlockedAccessBanner({
           <Ban className="w-5 h-5 text-red-300" />
         </div>
         <div className="flex-1">
-          <h3 className="text-base font-bold text-red-200">
-            Access Suspended
-          </h3>
+          <h3 className="text-base font-bold text-red-200">Access Suspended</h3>
           <p className="text-sm text-red-100/80 mt-1 leading-relaxed">
             Your access to this course has been temporarily blocked by the
             administrator. You're still enrolled, but cannot open the course
@@ -2268,8 +2266,17 @@ export default function CourseDetails() {
               About this {isMasterclass ? "Masterclass" : "Course"}
             </h2>
             <p className="text-gray-300 leading-relaxed text-sm sm:text-base">
-              {course.description ||
-                "This course provides a deep dive into the subject with practical examples."}
+              {(
+                course.description ||
+                "This course provides a deep dive into the subject with practical examples."
+              )
+                .split(/\r?\n/)
+                .filter(Boolean)
+                .map((line, i) => (
+                  <p key={i} className="text-gray-300 text-sm leading-relaxed">
+                    {line}
+                  </p>
+                ))}
             </p>
           </div>
 
@@ -2417,6 +2424,10 @@ export default function CourseDetails() {
                         </div>
                       );
                     })}
+                    <div className="flex items-center gap-2 text-sm text-gray-300">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                      📡 Live Classes (Daily on Zoom)
+                    </div>
                     <div className="flex items-center gap-2 text-sm text-gray-300">
                       <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
                       🏆 Certificate on completion
