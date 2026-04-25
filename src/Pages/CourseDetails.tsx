@@ -635,9 +635,11 @@ function MockTestCoursePage({
               Your Mentor
             </h2>
             <div className="flex items-start gap-4">
-              <div className="w-14 h-14 rounded-full bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center text-xl font-bold text-white shrink-0">
-                V
-              </div>
+              <img
+  src="/vicky.jpg"
+  alt="Vickey Sir"
+  className="w-14 h-14 rounded-full object-cover object-top shrink-0"
+/>
               <div>
                 <h3 className="font-bold text-white text-base">Vickey Sir</h3>
                 <p className="text-orange-300 text-sm mb-2">
@@ -1042,9 +1044,11 @@ function PYQMockCoursePage({
               Your Mentor
             </h2>
             <div className="flex items-start gap-4">
-              <div className="w-14 h-14 rounded-full bg-gradient-to-br from-violet-400 to-purple-600 flex items-center justify-center text-xl font-bold text-white shrink-0">
-                V
-              </div>
+              <img
+  src="/vicky.jpg"
+  alt="Vickey Sir"
+  className="w-14 h-14 rounded-full object-cover object-top shrink-0"
+/>
               <div>
                 <h3 className="font-bold text-white text-base">Vickey Sir</h3>
                 <p className="text-violet-300 text-sm mb-2">
@@ -1574,9 +1578,11 @@ function ResourcesCoursePage({
               Curated By
             </h2>
             <div className="flex items-start gap-4">
-              <div className="w-14 h-14 rounded-full bg-gradient-to-br from-emerald-400 to-teal-600 flex items-center justify-center text-xl font-bold text-white shrink-0">
-                V
-              </div>
+              <img
+  src="/vicky.jpg"
+  alt="Vickey Sir"
+  className="w-14 h-14 rounded-full object-cover object-top shrink-0"
+/>
               <div>
                 <h3 className="font-bold text-white text-base">Vickey Sir</h3>
                 <p className="text-emerald-300 text-sm mb-2">
@@ -2340,9 +2346,11 @@ export default function CourseDetails() {
               Your Mentor
             </h2>
             <div className="flex items-start gap-4">
-              <div className="w-14 h-14 rounded-full bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center text-xl font-bold text-white shrink-0">
-                V
-              </div>
+              <img
+  src="/vicky.jpg"
+  alt="Vickey Sir"
+  className="w-14 h-14 rounded-full object-cover object-top shrink-0"
+/>
               <div>
                 <h3 className="font-bold text-white text-base">Vickey Sir</h3>
                 <p className="text-cyan-300 text-sm mb-2">

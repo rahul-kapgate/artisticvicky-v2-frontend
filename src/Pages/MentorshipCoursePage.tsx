@@ -505,9 +505,11 @@ export function MentorshipCoursePage({
               Your Personal Mentor
             </h2>
             <div className="flex items-start gap-4">
-              <div className="w-14 h-14 rounded-full bg-gradient-to-br from-rose-400 to-orange-500 flex items-center justify-center text-xl font-bold text-white shrink-0">
-                V
-              </div>
+             <img
+  src="/vicky.jpg"
+  alt="Vickey Sir"
+  className="w-14 h-14 rounded-full object-cover object-top shrink-0"
+/>
               <div>
                 <h3 className="font-bold text-white text-base">Vickey Sir</h3>
                 <p className="text-rose-300 text-sm mb-2">
