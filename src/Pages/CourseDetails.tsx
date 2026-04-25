@@ -37,10 +37,12 @@ import Login from "@/components/Login";
 import Register from "@/components/Register";
 import CourseApprovedReviews from "@/components/CourseApprovedReviews";
 import { useCoursePayment } from "@/hooks/useCoursePayment";
+import { MentorshipCoursePage } from "./MentorshipCoursePage";
 
 const FREE_MOCK_COURSE_ID = "12";
 const PYQ_MOCK_COURSE_ID = "13";
 const RESOURCES_COURSE_ID = "16";
+const MENTORSHIP_COURSE_ID = "26";
 const TOTAL_FREE_MOCK_TESTS = 1;
 const MOCK_TOTAL_MARKS = 40;
 const MOCK_DURATION_MINS = 60;
@@ -1770,6 +1772,7 @@ export default function CourseDetails() {
   const isMockCourse = String(id) === FREE_MOCK_COURSE_ID;
   const isPYQCourse = String(id) === PYQ_MOCK_COURSE_ID;
   const isResourcesCourse = String(id) === RESOURCES_COURSE_ID;
+  const isMentorshipCourse = String(id) === MENTORSHIP_COURSE_ID;
 
   // 💳 Payment hook — shared across every page variant
   const { pay, isBusy: isPaying } = useCoursePayment({
@@ -2025,6 +2028,27 @@ export default function CourseDetails() {
             setRegisterOpen(true);
           }}
         />
+        <Register open={registerOpen} onOpenChange={setRegisterOpen} />
+      </>
+    );
+  }
+
+  if (isMentorshipCourse) {
+    return (
+      <>
+        <MentorshipCoursePage
+          course={course}
+          currentUser={currentUser}
+          isEnrolled={isEnrolled}
+          isBlocked={isBlocked}
+          onOpenLogin={() => setLoginOpen(true)}
+          onEnroll={handleEnroll}
+          onContactSupport={openWhatsApp}
+          isPaying={isPaying}
+        />
+        {toastNode}
+        <Login open={loginOpen} onOpenChange={setLoginOpen}
+          onOpenRegister={() => { setLoginOpen(false); setRegisterOpen(true); }} />
         <Register open={registerOpen} onOpenChange={setRegisterOpen} />
       </>
     );
