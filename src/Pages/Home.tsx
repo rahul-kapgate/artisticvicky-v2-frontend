@@ -688,7 +688,7 @@ function Home() {
             >
               Welcome to{" "}
               <span className="bg-gradient-to-r from-[#3b82f6] via-[#60a5fa] to-[#22d3ee] bg-clip-text text-transparent">
-                Artistic Vickey
+                AV Art Academy
               </span>
             </motion.h1>
 
@@ -793,7 +793,7 @@ function Home() {
               🖼️ Students <span className="text-cyan-300">Artworks</span>
             </h2>
             <p className="text-gray-300 max-w-2xl mx-auto">
-              Explore beautiful creations made by students of Artistic Vickey
+              Explore beautiful creations made by students of AV Art Academy 
               from different cities and backgrounds.
             </p>
           </div>
@@ -976,10 +976,10 @@ function Home() {
       <section className="py-12 px-6 bg-gradient-to-b from-white via-purple-50 to-white">
         <div className="max-w-7xl mx-auto text-center">
           <h2 className="text-4xl font-bold mb-6 text-gray-800">
-            Why <span className="text-purple-600">Artistic Vickey?</span>
+            Why <span className="text-purple-600">AV Art Academy?</span>
           </h2>
           <p className="text-lg text-gray-600 mb-12 max-w-2xl mx-auto leading-relaxed">
-            Discover what makes Artistic Vickey a unique space for creativity,
+            Discover what makes AV Art Academy  a unique space for creativity,
             passion, and meaningful artistic expression.
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -1009,10 +1009,10 @@ function Home() {
       >
         <div className="max-w-6xl mx-auto text-center">
           <h2 className="text-4xl font-bold mb-6 text-gray-800">
-            About <span className="text-purple-600">Artistic Vickey</span>
+            About <span className="text-purple-600">AV Art Academy</span>
           </h2>
           <p className="text-lg text-gray-600 mb-12 max-w-3xl mx-auto leading-relaxed">
-            Artistic Vickey is more than just an art platform — it's a creative
+            AV Art Academy is more than just an art platform — it's a creative
             journey that blends imagination, emotion, and technique. Founded by
             Vickey, a passionate artist dedicated to exploring the beauty of
             colors, textures, and storytelling through art.
@@ -1036,7 +1036,7 @@ function Home() {
                 emotionally with its audience.
               </p>
               <p className="text-gray-700 mb-6 leading-relaxed">
-                Through <strong>Artistic Vickey</strong>, the goal is to inspire
+                Through <strong>AV Art Academy</strong>, the goal is to inspire
                 others to see art as a language that transcends boundaries —
                 celebrating creativity, diversity, and imagination.
               </p>

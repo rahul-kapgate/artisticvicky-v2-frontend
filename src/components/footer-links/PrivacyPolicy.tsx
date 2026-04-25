@@ -5,7 +5,7 @@ const PrivacyPolicy: React.FC = () => {
     <div className="max-w-4xl mx-auto px-6 pt-28 pb-12 text-gray-800 bg-white">
       <h1 className="text-4xl font-bold mb-6 text-purple-700">Privacy Policy</h1>
       <p className="mb-4">
-        This Privacy Policy (the “Policy”) governs how <strong>Artistic Vickey</strong> (“we”, “us”, “our”) collects,
+        This Privacy Policy (the “Policy”) governs how <strong>AV Art Academy </strong> (“we”, “us”, “our”) collects,
         uses, maintains and discloses information from users (“you”, “your”) of our website and related services
         (collectively, the “Platform”). By accessing or using our Platform, providing your Personal Information,
         or otherwise indicating your consent, you agree to the collection and use of information in accordance with

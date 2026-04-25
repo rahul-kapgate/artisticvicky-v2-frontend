@@ -487,7 +487,7 @@ export default function ReviewsSection({
           >
             What Students Say About{" "}
             <span className="bg-gradient-to-r from-cyan-300 via-sky-300 to-fuchsia-300 bg-clip-text text-transparent">
-              Artistic Vickey
+              AV Art Academy 
             </span>
           </motion.h2>
           <motion.p

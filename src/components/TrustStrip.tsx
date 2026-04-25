@@ -208,7 +208,7 @@ export default function TrustStrip() {
         {/* Bottom brand strip */}
         <div className="flex items-center justify-center gap-2 pt-5 border-t border-slate-100">
           <span className="text-[16px] font-extrabold text-slate-900">
-            Artistic<span className="text-indigo-500">Vickey</span>
+            AV Art <span className="text-indigo-500">Academy</span>
           </span>
           <span className="text-slate-300 text-sm">·</span>
           <span className="text-[12px] text-slate-400">Built with</span>

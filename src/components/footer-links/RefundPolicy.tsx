@@ -8,7 +8,7 @@ const RefundPolicy: React.FC = () => {
       </h1>
 
       <p className="mb-4">
-        Thank you for choosing <strong>Artistic Vickey</strong>. We create and deliver
+        Thank you for choosing <strong>AV Art Academy</strong>. We create and deliver
         digital / creative learning content with a lot of effort, and to maintain
         fairness and protect our intellectual property, we follow a
         <strong> strict no-refund, no-return policy</strong>.
@@ -104,7 +104,7 @@ const RefundPolicy: React.FC = () => {
       <p className="mb-4">
         <strong>Email:</strong> vikkitembhurne358@gmail.com
         <br />
-        <strong>Subject:</strong> “Payment Issue – Artistic Vickey”
+        <strong>Subject:</strong> “Payment Issue – AV Art Academy”
       </p>
 
       <p className="mt-10 text-sm text-gray-500">

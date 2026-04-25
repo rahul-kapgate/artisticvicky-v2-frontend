@@ -108,8 +108,8 @@ function Header() {
             }}
             className="text-2xl md:text-3xl font-bold tracking-tight flex items-center gap-1 cursor-pointer select-none"
           >
-            <span className="text-blue-600">Artistic</span>
-            <span className="text-white">Vickey</span>
+            <span className="text-blue-600">AV Art</span>
+            <span className="text-white">Academy</span>
           </Link>
 
           {/* Desktop Nav */}
