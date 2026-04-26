@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo, useCallback } from "react";
+import { useParams } from "react-router-dom"; 
 import { apiClient } from "@/utils/axiosConfig";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -25,6 +26,7 @@ interface Resource {
   file_url: string;
   file_name: string;
   mime_type: string;
+  course_id: number; 
   created_at: string;
 }
 
@@ -147,14 +149,19 @@ function ResourceCard({
 /*  Main component                                                     */
 /* ------------------------------------------------------------------ */
 export default function Resources() {
+  // ✅ Pull courseId from /my-courses/:courseId/resources
+  const { courseId } = useParams<{ courseId: string }>();
+
   const [resources, setResources] = useState<Resource[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedType, setSelectedType] = useState<ResourceType>("All");
   const [search, setSearch] = useState("");
   const [activeResource, setActiveResource] = useState<Resource | null>(null);
 
-  /* Fetch once */
+  // ✅ Fetch resources filtered by courseId from the backend
   useEffect(() => {
+    if (!courseId) return;
+
     let cancelled = false;
     (async () => {
       setLoading(true);
@@ -162,7 +169,9 @@ export default function Resources() {
         const { data } = await apiClient.get<{
           success: boolean;
           data: Resource[];
-        }>("/api/resource/all-resources");
+        }>("/api/resource/all-resources", {
+          params: { course_id: courseId }, // ✅ pass as query param
+        });
         if (!cancelled && data.success) setResources(data.data);
       } catch {
         toast.error("Failed to load resources");
@@ -170,10 +179,11 @@ export default function Resources() {
         if (!cancelled) setLoading(false);
       }
     })();
+
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [courseId]); // ✅ re-fetch if courseId changes
 
   /* Derived counts — memoised */
   const typeCounts = useMemo(() => {
@@ -182,7 +192,7 @@ export default function Resources() {
     return map;
   }, [resources]);
 
-  /* Filtered list — memoised */
+  /* Filtered list — memoised (type + search only, course filter is done server-side) */
   const filtered = useMemo(() => {
     let list =
       selectedType === "All"
@@ -200,6 +210,15 @@ export default function Resources() {
   }, [resources, selectedType, search]);
 
   const handleView = useCallback((r: Resource) => setActiveResource(r), []);
+
+  // ✅ Guard: no courseId in URL
+  if (!courseId) {
+    return (
+      <div className="min-h-screen bg-[#0a0f1e] flex items-center justify-center">
+        <p className="text-gray-400 text-sm">Invalid course URL.</p>
+      </div>
+    );
+  }
 
   return (
     <>
