@@ -93,30 +93,6 @@ const CARD_STYLES = [
   },
 ];
 
-
-const FAQ_ITEMS = [
-  {
-    q: "What is MAH AAC CET and who should take it?",
-    a: "MAH AAC CET is Maharashtra's state entrance exam for BFA and design programmes. Any Class 12 student — passed or appearing — is eligible.",
-  },
-  {
-    q: "What subjects are covered in AV Art Academy's MHT CET Art courses?",
-    a: "Our courses cover Perspective Drawing, Memory Drawing, 2D Design, Colour Theory, Object Drawing, GK & Art Awareness, and full-length mock tests with PYQ papers.",
-  },
-  {
-    q: "How many students have cleared MAH AAC CET through AV Art Academy?",
-    a: "Over 1,200 students have enrolled and we proudly maintain a 94% selection rate for the MAH AAC CET exam.",
-  },
-  {
-    q: "Is online coaching effective for MHT CET Art preparation?",
-    a: "Absolutely. AV Art Academy's structured video lectures, live mock tests, and direct mentorship from Vickey let students prepare from anywhere in India.",
-  },
-  {
-    q: "Is a free mock test available?",
-    a: "Yes! AV Art Academy offers one free mock test — create a free account to access it instantly.",
-  },
-];
-
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 interface HomePageReviewUser {
@@ -141,6 +117,21 @@ interface HomePageReviewResponse {
   message?: string;
   count?: number;
   data: HomePageReview[];
+}
+interface Faq {
+  id: number;
+  question: string;
+  answer: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+interface FaqResponse {
+  success: boolean;
+  message?: string;
+  count?: number;
+  data: Faq[];
 }
 
 // ─── Small pure components ────────────────────────────────────────────────────
@@ -415,6 +406,9 @@ function Home() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [faqs, setFaqs] = useState<Faq[]>([]);
+  const [faqsLoading, setFaqsLoading] = useState(true);
+  const [faqsError, setFaqsError] = useState<string | null>(null);
 
   const [studentArtworks, setStudentArtworks] = useState<StudentArtwork[]>([]);
   const [artworkLoading, setArtworkLoading] = useState(true);
@@ -482,11 +476,24 @@ function Home() {
     }
   }, []);
 
+  const fetchFaqs = useCallback(async () => {
+    try {
+      const res = await apiClient.get<FaqResponse>("/api/faqs");
+      if (res.data.success) setFaqs(res.data.data);
+      else throw new Error(res.data.message || "Failed to fetch FAQs");
+    } catch (err: any) {
+      setFaqsError(err.message || "Something went wrong");
+    } finally {
+      setFaqsLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     fetchCourses();
     fetchStudentArtworks();
     fetchHomePageReviews();
-  }, [fetchCourses, fetchStudentArtworks, fetchHomePageReviews]);
+    fetchFaqs();
+  }, [fetchCourses, fetchStudentArtworks, fetchHomePageReviews, fetchFaqs]);
 
   const ORDER = [1, 26, 16, 12, 13, 24, 25];
   const sortedCourses = [...courses].sort((a, b) => {
@@ -819,7 +826,7 @@ function Home() {
               🖼️ Students <span className="text-cyan-300">Artworks</span>
             </h2>
             <p className="text-gray-300 max-w-2xl mx-auto">
-              Explore beautiful creations made by students of AV Art Academy 
+              Explore beautiful creations made by students of AV Art Academy
               from different cities and backgrounds.
             </p>
           </div>
@@ -1005,7 +1012,7 @@ function Home() {
             Why <span className="text-purple-600">AV Art Academy?</span>
           </h2>
           <p className="text-lg text-gray-600 mb-12 max-w-2xl mx-auto leading-relaxed">
-            Discover what makes AV Art Academy  a unique space for creativity,
+            Discover what makes AV Art Academy a unique space for creativity,
             passion, and meaningful artistic expression.
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -1084,64 +1091,91 @@ function Home() {
         reviewCount={reviewCount}
       />
 
-{/* ══════════════ FAQ ══════════════ */}
-<section
-  id="faq"
-  aria-labelledby="faq-heading"
-  className="py-16 px-6 bg-gradient-to-b from-white to-purple-50"
->
-  <div className="max-w-3xl mx-auto">
-    <h2
-      id="faq-heading"
-      className="text-4xl font-bold text-center mb-10 text-gray-800"
-    >
-      Frequently Asked{" "}
-      <span className="text-purple-600">Questions</span>
-    </h2>
-
-    <dl className="space-y-4">
-      {FAQ_ITEMS.map((item, i) => (
-        <div
-          key={i}
-          className="rounded-2xl border border-purple-100 bg-white shadow-sm overflow-hidden"
-        >
-          <dt>
-            <button
-              type="button"
-              className="w-full flex items-center justify-between gap-4 px-6 py-5 text-left font-semibold text-gray-800 hover:bg-purple-50 transition-colors duration-200"
-              aria-expanded={openFaq === i}
-              aria-controls={`faq-answer-${i}`}
-              onClick={() => setOpenFaq(openFaq === i ? null : i)}
-            >
-              <span>{item.q}</span>
-              <ChevronDown
-                className="w-5 h-5 text-purple-500 flex-shrink-0 transition-transform duration-300 ease-in-out"
-                style={{ transform: openFaq === i ? "rotate(180deg)" : "rotate(0deg)" }}
-                aria-hidden="true"
-              />
-            </button>
-          </dt>
-          <dd
-            id={`faq-answer-${i}`}
-            role="region"
-            style={{
-              display: "grid",
-              gridTemplateRows: openFaq === i ? "1fr" : "0fr",
-              transition: "grid-template-rows 320ms cubic-bezier(0.4, 0, 0.2, 1)",
-            }}
+      {/* ══════════════ FAQ ══════════════ */}
+      <section
+        id="faq"
+        aria-labelledby="faq-heading"
+        className="py-16 px-6 bg-gradient-to-b from-white to-purple-50"
+      >
+        <div className="max-w-3xl mx-auto">
+          <h2
+            id="faq-heading"
+            className="text-4xl font-bold text-center mb-10 text-gray-800"
           >
-            <div style={{ overflow: "hidden" }}>
-              <p className="px-6 py-4 text-gray-600 leading-relaxed border-t border-purple-50">
-                {item.a}
-              </p>
-            </div>
-          </dd>
-        </div>
-      ))}
-    </dl>
-  </div>
-</section>
+            Frequently Asked <span className="text-purple-600">Questions</span>
+          </h2>
 
+          {faqsLoading ? (
+            <div className="space-y-4 animate-pulse">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="rounded-2xl border border-purple-100 bg-white shadow-sm h-16"
+                />
+              ))}
+            </div>
+          ) : faqsError ? (
+            <p className="text-center text-red-400">
+              Failed to load FAQs: {faqsError}
+            </p>
+          ) : faqs.length === 0 ? (
+            <p className="text-center text-gray-400">
+              No FAQs available yet. Stay tuned! ✨
+            </p>
+          ) : (
+            <dl className="space-y-4">
+              {faqs
+                .filter((faq) => faq.is_active)
+                .map((faq) => (
+                  <div
+                    key={faq.id}
+                    className="rounded-2xl border border-purple-100 bg-white shadow-sm overflow-hidden"
+                  >
+                    <dt>
+                      <button
+                        type="button"
+                        className="w-full flex items-center justify-between gap-4 px-6 py-5 text-left font-semibold text-gray-800 hover:bg-purple-50 transition-colors duration-200"
+                        aria-expanded={openFaq === faq.id}
+                        aria-controls={`faq-answer-${faq.id}`}
+                        onClick={() =>
+                          setOpenFaq(openFaq === faq.id ? null : faq.id)
+                        }
+                      >
+                        <span>{faq.question}</span>
+                        <ChevronDown
+                          className="w-5 h-5 text-purple-500 flex-shrink-0 transition-transform duration-300 ease-in-out"
+                          style={{
+                            transform:
+                              openFaq === faq.id
+                                ? "rotate(180deg)"
+                                : "rotate(0deg)",
+                          }}
+                          aria-hidden="true"
+                        />
+                      </button>
+                    </dt>
+                    <dd
+                      id={`faq-answer-${faq.id}`}
+                      role="region"
+                      style={{
+                        display: "grid",
+                        gridTemplateRows: openFaq === faq.id ? "1fr" : "0fr",
+                        transition:
+                          "grid-template-rows 320ms cubic-bezier(0.4, 0, 0.2, 1)",
+                      }}
+                    >
+                      <div style={{ overflow: "hidden" }}>
+                        <p className="px-6 py-4 text-gray-600 leading-relaxed border-t border-purple-50">
+                          {faq.answer}
+                        </p>
+                      </div>
+                    </dd>
+                  </div>
+                ))}
+            </dl>
+          )}
+        </div>
+      </section>
     </div>
   );
 }
