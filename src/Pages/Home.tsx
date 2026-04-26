@@ -8,6 +8,7 @@ import {
   Brush,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
 } from "lucide-react";
 import { apiClient } from "@/utils/axiosConfig";
 import type { Course, CourseResponse } from "@/types/course";
@@ -89,6 +90,30 @@ const CARD_STYLES = [
     gradient: "from-[#1b1335]/90 via-[#2c1e5c]/90 to-[#3a2780]/90",
     border: "border-violet-400/30",
     accent: "text-violet-300 border-violet-400 hover:bg-violet-500",
+  },
+];
+
+
+const FAQ_ITEMS = [
+  {
+    q: "What is MAH AAC CET and who should take it?",
+    a: "MAH AAC CET is Maharashtra's state entrance exam for BFA and design programmes. Any Class 12 student — passed or appearing — is eligible.",
+  },
+  {
+    q: "What subjects are covered in AV Art Academy's MHT CET Art courses?",
+    a: "Our courses cover Perspective Drawing, Memory Drawing, 2D Design, Colour Theory, Object Drawing, GK & Art Awareness, and full-length mock tests with PYQ papers.",
+  },
+  {
+    q: "How many students have cleared MAH AAC CET through AV Art Academy?",
+    a: "Over 1,200 students have enrolled and we proudly maintain a 94% selection rate for the MAH AAC CET exam.",
+  },
+  {
+    q: "Is online coaching effective for MHT CET Art preparation?",
+    a: "Absolutely. AV Art Academy's structured video lectures, live mock tests, and direct mentorship from Vickey let students prepare from anywhere in India.",
+  },
+  {
+    q: "Is a free mock test available?",
+    a: "Yes! AV Art Academy offers one free mock test — create a free account to access it instantly.",
   },
 ];
 
@@ -389,6 +414,7 @@ function Home() {
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   const [studentArtworks, setStudentArtworks] = useState<StudentArtwork[]>([]);
   const [artworkLoading, setArtworkLoading] = useState(true);
@@ -1057,6 +1083,65 @@ function Home() {
         homeReviewsError={homeReviewsError}
         reviewCount={reviewCount}
       />
+
+{/* ══════════════ FAQ ══════════════ */}
+<section
+  id="faq"
+  aria-labelledby="faq-heading"
+  className="py-16 px-6 bg-gradient-to-b from-white to-purple-50"
+>
+  <div className="max-w-3xl mx-auto">
+    <h2
+      id="faq-heading"
+      className="text-4xl font-bold text-center mb-10 text-gray-800"
+    >
+      Frequently Asked{" "}
+      <span className="text-purple-600">Questions</span>
+    </h2>
+
+    <dl className="space-y-4">
+      {FAQ_ITEMS.map((item, i) => (
+        <div
+          key={i}
+          className="rounded-2xl border border-purple-100 bg-white shadow-sm overflow-hidden"
+        >
+          <dt>
+            <button
+              type="button"
+              className="w-full flex items-center justify-between gap-4 px-6 py-5 text-left font-semibold text-gray-800 hover:bg-purple-50 transition-colors duration-200"
+              aria-expanded={openFaq === i}
+              aria-controls={`faq-answer-${i}`}
+              onClick={() => setOpenFaq(openFaq === i ? null : i)}
+            >
+              <span>{item.q}</span>
+              <ChevronDown
+                className="w-5 h-5 text-purple-500 flex-shrink-0 transition-transform duration-300 ease-in-out"
+                style={{ transform: openFaq === i ? "rotate(180deg)" : "rotate(0deg)" }}
+                aria-hidden="true"
+              />
+            </button>
+          </dt>
+          <dd
+            id={`faq-answer-${i}`}
+            role="region"
+            style={{
+              display: "grid",
+              gridTemplateRows: openFaq === i ? "1fr" : "0fr",
+              transition: "grid-template-rows 320ms cubic-bezier(0.4, 0, 0.2, 1)",
+            }}
+          >
+            <div style={{ overflow: "hidden" }}>
+              <p className="px-6 py-4 text-gray-600 leading-relaxed border-t border-purple-50">
+                {item.a}
+              </p>
+            </div>
+          </dd>
+        </div>
+      ))}
+    </dl>
+  </div>
+</section>
+
     </div>
   );
 }
