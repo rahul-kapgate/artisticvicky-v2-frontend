@@ -636,10 +636,10 @@ function MockTestCoursePage({
             </h2>
             <div className="flex items-start gap-4">
               <img
-  src="/vicky.jpg"
-  alt="Vickey Sir"
-  className="w-14 h-14 rounded-full object-cover object-top shrink-0"
-/>
+                src="/vicky.jpg"
+                alt="Vickey Sir"
+                className="w-14 h-14 rounded-full object-cover object-top shrink-0"
+              />
               <div>
                 <h3 className="font-bold text-white text-base">Vickey Sir</h3>
                 <p className="text-orange-300 text-sm mb-2">
@@ -1045,10 +1045,10 @@ function PYQMockCoursePage({
             </h2>
             <div className="flex items-start gap-4">
               <img
-  src="/vicky.jpg"
-  alt="Vickey Sir"
-  className="w-14 h-14 rounded-full object-cover object-top shrink-0"
-/>
+                src="/vicky.jpg"
+                alt="Vickey Sir"
+                className="w-14 h-14 rounded-full object-cover object-top shrink-0"
+              />
               <div>
                 <h3 className="font-bold text-white text-base">Vickey Sir</h3>
                 <p className="text-violet-300 text-sm mb-2">
@@ -1579,10 +1579,10 @@ function ResourcesCoursePage({
             </h2>
             <div className="flex items-start gap-4">
               <img
-  src="/vicky.jpg"
-  alt="Vickey Sir"
-  className="w-14 h-14 rounded-full object-cover object-top shrink-0"
-/>
+                src="/vicky.jpg"
+                alt="Vickey Sir"
+                className="w-14 h-14 rounded-full object-cover object-top shrink-0"
+              />
               <div>
                 <h3 className="font-bold text-white text-base">Vickey Sir</h3>
                 <p className="text-emerald-300 text-sm mb-2">
@@ -2053,8 +2053,14 @@ export default function CourseDetails() {
           isPaying={isPaying}
         />
         {toastNode}
-        <Login open={loginOpen} onOpenChange={setLoginOpen}
-          onOpenRegister={() => { setLoginOpen(false); setRegisterOpen(true); }} />
+        <Login
+          open={loginOpen}
+          onOpenChange={setLoginOpen}
+          onOpenRegister={() => {
+            setLoginOpen(false);
+            setRegisterOpen(true);
+          }}
+        />
         <Register open={registerOpen} onOpenChange={setRegisterOpen} />
       </>
     );
@@ -2347,10 +2353,10 @@ export default function CourseDetails() {
             </h2>
             <div className="flex items-start gap-4">
               <img
-  src="/vicky.jpg"
-  alt="Vickey Sir"
-  className="w-14 h-14 rounded-full object-cover object-top shrink-0"
-/>
+                src="/vicky.jpg"
+                alt="Vickey Sir"
+                className="w-14 h-14 rounded-full object-cover object-top shrink-0"
+              />
               <div>
                 <h3 className="font-bold text-white text-base">Vickey Sir</h3>
                 <p className="text-cyan-300 text-sm mb-2">

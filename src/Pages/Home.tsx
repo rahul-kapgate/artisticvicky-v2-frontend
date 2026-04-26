@@ -495,7 +495,7 @@ function Home() {
     fetchFaqs();
   }, [fetchCourses, fetchStudentArtworks, fetchHomePageReviews, fetchFaqs]);
 
-  const ORDER = [1, 26, 16, 12, 13, 24, 25];
+  const ORDER = [1,27, 26, 16, 12, 13, 24, 25];
   const sortedCourses = [...courses].sort((a, b) => {
     const aPos = ORDER.indexOf(a.id) === -1 ? 999 : ORDER.indexOf(a.id);
     const bPos = ORDER.indexOf(b.id) === -1 ? 999 : ORDER.indexOf(b.id);

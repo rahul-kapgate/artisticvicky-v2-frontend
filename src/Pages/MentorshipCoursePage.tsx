@@ -45,8 +45,8 @@ function BlockedAccessBanner({
         <div className="flex-1">
           <h3 className="text-base font-bold text-red-200">Access Suspended</h3>
           <p className="text-sm text-red-100/80 mt-1 leading-relaxed">
-            Your access to this mentorship programme has been temporarily blocked
-            by the administrator. Contact support to restore it.
+            Your access to this mentorship programme has been temporarily
+            blocked by the administrator. Contact support to restore it.
           </p>
         </div>
       </div>
@@ -76,7 +76,9 @@ function MetaRow({
         {icon}
         {label}
       </span>
-      <span className="text-xs text-gray-200 font-medium text-right">{value}</span>
+      <span className="text-xs text-gray-200 font-medium text-right">
+        {value}
+      </span>
     </div>
   );
 }
@@ -213,7 +215,6 @@ export function MentorshipCoursePage({
   onContactSupport: () => void;
   isPaying: boolean;
 }) {
-
   const createdDate = course.created_at
     ? new Date(course.created_at).toLocaleDateString("en-IN", {
         year: "numeric",
@@ -248,7 +249,7 @@ export function MentorshipCoursePage({
   };
 
   return (
-    <section className="bg-gradient-to-b from-[#0a1628] via-[#0f1b3d] to-[#1a237e] text-gray-100 min-h-screen">
+    <section className="bg-gradient-to-b from-[#0a1628] via-[#0f1b3d] to-[#1a237e] text-gray-100 min-h-screen sm:pt-20 lg:pt-4">
       {/* ── Hero ── */}
       <div className="relative w-full h-[240px] sm:h-[340px] md:h-[420px] overflow-hidden">
         <img
@@ -303,7 +304,6 @@ export function MentorshipCoursePage({
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* ── Left / Main content ── */}
         <div className="lg:col-span-2 space-y-6">
-
           {/* Stat cards */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {[
@@ -333,7 +333,9 @@ export function MentorshipCoursePage({
                 className="rounded-2xl border border-white/10 bg-white/5 p-4 text-center"
               >
                 <div className="flex justify-center mb-2">{icon}</div>
-                <p className="text-sm font-bold text-white leading-snug">{value}</p>
+                <p className="text-sm font-bold text-white leading-snug">
+                  {value}
+                </p>
                 <p className="text-xs text-gray-400 mt-0.5">{label}</p>
               </div>
             ))}
@@ -347,7 +349,15 @@ export function MentorshipCoursePage({
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {MENTORSHIP_FEATURES.map(
-                ({ icon, title, desc, color, iconColor, badge, badgeColor }) => (
+                ({
+                  icon,
+                  title,
+                  desc,
+                  color,
+                  iconColor,
+                  badge,
+                  badgeColor,
+                }) => (
                   <div
                     key={title}
                     className={`relative rounded-2xl border bg-gradient-to-br p-5 ${color}`}
@@ -365,7 +375,9 @@ export function MentorshipCoursePage({
                         {badge}
                       </span>
                     </div>
-                    <p className="text-xs text-gray-300 leading-relaxed">{desc}</p>
+                    <p className="text-xs text-gray-300 leading-relaxed">
+                      {desc}
+                    </p>
                   </div>
                 ),
               )}
@@ -416,7 +428,9 @@ export function MentorshipCoursePage({
               {WHAT_YOU_GET.map((item, i) => (
                 <div key={i} className="flex items-start gap-2.5">
                   <CheckCircle2 className="w-4 h-4 text-emerald-400 mt-0.5 shrink-0" />
-                  <span className="text-sm text-gray-200 leading-snug">{item}</span>
+                  <span className="text-sm text-gray-200 leading-snug">
+                    {item}
+                  </span>
                 </div>
               ))}
             </div>
@@ -492,7 +506,9 @@ export function MentorshipCoursePage({
               ].map(({ emoji, text }, i) => (
                 <div key={i} className="flex items-start gap-3">
                   <span className="text-lg shrink-0">{emoji}</span>
-                  <p className="text-sm text-gray-300 leading-relaxed">{text}</p>
+                  <p className="text-sm text-gray-300 leading-relaxed">
+                    {text}
+                  </p>
                 </div>
               ))}
             </div>
@@ -505,11 +521,11 @@ export function MentorshipCoursePage({
               Your Personal Mentor
             </h2>
             <div className="flex items-start gap-4">
-             <img
-  src="/vicky.jpg"
-  alt="Vickey Sir"
-  className="w-14 h-14 rounded-full object-cover object-top shrink-0"
-/>
+              <img
+                src="/vicky.jpg"
+                alt="Vickey Sir"
+                className="w-14 h-14 rounded-full object-cover object-top shrink-0"
+              />
               <div>
                 <h3 className="font-bold text-white text-base">Vickey Sir</h3>
                 <p className="text-rose-300 text-sm mb-2">
@@ -566,7 +582,10 @@ export function MentorshipCoursePage({
                     <span className="font-semibold">Save {discount}%</span>
                     <span className="text-emerald-100/60">•</span>
                     <span>
-                      ₹{(course.price_without_discount || 0) - (course.price || 0)} off
+                      ₹
+                      {(course.price_without_discount || 0) -
+                        (course.price || 0)}{" "}
+                      off
                     </span>
                   </div>
                 )}
