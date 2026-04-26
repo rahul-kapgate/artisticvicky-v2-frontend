@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, useCallback } from "react";
+import { useParams } from "react-router-dom"; // ✅ grab courseId from URL
 import { apiClient } from "@/utils/axiosConfig";
 import { toast } from "sonner";
 import {
@@ -34,6 +35,7 @@ interface Section {
   id: number;
   title: string;
   description?: string;
+  course_id: number; // ✅ added
   created_at: string;
   video_lectures?: Video[];
 }
@@ -145,7 +147,6 @@ function SectionItem({
                     }
                   `}
                 >
-                  {/* Icon */}
                   <span className="shrink-0">
                     {active ? (
                       <CheckCircle2 className="w-3.5 h-3.5 text-cyan-400" />
@@ -154,7 +155,6 @@ function SectionItem({
                     )}
                   </span>
 
-                  {/* Title + duration */}
                   <span className="flex-1 min-w-0 text-[12px] leading-snug truncate">
                     {idx + 1}. {video.title}
                   </span>
@@ -185,6 +185,9 @@ function SectionItem({
 /*  Main component                                                     */
 /* ------------------------------------------------------------------ */
 export default function VideoLectures() {
+  // ✅ Pull courseId from /my-courses/:courseId/lectures (or whatever your route is)
+  const { courseId } = useParams<{ courseId: string }>();
+
   const [sections, setSections] = useState<Section[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentVideo, setCurrentVideo] = useState<Video | null>(null);
@@ -195,8 +198,10 @@ export default function VideoLectures() {
   const [showSidebar, setShowSidebar] = useState(true);
   const [search, setSearch] = useState("");
 
-  /* ── Fetch data ─────────────────────────────────────────────── */
+  /* ── Fetch sections scoped to this course ───────────────────── */
   useEffect(() => {
+    if (!courseId) return;
+
     let cancelled = false;
     (async () => {
       setLoading(true);
@@ -204,7 +209,9 @@ export default function VideoLectures() {
         const { data } = await apiClient.get<{
           success: boolean;
           data: Section[];
-        }>("/api/section");
+        }>("/api/section", {
+          params: { course_id: courseId }, // ✅ pass course_id as query param
+        });
         if (cancelled) return;
         if (data.success) {
           const s = data.data ?? [];
@@ -222,7 +229,7 @@ export default function VideoLectures() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [courseId]); // ✅ re-fetch when courseId changes
 
   /* ── Flat ordered list for prev/next ────────────────────────── */
   const allVideos = useMemo(
@@ -305,7 +312,6 @@ export default function VideoLectures() {
   /* ── Keyboard shortcuts ─────────────────────────────────────── */
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      // Only when not typing in an input
       if ((e.target as HTMLElement).tagName === "INPUT") return;
       if (e.shiftKey && e.key === "ArrowRight") {
         e.preventDefault();
@@ -320,8 +326,17 @@ export default function VideoLectures() {
     return () => window.removeEventListener("keydown", handler);
   }, [goNext, goPrev]);
 
+  /* ── Guard: no courseId ─────────────────────────────────────── */
+  if (!courseId) {
+    return (
+      <div className="min-h-screen bg-[#07090f] flex items-center justify-center">
+        <p className="text-gray-400 text-sm">Invalid course URL.</p>
+      </div>
+    );
+  }
+
   return (
-    <section className="min-h-screen bg-[#07090f] text-gray-100 pt-[15vh] pb-8 ">
+    <section className="min-h-screen bg-[#07090f] text-gray-100 pt-[15vh] pb-8">
       <div className="max-w-[1440px] mx-auto px-3 sm:px-5 lg:px-8">
         {/* ── Top bar ──────────────────────────────────────────── */}
         <div className="flex items-center justify-between gap-4 mb-4">
@@ -394,7 +409,6 @@ export default function VideoLectures() {
                   </div>
                 ) : currentVideo ? (
                   <>
-                    {/* Now-playing label */}
                     <p className="text-[10px] uppercase tracking-[0.2em] text-cyan-500/80 font-semibold mb-1.5">
                       Now Playing
                     </p>
@@ -409,7 +423,6 @@ export default function VideoLectures() {
                       </p>
                     )}
 
-                    {/* Meta row */}
                     <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-[11px] text-gray-500 mb-4">
                       <span className="inline-flex items-center gap-1.5">
                         <Clock className="w-3.5 h-3.5" />
@@ -434,7 +447,6 @@ export default function VideoLectures() {
                       )}
                     </div>
 
-                    {/* Prev / Next buttons */}
                     <div className="flex items-center gap-2 pt-3 border-t border-white/[0.05]">
                       <button
                         type="button"
