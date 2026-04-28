@@ -255,10 +255,6 @@ export function ElementaryCoursePage({
               <Video className="w-3.5 h-3.5 text-amber-300" />
               Video Lectures
             </span>
-            <span className="flex items-center gap-1.5 bg-white/10 px-3 py-1 rounded-full">
-              <Users className="w-3.5 h-3.5 text-amber-300" />
-              {course.students_enrolled?.length ?? 0} students
-            </span>
             {course.rating && course.rating > 0 ? (
               <span className="flex items-center gap-1">
                 <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
@@ -580,11 +576,6 @@ export function ElementaryCoursePage({
                 icon={<Trophy className="w-4 h-4 text-amber-400" />}
                 label="Certificate"
                 value="On Completion"
-              />
-              <MetaRow
-                icon={<Users className="w-4 h-4 text-amber-400" />}
-                label="Students"
-                value={String(course.students_enrolled?.length ?? 0)}
               />
               <MetaRow
                 icon={<Star className="w-4 h-4 text-yellow-400" />}

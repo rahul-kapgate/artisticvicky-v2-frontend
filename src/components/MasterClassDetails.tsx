@@ -339,10 +339,6 @@ export default function MasterClassDetails() {
               </span>
             ) : null}
             <span className="flex items-center gap-1">
-              <Users className="w-4 h-4 text-violet-400" />
-              {course.students_enrolled?.length ?? 0} registered
-            </span>
-            <span className="flex items-center gap-1">
               <Calendar className="w-4 h-4 text-violet-400" />
               {formatDate(masterclass?.masterclass_start_at)}
             </span>
@@ -706,11 +702,6 @@ export default function MasterClassDetails() {
                 icon={<Globe className="w-4 h-4 text-violet-400" />}
                 label="Language"
                 value={course.language || "N/A"}
-              />
-              <MetaRow
-                icon={<Users className="w-4 h-4 text-violet-400" />}
-                label="Registered"
-                value={String(course.students_enrolled?.length ?? 0)}
               />
               <MetaRow
                 icon={<Star className="w-4 h-4 text-yellow-400" />}

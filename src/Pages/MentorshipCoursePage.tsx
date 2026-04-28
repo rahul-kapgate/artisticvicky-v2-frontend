@@ -284,10 +284,6 @@ export function MentorshipCoursePage({
               <Shield className="w-3.5 h-3.5 text-rose-300" />
               Till Admission
             </span>
-            <span className="flex items-center gap-1.5 bg-white/10 px-3 py-1 rounded-full">
-              <Users className="w-3.5 h-3.5 text-rose-300" />
-              {course.students_enrolled?.length ?? 0} students
-            </span>
             {course.rating && course.rating > 0 ? (
               <span className="flex items-center gap-1">
                 <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
@@ -696,11 +692,6 @@ export function MentorshipCoursePage({
                 icon={<Clock className="w-4 h-4 text-rose-400" />}
                 label="Access"
                 value={course.duration || "Till Admission"}
-              />
-              <MetaRow
-                icon={<Users className="w-4 h-4 text-rose-400" />}
-                label="Students"
-                value={String(course.students_enrolled?.length ?? 0)}
               />
               <MetaRow
                 icon={<Calendar className="w-4 h-4 text-rose-400" />}

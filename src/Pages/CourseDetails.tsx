@@ -408,10 +408,6 @@ function MockTestCoursePage({
               <Timer className="w-3.5 h-3.5 text-orange-300" />
               {MOCK_DURATION_MINS} Minutes
             </span>
-            <span className="flex items-center gap-1.5 bg-white/10 px-3 py-1 rounded-full">
-              <Users className="w-3.5 h-3.5 text-orange-300" />
-              {course.students_enrolled?.length ?? 0} students
-            </span>
             {course.rating && (
               <span className="flex items-center gap-1">
                 <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
@@ -836,11 +832,6 @@ function MockTestCoursePage({
                 value={course.duration || "N/A"}
               />
               <MetaRow
-                icon={<Users className="w-4 h-4 text-orange-400" />}
-                label="Students"
-                value={String(course.students_enrolled?.length ?? 0)}
-              />
-              <MetaRow
                 icon={<Star className="w-4 h-4 text-yellow-400" />}
                 label="Rating"
                 value={`${course.rating || 0} ⭐`}
@@ -943,10 +934,6 @@ function PYQMockCoursePage({
             <span className="flex items-center gap-1.5 bg-white/10 px-3 py-1 rounded-full">
               <Timer className="w-3.5 h-3.5 text-violet-300" />
               {MOCK_DURATION_MINS} Minutes Each
-            </span>
-            <span className="flex items-center gap-1.5 bg-white/10 px-3 py-1 rounded-full">
-              <Users className="w-3.5 h-3.5 text-violet-300" />
-              {course.students_enrolled?.length ?? 0} students
             </span>
             {course.rating && (
               <span className="flex items-center gap-1">
@@ -1264,11 +1251,7 @@ function PYQMockCoursePage({
                 label="Access"
                 value={course.duration || "N/A"}
               />
-              <MetaRow
-                icon={<Users className="w-4 h-4 text-violet-400" />}
-                label="Students"
-                value={String(course.students_enrolled?.length ?? 0)}
-              />
+
               <MetaRow
                 icon={<Star className="w-4 h-4 text-yellow-400" />}
                 label="Rating"
@@ -1410,10 +1393,6 @@ function ResourcesCoursePage({
             <span className="flex items-center gap-1.5 bg-white/10 px-3 py-1 rounded-full">
               <BookOpen className="w-3.5 h-3.5 text-emerald-300" />
               Notes & E-Books
-            </span>
-            <span className="flex items-center gap-1.5 bg-white/10 px-3 py-1 rounded-full">
-              <Users className="w-3.5 h-3.5 text-emerald-300" />
-              {course.students_enrolled?.length ?? 0} students
             </span>
             {course.rating && (
               <span className="flex items-center gap-1">
@@ -1714,11 +1693,7 @@ function ResourcesCoursePage({
                 label="Access"
                 value="Lifetime"
               />
-              <MetaRow
-                icon={<Users className="w-4 h-4 text-emerald-400" />}
-                label="Students"
-                value={String(course.students_enrolled?.length ?? 0)}
-              />
+
               <MetaRow
                 icon={<Star className="w-4 h-4 text-yellow-400" />}
                 label="Rating"
@@ -2188,10 +2163,6 @@ export default function CourseDetails() {
               </span>
             ) : null}
             <span className="flex items-center gap-1">
-              <Users className="w-4 h-4 text-cyan-400" />
-              {course.students_enrolled?.length ?? 0} students
-            </span>
-            <span className="flex items-center gap-1">
               <Calendar className="w-4 h-4 text-cyan-400" />
               Created {createdDate}
             </span>
@@ -2528,11 +2499,6 @@ export default function CourseDetails() {
                 icon={<BarChart3 className="w-4 h-4 text-cyan-400" />}
                 label="Level"
                 value={course.level || "All Levels"}
-              />
-              <MetaRow
-                icon={<Users className="w-4 h-4 text-cyan-400" />}
-                label="Students"
-                value={String(course.students_enrolled?.length ?? 0)}
               />
               {!isMasterclass && (
                 <MetaRow
