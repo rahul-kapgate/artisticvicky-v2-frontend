@@ -2459,7 +2459,7 @@ export default function CourseDetails() {
                     })}
                     <div className="flex items-center gap-2 text-sm text-gray-300">
                       <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                      📡 Live Classes (Daily on Zoom)
+                      📡 Live Classes (3 days in a week on Google Meet)
                     </div>
                     <div className="flex items-center gap-2 text-sm text-gray-300">
                       <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
