@@ -258,8 +258,6 @@ function ReviewMarquee({ reviews }: { reviews: HomePageReview[] }) {
   const navigate = useNavigate();
   const trackRef = useRef<HTMLDivElement>(null);
   const firstRef = useRef<HTMLDivElement>(null);
-  const pausedRef = useRef(false);
-  const rafRef = useRef<number>(0);
 
   useEffect(() => {
     if (!reviews.length) return;
@@ -267,73 +265,19 @@ function ReviewMarquee({ reviews }: { reviews: HomePageReview[] }) {
     const first = firstRef.current;
     if (!track || !first) return;
 
-    const speed = 0.6;
-
-    // ── Mouse drag ──
-    let isMouseDown = false;
-    let startX = 0;
-    let scrollStart = 0;
-
-    const onMouseDown = (e: MouseEvent) => {
-      isMouseDown = true;
-      pausedRef.current = true;
-      startX = e.pageX;
-      scrollStart = track.scrollLeft;
-    };
-    const onMouseMove = (e: MouseEvent) => {
-      if (!isMouseDown) return;
-      track.scrollLeft = scrollStart - (e.pageX - startX);
-    };
-    const onMouseUp = () => {
-      isMouseDown = false;
-      pausedRef.current = false;
+    // Seamless loop reset on scroll
+    const handleScroll = () => {
+      const w = first.offsetWidth;
+      if (!w) return;
+      if (track.scrollLeft >= w) track.scrollLeft -= w;
+      if (track.scrollLeft <= 0) track.scrollLeft += w;
     };
 
-    // ── Touch drag ──
-    let startTouchX = 0;
-    let scrollTouchStart = 0;
+    track.addEventListener("scroll", handleScroll, { passive: true });
+    // Start at the middle set so both directions work
+    track.scrollLeft = first.offsetWidth;
 
-    const onTouchStart = (e: TouchEvent) => {
-      pausedRef.current = true;
-      startTouchX = e.touches[0].pageX;
-      scrollTouchStart = track.scrollLeft;
-    };
-    const onTouchMove = (e: TouchEvent) => {
-      track.scrollLeft = scrollTouchStart - (e.touches[0].pageX - startTouchX);
-    };
-    const onTouchEnd = () => {
-      pausedRef.current = false;
-    };
-
-    track.addEventListener("mousedown", onMouseDown);
-    window.addEventListener("mousemove", onMouseMove);
-    window.addEventListener("mouseup", onMouseUp);
-    track.addEventListener("touchstart", onTouchStart, { passive: true });
-    track.addEventListener("touchmove", onTouchMove, { passive: true });
-    track.addEventListener("touchend", onTouchEnd);
-
-    // ── Auto-scroll loop ──
-    const step = () => {
-      if (!pausedRef.current) {
-        const w = first.offsetWidth;
-        if (w > 0) {
-          if (track.scrollLeft >= w) track.scrollLeft -= w;
-          track.scrollLeft += speed;
-        }
-      }
-      rafRef.current = requestAnimationFrame(step);
-    };
-    rafRef.current = requestAnimationFrame(step);
-
-    return () => {
-      cancelAnimationFrame(rafRef.current);
-      track.removeEventListener("mousedown", onMouseDown);
-      window.removeEventListener("mousemove", onMouseMove);
-      window.removeEventListener("mouseup", onMouseUp);
-      track.removeEventListener("touchstart", onTouchStart);
-      track.removeEventListener("touchmove", onTouchMove);
-      track.removeEventListener("touchend", onTouchEnd);
-    };
+    return () => track.removeEventListener("scroll", handleScroll);
   }, [reviews.length]);
 
   const MarqueeCard = ({ review }: { review: HomePageReview }) => {
@@ -349,17 +293,11 @@ function ReviewMarquee({ reviews }: { reviews: HomePageReview[] }) {
           navigate(`/courses/${review.course?.id || review.course_id}`)
         }
       >
-        {/* Decorative quote watermark */}
-        <span className="absolute top-3 right-4 text-5xl font-serif text-white/5 select-none leading-none">
-          "
-        </span>
+        <span className="absolute top-3 right-4 text-5xl font-serif text-white/5 select-none leading-none">"</span>
 
-        {/* Header */}
         <div className="flex items-start justify-between gap-3 mb-3">
           <div className="flex items-center gap-3 min-w-0">
-            <div
-              className={`relative shrink-0 w-10 h-10 rounded-full p-[2px] bg-gradient-to-br ${getAvatarGradient(review.user?.user_name)}`}
-            >
+            <div className={`relative shrink-0 w-10 h-10 rounded-full p-[2px] bg-gradient-to-br ${getAvatarGradient(review.user?.user_name)}`}>
               <div className="w-full h-full rounded-full bg-[#0b1120] flex items-center justify-center text-white font-semibold text-sm">
                 {getReviewerInitials(review.user?.user_name)}
               </div>
@@ -372,10 +310,7 @@ function ReviewMarquee({ reviews }: { reviews: HomePageReview[] }) {
                 <CheckCircle className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
               </div>
               {review.course?.course_name && (
-                <span
-                  className="inline-flex items-center gap-1 mt-0.5 rounded-full border border-cyan-400/20
-                bg-cyan-500/10 px-2 py-0.5 text-[10px] text-cyan-300 truncate max-w-[160px]"
-                >
+                <span className="inline-flex items-center gap-1 mt-0.5 rounded-full border border-cyan-400/20 bg-cyan-500/10 px-2 py-0.5 text-[10px] text-cyan-300 truncate max-w-[160px]">
                   {review.course.course_name}
                 </span>
               )}
@@ -386,17 +321,12 @@ function ReviewMarquee({ reviews }: { reviews: HomePageReview[] }) {
           </span>
         </div>
 
-        {/* Stars */}
         <Stars rating={Number(review.rating || 0)} />
 
-        {/* Review text */}
-        <p
-          className={`mt-3 text-gray-300 text-sm leading-relaxed ${isLong ? "line-clamp-4" : ""}`}
-        >
+        <p className={`mt-3 text-gray-300 text-sm leading-relaxed ${isLong ? "line-clamp-4" : ""}`}>
           "{text}"
         </p>
 
-        {/* Footer */}
         <div className="mt-4 pt-3 border-t border-white/5 text-xs text-gray-500">
           View Course →
         </div>
@@ -407,24 +337,21 @@ function ReviewMarquee({ reviews }: { reviews: HomePageReview[] }) {
   return (
     <div
       ref={trackRef}
-      className="overflow-x-hidden [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-      onMouseEnter={() => {
-        pausedRef.current = true;
-      }}
-      onMouseLeave={() => {
-        pausedRef.current = false;
-      }}
+      className="overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      style={{ touchAction: "pan-x pan-y", WebkitOverflowScrolling: "touch" } as React.CSSProperties}
     >
       <div className="flex py-2">
-        <div className="flex" ref={firstRef}>
-          {reviews.map((r) => (
-            <MarqueeCard key={`a-${r.id}`} review={r} />
-          ))}
-        </div>
+        {/* Set A */}
         <div className="flex">
-          {reviews.map((r) => (
-            <MarqueeCard key={`b-${r.id}`} review={r} />
-          ))}
+          {reviews.map((r) => <MarqueeCard key={`a-${r.id}`} review={r} />)}
+        </div>
+        {/* Set B — seamless clone */}
+        <div ref={firstRef} className="flex">
+          {reviews.map((r) => <MarqueeCard key={`b-${r.id}`} review={r} />)}
+        </div>
+        {/* Set C — buffer for leftward scroll */}
+        <div className="flex">
+          {reviews.map((r) => <MarqueeCard key={`c-${r.id}`} review={r} />)}
         </div>
       </div>
     </div>
@@ -560,7 +487,7 @@ export default function ReviewsSection({
           >
             What Students Say About{" "}
             <span className="bg-gradient-to-r from-cyan-300 via-sky-300 to-fuchsia-300 bg-clip-text text-transparent">
-              Artistic Vickey
+              AV Art Academy 
             </span>
           </motion.h2>
           <motion.p

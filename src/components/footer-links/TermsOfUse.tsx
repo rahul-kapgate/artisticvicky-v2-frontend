@@ -5,7 +5,7 @@ const TermsOfUse: React.FC = () => {
     <div className="max-w-4xl mx-auto px-6 pt-28 pb-12 text-gray-800 bg-white">
       <h1 className="text-4xl font-bold mb-6 text-purple-700">Terms of Use</h1>
       <p className="mb-4">
-        Welcome to <strong>Artistic Vickey</strong> (“we”, “us”, “our”). These Terms of Use (“Terms”) govern your access to and use of our website, services, courses and related content (collectively, the “Platform”). By accessing or using the Platform, you agree to be bound by these Terms. If you do not agree to all of these terms, please do **not** use the Platform.
+        Welcome to <strong>AV Art Academy</strong> (“we”, “us”, “our”). These Terms of Use (“Terms”) govern your access to and use of our website, services, courses and related content (collectively, the “Platform”). By accessing or using the Platform, you agree to be bound by these Terms. If you do not agree to all of these terms, please do **not** use the Platform.
       </p>
 
       <h2 className="text-2xl font-semibold mt-8 mb-4 text-purple-600">1. Eligibility</h2>

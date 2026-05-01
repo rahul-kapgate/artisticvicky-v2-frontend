@@ -8,6 +8,7 @@ import {
   Brush,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
 } from "lucide-react";
 import { apiClient } from "@/utils/axiosConfig";
 import type { Course, CourseResponse } from "@/types/course";
@@ -116,6 +117,21 @@ interface HomePageReviewResponse {
   message?: string;
   count?: number;
   data: HomePageReview[];
+}
+interface Faq {
+  id: number;
+  question: string;
+  answer: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+interface FaqResponse {
+  success: boolean;
+  message?: string;
+  count?: number;
+  data: Faq[];
 }
 
 // ─── Small pure components ────────────────────────────────────────────────────
@@ -389,6 +405,10 @@ function Home() {
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [faqs, setFaqs] = useState<Faq[]>([]);
+  const [faqsLoading, setFaqsLoading] = useState(true);
+  const [faqsError, setFaqsError] = useState<string | null>(null);
 
   const [studentArtworks, setStudentArtworks] = useState<StudentArtwork[]>([]);
   const [artworkLoading, setArtworkLoading] = useState(true);
@@ -456,27 +476,47 @@ function Home() {
     }
   }, []);
 
+  const fetchFaqs = useCallback(async () => {
+    try {
+      const res = await apiClient.get<FaqResponse>("/api/faqs");
+      if (res.data.success) setFaqs(res.data.data);
+      else throw new Error(res.data.message || "Failed to fetch FAQs");
+    } catch (err: any) {
+      setFaqsError(err.message || "Something went wrong");
+    } finally {
+      setFaqsLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     fetchCourses();
     fetchStudentArtworks();
     fetchHomePageReviews();
-  }, [fetchCourses, fetchStudentArtworks, fetchHomePageReviews]);
+    fetchFaqs();
+  }, [fetchCourses, fetchStudentArtworks, fetchHomePageReviews, fetchFaqs]);
+
+  const ORDER = [1,27, 26, 16, 12, 13, 24, 25];
+  const sortedCourses = [...courses].sort((a, b) => {
+    const aPos = ORDER.indexOf(a.id) === -1 ? 999 : ORDER.indexOf(a.id);
+    const bPos = ORDER.indexOf(b.id) === -1 ? 999 : ORDER.indexOf(b.id);
+    return aPos - bPos;
+  });
 
   // ── Artwork auto-scroll ──────────────────────────────────────────────────
-
   useEffect(() => {
     if (artworkLoading || studentArtworks.length === 0) return;
+
     const container = scrollContainerRef.current;
     const firstRow = firstRowRef.current;
     if (!container || !firstRow) return;
 
     let rafId: number;
     let isPaused = false;
+
+    // Mouse drag (desktop)
     let isMouseDown = false;
-    let startX = 0,
-      scrollStart = 0;
-    let startTouchX = 0,
-      scrollTouchStart = 0;
+    let startX = 0;
+    let scrollStart = 0;
 
     const onMouseDown = (e: MouseEvent) => {
       isMouseDown = true;
@@ -484,53 +524,61 @@ function Home() {
       startX = e.pageX;
       scrollStart = container.scrollLeft;
     };
+
     const onMouseMove = (e: MouseEvent) => {
-      if (isMouseDown) container.scrollLeft = scrollStart - (e.pageX - startX);
+      if (isMouseDown) {
+        container.scrollLeft = scrollStart - (e.pageX - startX);
+      }
     };
+
     const onMouseUp = () => {
       isMouseDown = false;
       isPaused = false;
     };
-    const onTouchStart = (e: TouchEvent) => {
+
+    // ── TOUCH (mobile) - ONLY pause/resume ─────────────────────────────
+    const onTouchStart = () => {
       isPaused = true;
-      startTouchX = e.touches[0].pageX;
-      scrollTouchStart = container.scrollLeft;
-    };
-    const onTouchMove = (e: TouchEvent) => {
-      container.scrollLeft =
-        scrollTouchStart - (e.touches[0].pageX - startTouchX);
-    };
-    const onTouchEnd = () => {
-      isPaused = false;
     };
 
+    const onTouchEnd = () => {
+      setTimeout(() => {
+        isPaused = false;
+      }, 400);
+    };
+
+    // Attach listeners
     container.addEventListener("mousedown", onMouseDown);
-    container.addEventListener("touchstart", onTouchStart, { passive: true });
-    container.addEventListener("touchmove", onTouchMove, { passive: true });
-    container.addEventListener("touchend", onTouchEnd);
     window.addEventListener("mousemove", onMouseMove);
     window.addEventListener("mouseup", onMouseUp);
 
+    container.addEventListener("touchstart", onTouchStart, { passive: true });
+    container.addEventListener("touchend", onTouchEnd, { passive: true });
+
+    // Auto-scroll loop
     const tick = () => {
       if (!isPaused) {
         const w = firstRow.offsetWidth;
         if (w > 0) {
-          if (container.scrollLeft >= w) container.scrollLeft -= w;
+          if (container.scrollLeft >= w) {
+            container.scrollLeft -= w; // seamless loop
+          }
           container.scrollLeft += 0.9;
         }
       }
       rafId = requestAnimationFrame(tick);
     };
+
     rafId = requestAnimationFrame(tick);
 
+    // Cleanup
     return () => {
       cancelAnimationFrame(rafId);
       container.removeEventListener("mousedown", onMouseDown);
-      container.removeEventListener("touchstart", onTouchStart);
-      container.removeEventListener("touchmove", onTouchMove);
-      container.removeEventListener("touchend", onTouchEnd);
       window.removeEventListener("mousemove", onMouseMove);
       window.removeEventListener("mouseup", onMouseUp);
+      container.removeEventListener("touchstart", onTouchStart);
+      container.removeEventListener("touchend", onTouchEnd);
     };
   }, [artworkLoading, studentArtworks.length]);
 
@@ -673,7 +721,7 @@ function Home() {
             >
               Welcome to{" "}
               <span className="bg-gradient-to-r from-[#3b82f6] via-[#60a5fa] to-[#22d3ee] bg-clip-text text-transparent">
-                Artistic Vickey
+                AV Art Academy
               </span>
             </motion.h1>
 
@@ -778,7 +826,7 @@ function Home() {
               🖼️ Students <span className="text-cyan-300">Artworks</span>
             </h2>
             <p className="text-gray-300 max-w-2xl mx-auto">
-              Explore beautiful creations made by students of Artistic Vickey
+              Explore beautiful creations made by students of AV Art Academy
               from different cities and backgrounds.
             </p>
           </div>
@@ -883,9 +931,10 @@ function Home() {
               }}
             >
               <div className="flex gap-6">
-                {courses.map((course, index) => {
+                {sortedCourses.map((course, index) => {
                   const s = CARD_STYLES[index % 3];
                   const isMasterclass = course.course_type === "masterclass";
+                  const isStudyMaterial = course.id === 16;
                   return (
                     <article
                       key={course.id}
@@ -895,7 +944,7 @@ function Home() {
                       <img
                         src={course.image}
                         alt={course.course_name}
-                        className="rounded-xl mb-4 h-48 w-full object-cover border border-white/10 group-hover:border-white/30 transition-all duration-300"
+                        className="rounded-xl mb-4 lg:h-80 h-55 w-full object-cover border border-white/10 group-hover:border-white/30 transition-all duration-300"
                         onError={(e) => {
                           e.currentTarget.onerror = null;
                         }}
@@ -905,9 +954,6 @@ function Home() {
                       >
                         {course.course_name}
                       </h3>
-                      <p className="text-gray-300 mb-3 line-clamp-3">
-                        {course.description}
-                      </p>
                       <div className="flex justify-between text-sm text-gray-300 mb-3">
                         <span>
                           {isMasterclass
@@ -944,7 +990,9 @@ function Home() {
                       >
                         {isMasterclass
                           ? "View Masterclass ✨"
-                          : "Enroll Now ✨"}
+                          : isStudyMaterial
+                            ? "Buy Now ✨"
+                            : "Enroll Now ✨"}
                       </button>
                     </article>
                   );
@@ -961,10 +1009,10 @@ function Home() {
       <section className="py-12 px-6 bg-gradient-to-b from-white via-purple-50 to-white">
         <div className="max-w-7xl mx-auto text-center">
           <h2 className="text-4xl font-bold mb-6 text-gray-800">
-            Why <span className="text-purple-600">Artistic Vickey?</span>
+            Why <span className="text-purple-600">AV Art Academy?</span>
           </h2>
           <p className="text-lg text-gray-600 mb-12 max-w-2xl mx-auto leading-relaxed">
-            Discover what makes Artistic Vickey a unique space for creativity,
+            Discover what makes AV Art Academy a unique space for creativity,
             passion, and meaningful artistic expression.
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -994,10 +1042,10 @@ function Home() {
       >
         <div className="max-w-6xl mx-auto text-center">
           <h2 className="text-4xl font-bold mb-6 text-gray-800">
-            About <span className="text-purple-600">Artistic Vickey</span>
+            About <span className="text-purple-600">AV Art Academy</span>
           </h2>
           <p className="text-lg text-gray-600 mb-12 max-w-3xl mx-auto leading-relaxed">
-            Artistic Vickey is more than just an art platform — it's a creative
+            AV Art Academy is more than just an art platform — it's a creative
             journey that blends imagination, emotion, and technique. Founded by
             Vickey, a passionate artist dedicated to exploring the beauty of
             colors, textures, and storytelling through art.
@@ -1021,7 +1069,7 @@ function Home() {
                 emotionally with its audience.
               </p>
               <p className="text-gray-700 mb-6 leading-relaxed">
-                Through <strong>Artistic Vickey</strong>, the goal is to inspire
+                Through <strong>AV Art Academy</strong>, the goal is to inspire
                 others to see art as a language that transcends boundaries —
                 celebrating creativity, diversity, and imagination.
               </p>
@@ -1042,6 +1090,92 @@ function Home() {
         homeReviewsError={homeReviewsError}
         reviewCount={reviewCount}
       />
+
+      {/* ══════════════ FAQ ══════════════ */}
+      <section
+        id="faq"
+        aria-labelledby="faq-heading"
+        className="py-16 px-6 bg-gradient-to-b from-white to-purple-50"
+      >
+        <div className="max-w-3xl mx-auto">
+          <h2
+            id="faq-heading"
+            className="text-4xl font-bold text-center mb-10 text-gray-800"
+          >
+            Frequently Asked <span className="text-purple-600">Questions</span>
+          </h2>
+
+          {faqsLoading ? (
+            <div className="space-y-4 animate-pulse">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="rounded-2xl border border-purple-100 bg-white shadow-sm h-16"
+                />
+              ))}
+            </div>
+          ) : faqsError ? (
+            <p className="text-center text-red-400">
+              Failed to load FAQs: {faqsError}
+            </p>
+          ) : faqs.length === 0 ? (
+            <p className="text-center text-gray-400">
+              No FAQs available yet. Stay tuned! ✨
+            </p>
+          ) : (
+            <dl className="space-y-4">
+              {faqs
+                .filter((faq) => faq.is_active)
+                .map((faq) => (
+                  <div
+                    key={faq.id}
+                    className="rounded-2xl border border-purple-100 bg-white shadow-sm overflow-hidden"
+                  >
+                    <dt>
+                      <button
+                        type="button"
+                        className="w-full flex items-center justify-between gap-4 px-6 py-5 text-left font-semibold text-gray-800 hover:bg-purple-50 transition-colors duration-200"
+                        aria-expanded={openFaq === faq.id}
+                        aria-controls={`faq-answer-${faq.id}`}
+                        onClick={() =>
+                          setOpenFaq(openFaq === faq.id ? null : faq.id)
+                        }
+                      >
+                        <span>{faq.question}</span>
+                        <ChevronDown
+                          className="w-5 h-5 text-purple-500 flex-shrink-0 transition-transform duration-300 ease-in-out"
+                          style={{
+                            transform:
+                              openFaq === faq.id
+                                ? "rotate(180deg)"
+                                : "rotate(0deg)",
+                          }}
+                          aria-hidden="true"
+                        />
+                      </button>
+                    </dt>
+                    <dd
+                      id={`faq-answer-${faq.id}`}
+                      role="region"
+                      style={{
+                        display: "grid",
+                        gridTemplateRows: openFaq === faq.id ? "1fr" : "0fr",
+                        transition:
+                          "grid-template-rows 320ms cubic-bezier(0.4, 0, 0.2, 1)",
+                      }}
+                    >
+                      <div style={{ overflow: "hidden" }}>
+                        <p className="px-6 py-4 text-gray-600 leading-relaxed border-t border-purple-50">
+                          {faq.answer}
+                        </p>
+                      </div>
+                    </dd>
+                  </div>
+                ))}
+            </dl>
+          )}
+        </div>
+      </section>
     </div>
   );
 }

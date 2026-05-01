@@ -1,4 +1,4 @@
-import  { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { MessageSquareText } from "lucide-react";
 import { apiClient } from "@/utils/axiosConfig";
 import CourseReviewDialog from "@/components/CourseReviewDialog";
@@ -19,8 +19,6 @@ export default function CourseReviewGate({
   courseId,
   autoOpen = false,
 }: Props) {
-  const [loading, setLoading] = useState(true);
-  const [shouldShowPrompt, setShouldShowPrompt] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
 
   useEffect(() => {
@@ -28,29 +26,22 @@ export default function CourseReviewGate({
 
     const fetchReviewStatus = async () => {
       try {
-        setLoading(true);
-
         const { data } = await apiClient.get(
           `/api/course-reviews/me/course/${courseId}`,
         );
 
         const reviewStatus: ReviewStatusResponse | undefined = data?.data;
 
-        const show =
-          !!reviewStatus?.canReview && !reviewStatus?.hasReviewed;
+        const show = !!reviewStatus?.canReview && !reviewStatus?.hasReviewed;
 
         if (!mounted) return;
-
-        setShouldShowPrompt(show);
 
         if (show && autoOpen) {
           setDialogOpen(true);
         }
       } catch {
         if (!mounted) return;
-        setShouldShowPrompt(false);
       } finally {
-        if (mounted) setLoading(false);
       }
     };
 
@@ -62,8 +53,6 @@ export default function CourseReviewGate({
       mounted = false;
     };
   }, [courseId, autoOpen]);
-
-  if (loading || !shouldShowPrompt) return null;
 
   return (
     <>
@@ -99,7 +88,6 @@ export default function CourseReviewGate({
         onClose={() => setDialogOpen(false)}
         courseId={courseId}
         onSubmitted={() => {
-          setShouldShowPrompt(false);
           setDialogOpen(false);
         }}
       />

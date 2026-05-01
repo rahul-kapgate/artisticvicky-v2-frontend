@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
+import { useParams } from "react-router-dom"; // ✅ grab courseId from URL
 import { apiClient } from "@/utils/axiosConfig";
 import { toast } from "sonner";
 import {
@@ -10,9 +11,15 @@ import {
   ListVideo,
   PanelRightClose,
   PanelRightOpen,
+  Search,
+  X,
+  SkipForward,
+  SkipBack,
 } from "lucide-react";
-import { Skeleton } from "@/components/ui/skeleton";
 
+/* ------------------------------------------------------------------ */
+/*  Types                                                              */
+/* ------------------------------------------------------------------ */
 interface Video {
   id: number;
   title: string;
@@ -28,357 +35,544 @@ interface Section {
   id: number;
   title: string;
   description?: string;
+  course_id: number; // ✅ added
   created_at: string;
   video_lectures?: Video[];
 }
 
+/* ------------------------------------------------------------------ */
+/*  Helpers                                                            */
+/* ------------------------------------------------------------------ */
+const YOUTUBE_PATTERNS = [
+  /youtu\.be\/([0-9A-Za-z_-]{11})/,
+  /v=([0-9A-Za-z_-]{11})/,
+  /\/embed\/([0-9A-Za-z_-]{11})/,
+  /\/shorts\/([0-9A-Za-z_-]{11})/,
+];
+
+function extractVideoId(url: string): string | null {
+  for (const p of YOUTUBE_PATTERNS) {
+    const m = url.match(p);
+    if (m?.[1]) return m[1];
+  }
+  return null;
+}
+
+function formatDuration(mins?: number): string {
+  if (typeof mins !== "number") return "—";
+  if (mins < 60) return `${mins} min`;
+  const h = Math.floor(mins / 60);
+  const m = mins % 60;
+  return m > 0 ? `${h}h ${m}m` : `${h}h`;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Skeleton shimmer                                                   */
+/* ------------------------------------------------------------------ */
+function Shimmer({ className = "" }: { className?: string }) {
+  return (
+    <div className={`rounded-lg bg-white/[0.04] animate-pulse ${className}`} />
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  Section item (memoisation-friendly)                                */
+/* ------------------------------------------------------------------ */
+function SectionItem({
+  section,
+  isOpen,
+  currentVideoId,
+  onToggle,
+  onSelect,
+}: {
+  section: Section;
+  isOpen: boolean;
+  currentVideoId: number | null;
+  onToggle: (id: number) => void;
+  onSelect: (v: Video) => void;
+}) {
+  const lectures = section.video_lectures ?? [];
+  const totalMins = lectures.reduce((s, v) => s + (v.duration ?? 0), 0);
+
+  return (
+    <div>
+      {/* Section header */}
+      <button
+        type="button"
+        onClick={() => onToggle(section.id)}
+        className="w-full flex items-center gap-2.5 px-4 py-3
+                   hover:bg-white/[0.03] transition-colors group"
+      >
+        <span className="text-gray-500 group-hover:text-gray-400 transition-colors">
+          {isOpen ? (
+            <ChevronDown className="w-3.5 h-3.5" />
+          ) : (
+            <ChevronRight className="w-3.5 h-3.5" />
+          )}
+        </span>
+
+        <div className="flex-1 min-w-0 text-left">
+          <p className="text-[13px] font-medium text-gray-200 truncate leading-tight">
+            {section.title}
+          </p>
+          <p className="text-[11px] text-gray-500 mt-0.5">
+            {lectures.length} lecture{lectures.length !== 1 && "s"}
+            {totalMins > 0 && ` · ${formatDuration(totalMins)}`}
+          </p>
+        </div>
+      </button>
+
+      {/* Lecture list */}
+      {isOpen && (
+        <div className="pb-1">
+          {lectures.length === 0 ? (
+            <p className="px-10 py-2 text-[11px] text-gray-600 italic">
+              No videos yet.
+            </p>
+          ) : (
+            lectures.map((video, idx) => {
+              const active = currentVideoId === video.id;
+              return (
+                <button
+                  key={video.id}
+                  type="button"
+                  onClick={() => onSelect(video)}
+                  className={`
+                    w-full flex items-center gap-3 pl-10 pr-4 py-2 text-left
+                    transition-colors duration-150
+                    ${
+                      active
+                        ? "bg-cyan-500/[0.08] text-cyan-300"
+                        : "text-gray-400 hover:bg-white/[0.03] hover:text-gray-200"
+                    }
+                  `}
+                >
+                  <span className="shrink-0">
+                    {active ? (
+                      <CheckCircle2 className="w-3.5 h-3.5 text-cyan-400" />
+                    ) : (
+                      <PlayCircle className="w-3.5 h-3.5" />
+                    )}
+                  </span>
+
+                  <span className="flex-1 min-w-0 text-[12px] leading-snug truncate">
+                    {idx + 1}. {video.title}
+                  </span>
+
+                  <span className="shrink-0 text-[10px] text-gray-600 tabular-nums">
+                    {formatDuration(video.duration)}
+                  </span>
+
+                  {video.is_free && (
+                    <span
+                      className="shrink-0 text-[9px] px-1.5 py-0.5 rounded-full
+                                     border border-emerald-500/30 text-emerald-400 font-medium uppercase tracking-wider"
+                    >
+                      Free
+                    </span>
+                  )}
+                </button>
+              );
+            })
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  Main component                                                     */
+/* ------------------------------------------------------------------ */
 export default function VideoLectures() {
+  // ✅ Pull courseId from /my-courses/:courseId/lectures (or whatever your route is)
+  const { courseId } = useParams<{ courseId: string }>();
+
   const [sections, setSections] = useState<Section[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentVideo, setCurrentVideo] = useState<Video | null>(null);
-  const [expandedSections, setExpandedSections] = useState<number[]>([]);
+  const [expandedSections, setExpandedSections] = useState<Set<number>>(
+    new Set(),
+  );
   const [showMobileContent, setShowMobileContent] = useState(false);
-
-  // ✅ Desktop: Max view toggle (hide sidebar)
   const [showSidebar, setShowSidebar] = useState(true);
+  const [search, setSearch] = useState("");
 
+  /* ── Fetch sections scoped to this course ───────────────────── */
   useEffect(() => {
-    const fetchSections = async () => {
+    if (!courseId) return;
+
+    let cancelled = false;
+    (async () => {
       setLoading(true);
       try {
         const { data } = await apiClient.get<{
           success: boolean;
           data: Section[];
-        }>("/api/section");
-
+        }>("/api/section", {
+          params: { course_id: courseId }, // ✅ pass course_id as query param
+        });
+        if (cancelled) return;
         if (data.success) {
-          const fetchedSections = data.data || [];
-          setSections(fetchedSections);
-
-          const firstVideo = fetchedSections[0]?.video_lectures?.[0] || null;
-          if (firstVideo) setCurrentVideo(firstVideo);
-
-          setExpandedSections(fetchedSections.map((s) => s.id));
+          const s = data.data ?? [];
+          setSections(s);
+          if (s[0]?.video_lectures?.[0])
+            setCurrentVideo(s[0].video_lectures[0]);
+          setExpandedSections(new Set(s.map((sec) => sec.id)));
         }
       } catch {
         toast.error("Failed to load video lectures");
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
+    })();
+    return () => {
+      cancelled = true;
     };
+  }, [courseId]); // ✅ re-fetch when courseId changes
 
-    fetchSections();
-  }, []);
+  /* ── Flat ordered list for prev/next ────────────────────────── */
+  const allVideos = useMemo(
+    () => sections.flatMap((s) => s.video_lectures ?? []),
+    [sections],
+  );
 
-  const extractVideoId = (url: string): string | null => {
-    // supports:
-    // - youtu.be/<id>
-    // - youtube.com/watch?v=<id>
-    // - youtube.com/embed/<id>
-    // - youtube.com/shorts/<id>
-    const patterns = [
-      /youtu\.be\/([0-9A-Za-z_-]{11})/,
-      /v=([0-9A-Za-z_-]{11})/,
-      /\/embed\/([0-9A-Za-z_-]{11})/,
-      /\/shorts\/([0-9A-Za-z_-]{11})/,
-    ];
+  const currentIndex = useMemo(
+    () =>
+      currentVideo ? allVideos.findIndex((v) => v.id === currentVideo.id) : -1,
+    [allVideos, currentVideo],
+  );
 
-    for (const p of patterns) {
-      const m = url.match(p);
-      if (m?.[1]) return m[1];
-    }
-    return null;
-  };
+  const canPrev = currentIndex > 0;
+  const canNext = currentIndex >= 0 && currentIndex < allVideos.length - 1;
 
-  const currentEmbedSrc = useMemo(() => {
+  const goNext = useCallback(() => {
+    if (canNext) setCurrentVideo(allVideos[currentIndex + 1]);
+  }, [canNext, allVideos, currentIndex]);
+
+  const goPrev = useCallback(() => {
+    if (canPrev) setCurrentVideo(allVideos[currentIndex - 1]);
+  }, [canPrev, allVideos, currentIndex]);
+
+  /* ── Embed URL ──────────────────────────────────────────────── */
+  const embedSrc = useMemo(() => {
     if (!currentVideo) return "";
     const id = extractVideoId(currentVideo.youtube_url);
-
-    // ✅ Standard YouTube embed with settings + fullscreen enabled
-    // rel=0 keeps related videos more relevant (still YouTube-controlled)
-    // modestbranding=1 is cosmetic (doesn't break settings)
-    // fs=1 ensures fullscreen is allowed
-    if (id) {
-      const params = new URLSearchParams({
-        rel: "0",
-        modestbranding: "1",
-        fs: "1",
-        playsinline: "1",
-      });
-      return `https://www.youtube.com/embed/${id}?${params.toString()}`;
-    }
-
-    // fallback if url is already an embed link or something custom
-    return currentVideo.youtube_url;
+    if (!id) return currentVideo.youtube_url;
+    const params = new URLSearchParams({
+      rel: "0",
+      modestbranding: "1",
+      fs: "1",
+      playsinline: "1",
+    });
+    return `https://www.youtube.com/embed/${id}?${params}`;
   }, [currentVideo]);
 
-  const totalLectures = useMemo(() => {
-    return sections.reduce(
-      (sum, s) => sum + (s.video_lectures ? s.video_lectures.length : 0),
-      0
-    );
-  }, [sections]);
+  /* ── Stats ──────────────────────────────────────────────────── */
+  const totalLectures = allVideos.length;
+  const totalDuration = useMemo(
+    () => allVideos.reduce((s, v) => s + (v.duration ?? 0), 0),
+    [allVideos],
+  );
 
-  const toggleSection = (id: number) => {
-    setExpandedSections((prev) =>
-      prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]
-    );
-  };
+  /* ── Sidebar helpers ────────────────────────────────────────── */
+  const toggleSection = useCallback((id: number) => {
+    setExpandedSections((prev) => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  }, []);
 
-  const onSelectVideo = (video: Video) => {
+  const onSelectVideo = useCallback((video: Video) => {
     setCurrentVideo(video);
-    // ✅ On mobile, close content after selecting for better viewing
     setShowMobileContent(false);
-  };
+  }, []);
+
+  /* ── Filtered sections for search ───────────────────────────── */
+  const filteredSections = useMemo(() => {
+    if (!search.trim()) return sections;
+    const q = search.toLowerCase();
+    return sections
+      .map((s) => ({
+        ...s,
+        video_lectures: (s.video_lectures ?? []).filter(
+          (v) =>
+            v.title.toLowerCase().includes(q) ||
+            v.description?.toLowerCase().includes(q),
+        ),
+      }))
+      .filter(
+        (s) =>
+          s.title.toLowerCase().includes(q) ||
+          (s.video_lectures?.length ?? 0) > 0,
+      );
+  }, [sections, search]);
+
+  /* ── Keyboard shortcuts ─────────────────────────────────────── */
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if ((e.target as HTMLElement).tagName === "INPUT") return;
+      if (e.shiftKey && e.key === "ArrowRight") {
+        e.preventDefault();
+        goNext();
+      }
+      if (e.shiftKey && e.key === "ArrowLeft") {
+        e.preventDefault();
+        goPrev();
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [goNext, goPrev]);
+
+  /* ── Guard: no courseId ─────────────────────────────────────── */
+  if (!courseId) {
+    return (
+      <div className="min-h-screen bg-[#07090f] flex items-center justify-center">
+        <p className="text-gray-400 text-sm">Invalid course URL.</p>
+      </div>
+    );
+  }
 
   return (
-    <section className="min-h-screen bg-slate-950 text-gray-100 pt-[12vh] pb-6">
-      <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8">
-        {/* Top controls */}
-        <div className="flex items-center justify-between gap-3 mb-3">
+    <section className="min-h-screen bg-[#07090f] text-gray-100 pt-[15vh] pb-8">
+      <div className="max-w-[1440px] mx-auto px-3 sm:px-5 lg:px-8">
+        {/* ── Top bar ──────────────────────────────────────────── */}
+        <div className="flex items-center justify-between gap-4 mb-4">
           <div className="min-w-0">
-            <h1 className="text-base sm:text-lg font-semibold text-white truncate">
+            <h1 className="text-lg sm:text-xl font-semibold text-white tracking-tight truncate">
               Video Lectures
             </h1>
-            <p className="text-[11px] text-slate-400">
-              {sections.length} sections • {totalLectures} lectures
+            <p className="text-[11px] text-gray-500 mt-0.5">
+              {sections.length} section{sections.length !== 1 && "s"} ·{" "}
+              {totalLectures} lecture{totalLectures !== 1 && "s"}
+              {totalDuration > 0 && ` · ${formatDuration(totalDuration)} total`}
             </p>
           </div>
 
-          {/* ✅ Desktop max view toggle */}
           <button
             type="button"
             onClick={() => setShowSidebar((p) => !p)}
-            className="hidden lg:inline-flex items-center gap-2 rounded-xl border border-slate-800 bg-slate-900 px-3 py-2 text-xs font-medium text-slate-100 shadow-sm hover:bg-slate-800/70 transition"
+            className="hidden lg:inline-flex items-center gap-2 rounded-xl
+                       border border-white/[0.06] bg-white/[0.03] px-3 py-2
+                       text-xs font-medium text-gray-300
+                       hover:bg-white/[0.06] transition"
           >
             {showSidebar ? (
               <>
-                <PanelRightClose className="w-4 h-4" />
-                <span>Max view</span>
+                <PanelRightClose className="w-4 h-4" /> Max view
               </>
             ) : (
               <>
-                <PanelRightOpen className="w-4 h-4" />
-                <span>Show content</span>
+                <PanelRightOpen className="w-4 h-4" /> Show content
               </>
             )}
           </button>
         </div>
 
+        {/* ── Main layout ──────────────────────────────────────── */}
         <div
-          className={`flex flex-col lg:flex-row gap-4 lg:gap-6 ${
-            showSidebar ? "" : "lg:block"
-          }`}
+          className={`flex flex-col lg:flex-row gap-4 lg:gap-5 ${showSidebar ? "" : "lg:block"}`}
         >
-          {/* 🎬 Left: Player */}
+          {/* ── Player column ──────────────────────────────────── */}
           <main className="flex-1 min-w-0">
-            <div className="bg-slate-900 rounded-2xl overflow-hidden border border-slate-800 shadow-xl">
+            <div className="rounded-2xl overflow-hidden border border-white/[0.06] bg-[#0c0f18] shadow-2xl shadow-black/30">
+              {/* Video area */}
               {loading ? (
-                <Skeleton className="w-full aspect-video bg-slate-800" />
+                <Shimmer className="w-full aspect-video rounded-none" />
               ) : currentVideo ? (
                 <div className="relative w-full aspect-video bg-black">
                   <iframe
-                    src={currentEmbedSrc}
+                    key={currentVideo.id}
+                    src={embedSrc}
                     title={currentVideo.title}
                     className="absolute inset-0 w-full h-full"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
                     allowFullScreen
                     loading="lazy"
                   />
                 </div>
               ) : (
-                <div className="w-full aspect-video flex items-center justify-center text-slate-400 text-sm">
-                  No video selected yet.
+                <div className="w-full aspect-video flex items-center justify-center text-gray-600 text-sm">
+                  No video selected.
                 </div>
               )}
 
-              {/* Current lecture info */}
+              {/* Info + controls below player */}
               <div className="p-4 sm:p-5">
                 {loading ? (
                   <div className="space-y-3">
-                    <Skeleton className="h-7 w-2/3 bg-slate-800" />
-                    <Skeleton className="h-4 w-full bg-slate-800" />
-                    <Skeleton className="h-4 w-3/4 bg-slate-800" />
+                    <Shimmer className="h-6 w-2/3" />
+                    <Shimmer className="h-4 w-full" />
+                    <Shimmer className="h-4 w-3/4" />
                   </div>
                 ) : currentVideo ? (
                   <>
-                    <p className="text-[11px] uppercase tracking-[0.18em] text-cyan-400 mb-1">
+                    <p className="text-[10px] uppercase tracking-[0.2em] text-cyan-500/80 font-semibold mb-1.5">
                       Now Playing
                     </p>
-                    <h2 className="text-lg sm:text-2xl font-semibold text-white mb-2">
+
+                    <h2 className="text-base sm:text-xl font-semibold text-white leading-snug mb-2">
                       {currentVideo.title}
                     </h2>
-                    <p className="text-sm text-slate-300 mb-4">
-                      {currentVideo.description || "No description provided."}
-                    </p>
 
-                    <div className="flex flex-wrap items-center gap-4 text-xs text-slate-400">
-                      <div className="flex items-center gap-1.5">
-                        <Clock className="w-4 h-4" />
-                        <span>
-                          {typeof currentVideo.duration === "number"
-                            ? `${currentVideo.duration} min`
-                            : "—"}
-                        </span>
-                      </div>
+                    {currentVideo.description && (
+                      <p className="text-sm text-gray-400 leading-relaxed mb-4 line-clamp-3">
+                        {currentVideo.description}
+                      </p>
+                    )}
+
+                    <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-[11px] text-gray-500 mb-4">
+                      <span className="inline-flex items-center gap-1.5">
+                        <Clock className="w-3.5 h-3.5" />
+                        {formatDuration(currentVideo.duration)}
+                      </span>
 
                       <span>
-                        Published on{" "}
                         {new Date(currentVideo.created_at).toLocaleDateString(
-                          undefined,
-                          { year: "numeric", month: "short", day: "numeric" }
+                          "en-IN",
+                          {
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                          },
                         )}
                       </span>
 
                       {currentVideo.is_free && (
-                        <span className="px-2 py-0.5 rounded-full border border-emerald-400/60 text-emerald-300 text-[11px] font-medium">
+                        <span className="px-2 py-0.5 rounded-full border border-emerald-500/30 text-emerald-400 text-[10px] font-medium">
                           Free Preview
                         </span>
                       )}
                     </div>
+
+                    <div className="flex items-center gap-2 pt-3 border-t border-white/[0.05]">
+                      <button
+                        type="button"
+                        disabled={!canPrev}
+                        onClick={goPrev}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg
+                                   text-xs font-medium text-gray-400
+                                   bg-white/[0.04] hover:bg-white/[0.07]
+                                   disabled:opacity-30 disabled:pointer-events-none transition"
+                      >
+                        <SkipBack className="w-3.5 h-3.5" /> Previous
+                      </button>
+
+                      <button
+                        type="button"
+                        disabled={!canNext}
+                        onClick={goNext}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg
+                                   text-xs font-medium text-gray-400
+                                   bg-white/[0.04] hover:bg-white/[0.07]
+                                   disabled:opacity-30 disabled:pointer-events-none transition"
+                      >
+                        Next <SkipForward className="w-3.5 h-3.5" />
+                      </button>
+
+                      <span className="ml-auto text-[10px] text-gray-600 tabular-nums hidden sm:block">
+                        {currentIndex + 1} of {totalLectures}
+                      </span>
+                    </div>
                   </>
                 ) : (
-                  <p className="text-sm text-slate-400">
-                    Select a lecture from the course content to start watching.
+                  <p className="text-sm text-gray-500">
+                    Select a lecture from the course content.
                   </p>
                 )}
               </div>
             </div>
 
-            {/* 📱 Mobile: toggle for course content */}
+            {/* Mobile toggle */}
             <div className="mt-3 lg:hidden">
               <button
                 type="button"
-                onClick={() => setShowMobileContent((prev) => !prev)}
-                className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-slate-800 bg-slate-900 px-3 py-2 text-xs font-medium text-slate-100 shadow-sm active:scale-[0.99] transition"
+                onClick={() => setShowMobileContent((p) => !p)}
+                className="w-full inline-flex items-center justify-center gap-2 rounded-xl
+                           border border-white/[0.06] bg-white/[0.03] px-3 py-2.5
+                           text-xs font-medium text-gray-300 active:scale-[0.99] transition"
               >
                 <ListVideo className="w-4 h-4" />
-                <span>Course content</span>
-                {showMobileContent ? (
-                  <ChevronDown className="w-4 h-4 rotate-180" />
-                ) : (
-                  <ChevronDown className="w-4 h-4" />
-                )}
+                Course content
+                <ChevronDown
+                  className={`w-4 h-4 transition-transform ${showMobileContent ? "rotate-180" : ""}`}
+                />
               </button>
             </div>
           </main>
 
-          {/* 📚 Right: Course Content sidebar */}
+          {/* ── Sidebar ────────────────────────────────────────── */}
           {showSidebar && (
             <aside
               className={`
-                w-full lg:w-[320px] xl:w-[340px]
-                ${showMobileContent ? "block" : "hidden"}
-                lg:block
+                w-full lg:w-[320px] xl:w-[350px] shrink-0
+                ${showMobileContent ? "block" : "hidden"} lg:block
               `}
             >
-              <div className="bg-slate-900 rounded-2xl border border-slate-800 shadow-xl max-h-[55vh] sm:max-h-[60vh] lg:max-h-[80vh] flex flex-col overflow-hidden mt-3 lg:mt-0">
-                <div className="px-4 py-3 border-b border-slate-800">
-                  <h3 className="text-sm font-semibold text-white">
+              <div
+                className="rounded-2xl border border-white/[0.06] bg-[#0c0f18]
+                              shadow-xl max-h-[55vh] sm:max-h-[60vh] lg:max-h-[82vh]
+                              flex flex-col overflow-hidden mt-3 lg:mt-0"
+              >
+                {/* Sidebar header */}
+                <div className="px-4 pt-3 pb-2 border-b border-white/[0.05]">
+                  <h3 className="text-sm font-semibold text-white mb-2">
                     Course content
                   </h3>
-                  <p className="text-[11px] text-slate-400 mt-0.5">
-                    {sections.length} sections • {totalLectures} lectures
-                  </p>
+
+                  {/* Search */}
+                  <div className="relative mb-1">
+                    <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-600" />
+                    <input
+                      type="text"
+                      value={search}
+                      onChange={(e) => setSearch(e.target.value)}
+                      placeholder="Search lectures…"
+                      className="w-full pl-8 pr-7 py-1.5 rounded-lg text-[12px]
+                                 bg-white/[0.04] border border-white/[0.06]
+                                 text-gray-300 placeholder:text-gray-600
+                                 focus:outline-none focus:border-white/[0.12] transition-colors"
+                    />
+                    {search && (
+                      <button
+                        onClick={() => setSearch("")}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-400"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    )}
+                  </div>
                 </div>
 
+                {/* Section list */}
                 {loading ? (
                   <div className="p-4 space-y-3">
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <Skeleton
-                        key={i}
-                        className="w-full h-6 rounded bg-slate-800"
-                      />
+                    {Array.from({ length: 6 }).map((_, i) => (
+                      <Shimmer key={i} className="w-full h-5" />
                     ))}
                   </div>
+                ) : filteredSections.length === 0 ? (
+                  <div className="px-4 py-8 text-center">
+                    <p className="text-xs text-gray-600">
+                      {search
+                        ? `No results for "${search}"`
+                        : "No sections available yet."}
+                    </p>
+                  </div>
                 ) : (
-                  <div className="flex-1 overflow-y-auto">
-                    {sections.length === 0 ? (
-                      <p className="text-xs text-slate-400 px-4 py-3">
-                        No sections available yet.
-                      </p>
-                    ) : (
-                      <div className="divide-y divide-slate-800">
-                        {sections.map((section) => {
-                          const isOpen = expandedSections.includes(section.id);
-                          const lectureCount = section.video_lectures?.length ?? 0;
-
-                          return (
-                            <div key={section.id} className="text-sm">
-                              {/* Section header */}
-                              <button
-                                type="button"
-                                onClick={() => toggleSection(section.id)}
-                                className="w-full flex items-center justify-between px-4 py-3 bg-slate-900 hover:bg-slate-800/80 transition-colors"
-                              >
-                                <div className="flex items-center gap-2 min-w-0">
-                                  {isOpen ? (
-                                    <ChevronDown className="w-4 h-4 text-slate-400" />
-                                  ) : (
-                                    <ChevronRight className="w-4 h-4 text-slate-400" />
-                                  )}
-                                  <span className="font-medium text-slate-100 text-left truncate">
-                                    {section.title}
-                                  </span>
-                                </div>
-                                <span className="text-[11px] text-slate-400 whitespace-nowrap">
-                                  {lectureCount} lecture{lectureCount !== 1 && "s"}
-                                </span>
-                              </button>
-
-                              {/* Lectures */}
-                              {isOpen && (
-                                <div className="bg-slate-900/70">
-                                  {section.video_lectures?.length ? (
-                                    section.video_lectures.map((video, index) => {
-                                      const isActive = currentVideo?.id === video.id;
-
-                                      return (
-                                        <button
-                                          key={video.id}
-                                          type="button"
-                                          onClick={() => onSelectVideo(video)}
-                                          className={`w-full flex items-center gap-3 px-4 py-2.5 text-left text-xs border-t border-slate-800/60 hover:bg-slate-800/60 transition-colors ${
-                                            isActive
-                                              ? "bg-slate-800 text-cyan-200"
-                                              : "text-slate-200"
-                                          }`}
-                                        >
-                                          <div className="flex items-center justify-center w-5">
-                                            {isActive ? (
-                                              <CheckCircle2 className="w-4 h-4" />
-                                            ) : (
-                                              <PlayCircle className="w-4 h-4" />
-                                            )}
-                                          </div>
-
-                                          <div className="flex-1 min-w-0">
-                                            <div className="flex items-center justify-between gap-2">
-                                              <span className="truncate">
-                                                {index + 1}. {video.title}
-                                              </span>
-                                              <span className="whitespace-nowrap text-[11px] text-slate-400">
-                                                {typeof video.duration === "number"
-                                                  ? `${video.duration} min`
-                                                  : "—"}
-                                              </span>
-                                            </div>
-                                          </div>
-                                        </button>
-                                      );
-                                    })
-                                  ) : (
-                                    <p className="px-4 py-2 text-[11px] text-slate-400 italic">
-                                      No videos in this section yet.
-                                    </p>
-                                  )}
-                                </div>
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
+                  <div className="flex-1 overflow-y-auto divide-y divide-white/[0.04]">
+                    {filteredSections.map((section) => (
+                      <SectionItem
+                        key={section.id}
+                        section={section}
+                        isOpen={expandedSections.has(section.id)}
+                        currentVideoId={currentVideo?.id ?? null}
+                        onToggle={toggleSection}
+                        onSelect={onSelectVideo}
+                      />
+                    ))}
                   </div>
                 )}
               </div>

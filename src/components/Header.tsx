@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import Register from "./Register";
 import ForgotPassword from "./ForgotPassword";
 import ArtAvatar from "@/components/avatar/ArtAvatar";
+import logo from "@/assets/av-art.jpeg";
 
 function Header() {
   const [isOpen, setIsOpen] = useState(false);
@@ -16,7 +17,7 @@ function Header() {
   const location = useLocation();
   const { user, logout } = useContext(AuthContext);
 
-  // avatar_id 
+  // avatar_id
   const avatarId = user?.avatar_id ?? 0;
 
   const [loginOpen, setLoginOpen] = useState(false);
@@ -93,25 +94,36 @@ function Header() {
         <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
           {/* Logo */}
           <Link
-            to="/"
-            onClick={(e) => {
-              e.preventDefault();
-              if (location.pathname !== "/") {
-                navigate("/");
-                setTimeout(
-                  () => window.scrollTo({ top: 0, behavior: "smooth" }),
-                  300,
-                );
-              } else {
-                window.scrollTo({ top: 0, behavior: "smooth" });
-              }
-            }}
-            className="text-2xl md:text-3xl font-bold tracking-tight flex items-center gap-1 cursor-pointer select-none"
-          >
-            <span className="text-blue-600">Artistic</span>
-            <span className="text-white">Vickey</span>
-          </Link>
-
+  to="/"
+  onClick={(e) => {
+    e.preventDefault();
+    if (location.pathname !== "/") {
+      navigate("/");
+      setTimeout(
+        () => window.scrollTo({ top: 0, behavior: "smooth" }),
+        300,
+      );
+    } else {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }}
+  className="flex items-center gap-3 cursor-pointer select-none group"
+>
+  <img
+    src={logo}
+    alt="AV Art Academy Logo"
+    className="h-10 w-10 object-contain rounded-lg group-hover:scale-105 transition-transform duration-300"
+  />
+  <div className="flex flex-col leading-tight">
+    <span className="text-xl md:text-2xl font-bold tracking-tight">
+      <span className="text-cyan-400">AV Art</span>
+      <span className="text-white"> Academy</span>
+    </span>
+    <span className="text-[10px] text-gray-400 tracking-widest uppercase hidden md:block">
+      Inspire. Create. Master.
+    </span>
+  </div>
+</Link>
           {/* Desktop Nav */}
           <nav className="hidden md:flex items-center space-x-8 font-medium">
             <button

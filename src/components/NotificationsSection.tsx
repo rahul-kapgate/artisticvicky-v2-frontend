@@ -133,8 +133,8 @@ export default function NotificationsSection() {
               Latest Updates &amp; Notifications
             </h2>
             <p className="text-xs text-gray-300 mt-1">
-              Important announcements related to MAH AAC CET and Artistic
-              Vickey.
+              Important announcements related to MAH AAC CET and AV Art
+              Academy.
             </p>
           </div>
         </div>

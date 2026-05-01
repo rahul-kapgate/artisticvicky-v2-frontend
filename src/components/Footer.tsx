@@ -90,8 +90,8 @@ function Footer() {
             onClick={handleHomeClick}
             className="inline-flex items-center gap-1 text-xl font-extrabold tracking-tight mb-3"
           >
-            <span className="text-blue-400">Artistic</span>
-            <span className="text-white">Vickey</span>
+            <span className="text-blue-400">AV Art</span>
+            <span className="text-white">Academy</span>
           </Link>
           <p className="text-xs text-slate-500 leading-relaxed mb-4">
             India's #1 online coaching for MAH AAC CET. Learn perspective,
@@ -256,7 +256,7 @@ function Footer() {
       <div className="relative z-10 max-w-7xl mx-auto px-6 mt-10 py-4 border-t border-indigo-900/20 flex flex-col sm:flex-row items-center justify-between gap-3">
         <p className="text-[12px] text-slate-700">
           © {new Date().getFullYear()}{" "}
-          <span className="text-indigo-500">ArtisticVickey</span>. All rights
+          <span className="text-indigo-500">AV Art Academy</span>. All rights
           reserved.
         </p>
       </div>
