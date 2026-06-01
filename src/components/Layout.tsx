@@ -4,34 +4,39 @@ import Footer from "./Footer";
 import { Toaster } from "@/components/ui/sonner";
 import TrustStrip from "./TrustStrip";
 
-/**
- * Layout wrapper for all pages
- * - Renders Header and Footer by default
- * - Hides them for specific routes (e.g. fullscreen pages)
- */
 export default function Layout() {
   const location = useLocation();
 
-  // 🚫 Routes where we don't want Header/Footer
-  const noLayoutRoutes = ["/my-courses/:id/mock-test", "/my-courses/:id/pyq-mock-test"];
+  // Routes where Header/Footer should be hidden
+  const noLayoutRoutes = [
+    "/my-courses/:id/mock-test",
+    "/my-courses/:id/pyq-mock-test",
+  ];
 
-  // ✅ Check dynamic route match
   const hideLayout = noLayoutRoutes.some((pattern) => {
     const regex = new RegExp("^" + pattern.replace(":id", "[^/]+") + "$");
     return regex.test(location.pathname);
   });
 
+  // Show TrustStrip only on Home page
+  const showTrustStrip = location.pathname === "/";
+
   return (
     <>
       <Toaster richColors position="bottom-right" />
+
       {!hideLayout && <Header />}
 
       <main className={hideLayout ? "min-h-screen" : ""}>
-        {/* <Outlet /> renders the nested page */}
         <Outlet />
       </main>
 
-      {!hideLayout && <> <Footer /> <TrustStrip /> </>}
+      {!hideLayout && (
+        <>
+          <Footer />
+          {showTrustStrip && <TrustStrip />}
+        </>
+      )}
     </>
   );
 }
