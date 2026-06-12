@@ -235,7 +235,7 @@ export default function Resources() {
             <div className="flex items-center gap-3 mb-2">
               <Library className="w-6 h-6 text-cyan-400" />
               <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
-                Learning Resources
+                Study Materials
               </h1>
             </div>
             <p className="text-gray-400 text-sm sm:text-base max-w-lg">

@@ -209,7 +209,7 @@ export default function CourseLearning() {
   const sectionMap: Record<SectionKey, SectionCard> = useMemo(
     () => ({
       resources: {
-        title: "Resources",
+        title: "Study Materials",
         desc: "Access notes, guides, and downloadable materials.",
         icon: <FileText className="w-8 h-8" />,
         gradient: "from-blue-600/40 via-blue-500/20 to-transparent",
