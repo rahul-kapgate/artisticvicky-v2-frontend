@@ -170,7 +170,7 @@ export default function Resources() {
           success: boolean;
           data: Resource[];
         }>("/api/resource/all-resources", {
-          params: { course_id: courseId }, // ✅ pass as query param
+          // params: { course_id: courseId }, // ✅ pass as query param
         });
         if (!cancelled && data.success) setResources(data.data);
       } catch {
