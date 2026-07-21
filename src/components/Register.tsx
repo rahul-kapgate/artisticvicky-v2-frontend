@@ -1,4 +1,7 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useContext, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
+import { AuthContext } from "@/context/AuthContext";
+import GoogleLoginButton from "@/components/auth/GoogleLoginButton";
 import {
   Dialog,
   DialogContent,
@@ -19,7 +22,11 @@ export default function Register({
   open?: boolean;
   onOpenChange?: (value: boolean) => void;
 }) {
+  const { login } = useContext(AuthContext);
+  const navigate = useNavigate();
+
   const [internalOpen, setInternalOpen] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const open = controlledOpen ?? internalOpen;
   const onOpenChange = setControlledOpen ?? setInternalOpen;
 
@@ -74,14 +81,24 @@ export default function Register({
   }, [open]);
 
   const validateInitiate = () => {
-    const errs = { user_name: "", email: "", mobile: "", password: "", confirmPassword: "", otp: "" };
+    const errs = {
+      user_name: "",
+      email: "",
+      mobile: "",
+      password: "",
+      confirmPassword: "",
+      otp: "",
+    };
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const phoneRegex = /^[0-9]{10}$/;
 
     if (!formData.user_name.trim()) errs.user_name = "Please enter your name.";
-    if (!emailRegex.test(formData.email)) errs.email = "Enter a valid email address.";
-    if (!phoneRegex.test(formData.mobile)) errs.mobile = "Enter a valid 10-digit mobile number.";
-    if (formData.password.length < 6) errs.password = "Password must be at least 6 characters.";
+    if (!emailRegex.test(formData.email))
+      errs.email = "Enter a valid email address.";
+    if (!phoneRegex.test(formData.mobile))
+      errs.mobile = "Enter a valid 10-digit mobile number.";
+    if (formData.password.length < 6)
+      errs.password = "Password must be at least 6 characters.";
     if (formData.password !== formData.confirmPassword)
       errs.confirmPassword = "Passwords do not match.";
 
@@ -144,6 +161,51 @@ export default function Register({
     setErrors((prev) => ({ ...prev, [field]: "" }));
   };
 
+  const handleGoogleSignup = useCallback(
+    async (credential: string) => {
+      if (googleLoading) return;
+
+      setGoogleLoading(true);
+
+      try {
+        const res = await apiClient.post("/api/auth/google", {
+          credential,
+        });
+
+        const { accessToken, refreshToken, user } = res.data;
+
+        if (!accessToken || !refreshToken || !user) {
+          throw new Error("Invalid Google authentication response");
+        }
+
+        localStorage.setItem("accessToken", accessToken);
+        localStorage.setItem("refreshToken", refreshToken);
+
+        login(user);
+
+        toast.success(
+          res.data.message === "Google login successful"
+            ? "Continue with Google successful 🎉"
+            : "Account created successfully 🎉",
+        );
+
+        resetForm();
+        onOpenChange(false);
+        navigate("/");
+      } catch (err: any) {
+        console.error("Google signup error:", err);
+
+        toast.error(
+          err.response?.data?.message ||
+            "Google signup failed. Please try again.",
+        );
+      } finally {
+        setGoogleLoading(false);
+      }
+    },
+    [googleLoading, login, navigate, onOpenChange],
+  );
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       {controlledOpen === undefined && (
@@ -165,7 +227,6 @@ export default function Register({
     max-h-[90vh] overflow-y-auto hide-scrollbar
   "
       >
-
         {/* Responsive header */}
         <DialogHeader className="text-center space-y-1">
           <DialogTitle className="text-2xl sm:text-3xl font-extrabold bg-gradient-to-r from-cyan-300 to-purple-400 bg-clip-text text-transparent tracking-wide">
@@ -177,6 +238,31 @@ export default function Register({
               : "Enter the OTP sent to your email"}
           </DialogDescription>
         </DialogHeader>
+
+        {step === "initiate" && (
+          <>
+            <GoogleLoginButton
+              onCredential={handleGoogleSignup}
+              disabled={loading || googleLoading}
+            />
+
+            {googleLoading && (
+              <p className="text-center text-sm text-gray-400">
+                Creating your account with Google...
+              </p>
+            )}
+
+            <div className="flex items-center gap-3">
+              <div className="h-px flex-1 bg-white/15" />
+
+              <span className="text-xs uppercase tracking-wider text-gray-400">
+                or register with email
+              </span>
+
+              <div className="h-px flex-1 bg-white/15" />
+            </div>
+          </>
+        )}
 
         <div className="mt-6 space-y-4 sm:space-y-5">
           {step === "initiate" ? (
@@ -281,8 +367,9 @@ function Field({
         {label}
       </label>
       <div
-        className={`flex items-center bg-white/5 border ${error ? "border-red-400" : "border-white/20"
-          } rounded-xl px-3 py-2 sm:py-2.5`}
+        className={`flex items-center bg-white/5 border ${
+          error ? "border-red-400" : "border-white/20"
+        } rounded-xl px-3 py-2 sm:py-2.5`}
       >
         {icon}
         <input
@@ -319,8 +406,9 @@ function PasswordField({
         {label}
       </label>
       <div
-        className={`flex items-center bg-white/5 border ${error ? "border-red-400" : "border-white/20"
-          } rounded-xl px-3 py-2 sm:py-2.5`}
+        className={`flex items-center bg-white/5 border ${
+          error ? "border-red-400" : "border-white/20"
+        } rounded-xl px-3 py-2 sm:py-2.5`}
       >
         <Lock className="text-purple-300 mr-2" size={18} />
         <input
@@ -342,7 +430,6 @@ function PasswordField({
     </div>
   );
 }
-
 
 function OtpInput({
   label,
@@ -391,7 +478,10 @@ function OtpInput({
     }
   };
 
-  const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (
+    index: number,
+    e: React.KeyboardEvent<HTMLInputElement>,
+  ) => {
     if (e.key === "Backspace") {
       if (digits[index]) {
         // clear current digit
@@ -428,7 +518,7 @@ function OtpInput({
             key={i}
             ref={(el) => {
               inputsRef.current[i] = el;
-            }}            
+            }}
             type="text"
             inputMode="numeric"
             maxLength={1}
@@ -442,8 +532,9 @@ function OtpInput({
         ))}
       </div>
 
-      {error && <p className="text-xs text-red-400 mt-2 text-center">{error}</p>}
+      {error && (
+        <p className="text-xs text-red-400 mt-2 text-center">{error}</p>
+      )}
     </div>
   );
 }
-

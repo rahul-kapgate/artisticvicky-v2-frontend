@@ -9,7 +9,9 @@
       These are the fallback values Google sees if JS hasn't loaded yet.
       For full SSR/pre-rendering, consider migrating to Next.js (see plan below).
     -->
-    <title>AV Art Academy — India's #1 MAH AAC CET Art Exam Coaching Online</title>
+    <title>
+      AV Art Academy — India's #1 MAH AAC CET Art Exam Coaching Online
+    </title>
     <meta
       name="description"
       content="Join 1200+ students who cracked MAH AAC CET with AV Art Academy. Online courses for Perspective Drawing, Colour Theory, Aptitude & Mock Tests. 94% selection rate."
@@ -20,19 +22,37 @@
     <!-- Open Graph (Facebook, WhatsApp, LinkedIn) -->
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="AV Art Academy" />
-    <meta property="og:title" content="AV Art Academy — India's #1 MAH AAC CET Art Exam Coaching Online" />
-    <meta property="og:description" content="Join 1200+ students who cracked MAH AAC CET with AV Art Academy. Online courses for Perspective Drawing, Colour Theory, Aptitude & Mock Tests. 94% selection rate." />
+    <meta
+      property="og:title"
+      content="AV Art Academy — India's #1 MAH AAC CET Art Exam Coaching Online"
+    />
+    <meta
+      property="og:description"
+      content="Join 1200+ students who cracked MAH AAC CET with AV Art Academy. Online courses for Perspective Drawing, Colour Theory, Aptitude & Mock Tests. 94% selection rate."
+    />
     <meta property="og:url" content="https://artisticvickey.in/" />
-    <meta property="og:image" content="https://artisticvickey.in/og-image.jpg" />
+    <meta
+      property="og:image"
+      content="https://artisticvickey.in/og-image.jpg"
+    />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:locale" content="en_IN" />
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="AV Art Academy — MAH AAC CET Online Coaching" />
-    <meta name="twitter:description" content="Join 1200+ students who cracked MAH AAC CET with AV Art Academy. 94% selection rate." />
-    <meta name="twitter:image" content="https://artisticvickey.in/og-image.jpg" />
+    <meta
+      name="twitter:title"
+      content="AV Art Academy — MAH AAC CET Online Coaching"
+    />
+    <meta
+      name="twitter:description"
+      content="Join 1200+ students who cracked MAH AAC CET with AV Art Academy. 94% selection rate."
+    />
+    <meta
+      name="twitter:image"
+      content="https://artisticvickey.in/og-image.jpg"
+    />
 
     <!-- Favicon + App icons -->
     <link rel="icon" type="image/png" href="/av-art.jpeg" />
@@ -56,36 +76,32 @@
       Only preload it on the home page; use a server-side conditional or
       remove this tag from non-home pages in a Next.js <Head>.
     -->
-    <link
-      rel="preload"
-      as="image"
-      href="/vicky.jpg"
-      fetchpriority="high"
-    />
+    <link rel="preload" as="image" href="/vicky.jpg" fetchpriority="high" />
 
     <!--
       ── Organisation JSON-LD (site-wide, always present) ──
       Helps Google understand your brand across all pages.
     -->
     <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "EducationalOrganization",
-      "name": "AV Art Academy",
-      "url": "https://artisticvickey.in",
-      "logo": "https://artisticvickey.in/artistic-vicky-favicon.png",
-      "description": "India's #1 online coaching for MAH AAC CET / MHT CET Art exam preparation.",
-      "contactPoint": {
-        "@type": "ContactPoint",
-        "telephone": "+91-9325217691",
-        "contactType": "customer support"
-      },
-      "sameAs": [
-        "https://www.instagram.com/artistic.Vickey",
-        "https://www.youtube.com/@ArtisticVickey"
-      ]
-    }
+      {
+        "@context": "https://schema.org",
+        "@type": "EducationalOrganization",
+        "name": "AV Art Academy",
+        "url": "https://artisticvickey.in",
+        "logo": "https://artisticvickey.in/artistic-vicky-favicon.png",
+        "description": "India's #1 online coaching for MAH AAC CET / MHT CET Art exam preparation.",
+        "contactPoint": {
+          "@type": "ContactPoint",
+          "telephone": "+91-9325217691",
+          "contactType": "customer support"
+        },
+        "sameAs": [
+          "https://www.instagram.com/artistic.Vickey",
+          "https://www.youtube.com/@ArtisticVickey"
+        ]
+      }
     </script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
   </head>
   <body>
     <!--
@@ -95,16 +111,15 @@
       and canonical link is visible without JS.
     -->
     <noscript>
-      <div style="text-align:center;padding:2rem;font-family:sans-serif">
+      <div style="text-align: center; padding: 2rem; font-family: sans-serif">
         <h1>AV Art Academy — MAH AAC CET Online Coaching</h1>
         <p>
           India's #1 platform for MAH AAC CET / MHT CET Art exam preparation.
-          Join 1200+ students. 94% selection rate.
-          Please enable JavaScript to access the full site.
+          Join 1200+ students. 94% selection rate. Please enable JavaScript to
+          access the full site.
         </p>
       </div>
     </noscript>
-    
 
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
