@@ -2,10 +2,14 @@ import { createContext, useEffect, useState } from "react";
 import type { ReactNode } from "react";
 
 interface User {
+  id?: number;
+  user_name?: string;
   email?: string;
-  mobile?: string;
+  mobile?: string | null;
   is_admin?: boolean;
   avatar_id?: number;
+  auth_provider?: "local" | "google" | "local_google";
+  profile_picture?: string | null;
 }
 
 interface AuthContextType {
@@ -25,7 +29,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
-    if (storedUser) setUser(JSON.parse(storedUser));
+
+    if (!storedUser) {
+      return;
+    }
+
+    try {
+      setUser(JSON.parse(storedUser));
+    } catch {
+      localStorage.removeItem("user");
+    }
   }, []);
 
   const login = (userData: User) => {
@@ -34,7 +47,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = () => {
-    localStorage.clear();
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+    localStorage.removeItem("user");
+
     setUser(null);
     window.location.href = "/";
   };

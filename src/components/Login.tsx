@@ -1,4 +1,4 @@
-import { useState, useContext, useEffect } from "react";
+import { useState, useContext, useEffect, useCallback } from "react";
 import {
   Dialog,
   DialogContent,
@@ -13,6 +13,7 @@ import { apiClient } from "@/utils/axiosConfig";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { AuthContext } from "@/context/AuthContext";
+import GoogleLoginButton from "@/components/auth/GoogleLoginButton";
 
 export default function Login({
   open,
@@ -37,10 +38,41 @@ export default function Login({
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [fieldErrors, setFieldErrors] = useState({
     identifier: "",
     password: "",
   });
+
+  const completeLogin = useCallback(
+    (data: {
+      accessToken: string;
+      refreshToken: string;
+      user: {
+        id?: number;
+        user_name?: string;
+        email?: string;
+        mobile?: string | null;
+        is_admin?: boolean;
+        avatar_id?: number;
+        auth_provider?: "local" | "google" | "local_google";
+        profile_picture?: string | null;
+      };
+    }) => {
+      localStorage.setItem("accessToken", data.accessToken);
+      localStorage.setItem("refreshToken", data.refreshToken);
+
+      login(data.user);
+
+      toast.success("Login successful 🎉", {
+        description: "Welcome back!",
+      });
+
+      handleOpenChange(false);
+      navigate("/");
+    },
+    [handleOpenChange, login, navigate],
+  );
 
   // ✅ Reset when dialog closes
   useEffect(() => {
@@ -85,27 +117,55 @@ export default function Login({
         password,
       });
 
-      if (res.data.accessToken) {
-        localStorage.setItem("accessToken", res.data.accessToken);
-        localStorage.setItem("refreshToken", res.data.refreshToken);
-        localStorage.setItem("user", JSON.stringify(res.data.user));
-
-        login(res.data.user);
-        toast.success("Login successful 🎉", {
-          description: "Welcome back!",
-        });
-
-        handleOpenChange(false);
-        navigate("/");
+      if (res.data.accessToken && res.data.refreshToken && res.data.user) {
+        completeLogin(res.data);
       } else {
-        toast.error(res.data.message || "Invalid credentials.");
+        toast.error(res.data.message || "Invalid login response.");
       }
     } catch (err: any) {
-      toast.error(err.response?.data?.message || "Login failed. Please try again.");
+      toast.error(
+        err.response?.data?.message || "Login failed. Please try again.",
+      );
     } finally {
       setLoading(false);
     }
   };
+
+  const handleGoogleLogin = useCallback(
+    async (credential: string) => {
+      if (googleLoading) {
+        return;
+      }
+
+      setGoogleLoading(true);
+
+      try {
+        const res = await apiClient.post("/api/auth/google", {
+          credential,
+        });
+
+        if (
+          !res.data?.accessToken ||
+          !res.data?.refreshToken ||
+          !res.data?.user
+        ) {
+          throw new Error("Invalid Google login response");
+        }
+
+        completeLogin(res.data);
+      } catch (err: any) {
+        console.error("Google login failed:", err);
+
+        toast.error(
+          err.response?.data?.message ||
+            "Google login failed. Please try again.",
+        );
+      } finally {
+        setGoogleLoading(false);
+      }
+    },
+    [completeLogin, googleLoading],
+  );
 
   return (
     <Dialog open={actualOpen} onOpenChange={handleOpenChange}>
@@ -135,8 +195,9 @@ export default function Login({
               Email or Mobile Number
             </label>
             <div
-              className={`flex items-center bg-white/5 border ${fieldErrors.identifier ? "border-red-400" : "border-white/20"
-                } rounded-xl px-3 py-2 focus-within:border-cyan-400 focus-within:ring-2 focus-within:ring-cyan-400/40 transition-all duration-300`}
+              className={`flex items-center bg-white/5 border ${
+                fieldErrors.identifier ? "border-red-400" : "border-white/20"
+              } rounded-xl px-3 py-2 focus-within:border-cyan-400 focus-within:ring-2 focus-within:ring-cyan-400/40 transition-all duration-300`}
             >
               {identifier === "" ? (
                 <User className="text-cyan-300 mr-2" size={18} />
@@ -169,8 +230,9 @@ export default function Login({
               Password
             </label>
             <div
-              className={`flex items-center bg-white/5 border ${fieldErrors.password ? "border-red-400" : "border-white/20"
-                } rounded-xl px-3 py-2 focus-within:border-purple-400 focus-within:ring-2 focus-within:ring-purple-400/40 transition-all duration-300`}
+              className={`flex items-center bg-white/5 border ${
+                fieldErrors.password ? "border-red-400" : "border-white/20"
+              } rounded-xl px-3 py-2 focus-within:border-purple-400 focus-within:ring-2 focus-within:ring-purple-400/40 transition-all duration-300`}
             >
               <Lock className="text-purple-300 mr-2" size={18} />
               <input
@@ -211,16 +273,42 @@ export default function Login({
             </button>
           </div>
 
-
           {/* Submit */}
           <Button
             type="submit"
             disabled={loading}
             className="w-full py-2.5 rounded-full font-semibold text-lg bg-gradient-to-r from-cyan-400 via-purple-500 to-fuchsia-500 hover:opacity-90 shadow-lg hover:shadow-fuchsia-500/30 transition-all duration-300 flex justify-center items-center gap-2"
           >
-            {loading ? "Logging in..." : (<><LogIn size={18} /> Login</>)}
+            {loading ? (
+              "Logging in..."
+            ) : (
+              <>
+                <LogIn size={18} /> Login
+              </>
+            )}
           </Button>
         </form>
+
+        <div className="my-6 flex items-center gap-3">
+          <div className="h-px flex-1 bg-white/15" />
+
+          <span className="text-xs uppercase tracking-wider text-gray-400">
+            or
+          </span>
+
+          <div className="h-px flex-1 bg-white/15" />
+        </div>
+
+        <GoogleLoginButton
+          onCredential={handleGoogleLogin}
+          disabled={loading || googleLoading}
+        />
+
+        {googleLoading && (
+          <p className="mt-2 text-center text-sm text-gray-400">
+            Signing in with Google...
+          </p>
+        )}
 
         <p className="text-center text-gray-400 mt-6 text-sm">
           Don’t have an account?{" "}
