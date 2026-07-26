@@ -620,7 +620,7 @@ function Home() {
     ({ art, prefix }: { art: StudentArtwork; prefix: string }) => (
       <div
         key={`${prefix}-${art.id}`}
-        className="min-w-[260px] sm:min-w-[320px] bg-gradient-to-br from-[#0f172a] via-[#020617] to-[#1e293b] rounded-2xl border border-cyan-400/20 shadow-lg overflow-hidden group"
+        className="min-w-[calc(100vw-48px)] max-w-[340px] sm:min-w-[320px] bg-gradient-to-br from-[#0f172a] via-[#020617] to-[#1e293b] rounded-2xl border border-cyan-400/20 shadow-lg overflow-hidden group"
       >
         <div className="relative h-56 w-full overflow-hidden">
           <img
@@ -818,18 +818,33 @@ function Home() {
         <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-black/50 to-transparent" />
       </section>
 
-      {/* ══════════════ STUDENT ARTWORKS ══════════════ */}
-      <section className="py-16 px-6 bg-gradient-to-b from-[#020617] via-[#020617] to-[#0b1120] text-gray-100">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-10">
-            <h2 className="text-4xl font-bold mb-3">
-              🖼️ Students <span className="text-cyan-300">Artworks</span>
-            </h2>
-            <p className="text-gray-300 max-w-2xl mx-auto">
-              Explore beautiful creations made by students of AV Art Academy
-              from different cities and backgrounds.
-            </p>
-          </div>
+     {/* ══════════════ STUDENT ARTWORKS ══════════════ */}
+<section className="py-12 sm:py-16 px-4 sm:px-6 bg-gradient-to-b from-[#020617] via-[#020617] to-[#0b1120] text-gray-100 overflow-hidden">
+  <div className="w-full max-w-7xl mx-auto">
+    <div className="text-center mb-8 sm:mb-10 px-2">
+      <h2 className="flex items-center justify-center gap-2 text-[28px] sm:text-4xl font-bold leading-tight mb-3">
+        <span
+          className="shrink-0"
+          role="img"
+          aria-label="Artwork"
+        >
+          🖼️
+        </span>
+
+        <span className="whitespace-nowrap">
+          Students{" "}
+          <span className="text-cyan-300">
+            Artworks
+          </span>
+        </span>
+      </h2>
+
+      <p className="text-sm sm:text-base text-gray-300 leading-relaxed max-w-2xl mx-auto">
+        Explore beautiful creations made by students of AV Art Academy
+        from different cities and backgrounds.
+      </p>
+    </div>
+
 
           {artworkLoading ? (
             <div className="flex gap-6 overflow-hidden max-w-[90vw] mx-auto animate-pulse">
@@ -849,12 +864,12 @@ function Home() {
               No student artwork shared yet. Stay tuned! ✨
             </p>
           ) : (
-            <div className="relative max-w-[90vw] mx-auto">
+            <div className="relative w-full max-w-7xl mx-auto">
               <div
                 ref={scrollContainerRef}
                 className="overflow-x-scroll pb-4 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden cursor-grab active:cursor-grabbing"
               >
-                <div className="flex gap-6">
+                <div className="flex gap-4 sm:gap-6">
                   <div className="flex gap-6" ref={firstRowRef}>
                     {studentArtworks.map((art) => (
                       <ArtworkCard key={art.id} art={art} prefix="first" />
@@ -872,20 +887,35 @@ function Home() {
         </div>
       </section>
 
-      {/* ══════════════ COURSES ══════════════ */}
-      <section
-        id="courses"
-        className="py-16 px-6 bg-gradient-to-b from-[#10194f] via-[#132060] to-[#1a237e] text-gray-100"
-      >
-        <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold mb-3">
-            🎨 Explore <span className="text-cyan-300">Courses</span>
-          </h2>
-          <p className="text-gray-300 max-w-2xl mx-auto">
-            Learn, create, and master your artistic skills through immersive and
-            guided lessons.
-          </p>
-        </div>
+    {/* ══════════════ COURSES ══════════════ */}
+<section
+  id="courses"
+  className="py-12 sm:py-16 px-4 sm:px-6 bg-gradient-to-b from-[#10194f] via-[#132060] to-[#1a237e] text-gray-100 overflow-hidden"
+>
+  <div className="w-full max-w-7xl mx-auto">
+    <div className="text-center mb-8 sm:mb-12 px-2">
+      <h2 className="flex items-center justify-center gap-2 text-[28px] sm:text-4xl font-bold leading-tight mb-3">
+        <span
+          className="shrink-0"
+          role="img"
+          aria-label="Courses"
+        >
+          🎨
+        </span>
+
+        <span className="whitespace-nowrap">
+          Explore{" "}
+          <span className="text-cyan-300">
+            Courses
+          </span>
+        </span>
+      </h2>
+
+      <p className="text-sm sm:text-base text-gray-300 leading-relaxed max-w-2xl mx-auto">
+        Learn, create, and master your artistic skills through immersive
+        and guided lessons.
+      </p>
+    </div>
 
         {loading ? (
           <div className="flex gap-6 overflow-hidden max-w-6xl mx-auto animate-pulse">
@@ -939,7 +969,7 @@ function Home() {
                     <article
                       key={course.id}
                       ref={index === 0 ? courseFirstCardRef : undefined}
-                      className={`snap-start flex-shrink-0 w-[260px] sm:w-[320px] md:w-[360px] rounded-2xl shadow-lg p-5 transition-all duration-300 hover:scale-[1.02] bg-gradient-to-br ${s.gradient} border ${s.border} group flex flex-col`}
+                      className={`snap-center sm:snap-start flex-shrink-0 w-[calc(100vw-48px)] max-w-[340px] sm:w-[320px] md:w-[360px] rounded-2xl shadow-lg p-5 transition-all duration-300 hover:scale-[1.02] bg-gradient-to-br ${s.gradient} border ${s.border} group flex flex-col`}
                     >
                       <img
                         src={course.image}
@@ -1001,6 +1031,7 @@ function Home() {
             </div>
           </div>
         )}
+        </div>
       </section>
 
       <NotificationsSection />
