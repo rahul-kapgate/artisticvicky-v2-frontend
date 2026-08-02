@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import React from "react";
 import {
   ArrowLeft,
+  ExternalLink,
   Star,
   Users,
   CheckCircle2,
@@ -419,8 +420,23 @@ export function ElementaryCoursePage({
               <div>
                 <h3 className="font-bold text-white text-base">Vickey Sir</h3>
                 <p className="text-amber-300 text-sm mb-2">
-                  Drawing Grade Exam Expert & Art Coach
+                  Drawing Grade Exam Mentor & Art Educator
                 </p>
+                <a
+                  href="https://gcadnagpur.in/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title="Government College of Art & Design, Nagpur"
+                  aria-label="View Government College of Art and Design Nagpur website"
+                  className="mb-3 inline-flex max-w-full items-center gap-2 rounded-lg border border-amber-400/20 bg-amber-400/10 px-3 py-2 text-xs text-amber-100 transition hover:border-amber-300/40 hover:bg-amber-400/15"
+                >
+                  <GraduationCap className="h-4 w-4 shrink-0 text-amber-300" />
+                  <span className="leading-snug">
+                    Pursuing <strong className="font-semibold text-white">BFA</strong> 
+                    at <span className="font-semibold">GCAD Nagpur</span>
+                  </span>
+                  <ExternalLink className="h-3.5 w-3.5 shrink-0 opacity-70" />
+                </a>
                 <div className="flex flex-wrap gap-3 text-xs text-gray-400 mb-3">
                   <span className="flex items-center gap-1">
                     <Star className="w-3.5 h-3.5 text-yellow-400" /> 5.0 Rating
@@ -435,10 +451,10 @@ export function ElementaryCoursePage({
                   </span>
                 </div>
                 <p className="text-gray-300 text-sm leading-relaxed">
-                  Expert art educator specialising in Drawing Grade Exam preparation
-                  and MAH AAC CET coaching. Vickey Sir has helped hundreds of
-                  students clear Elementary & Intermediate grade exams with
-                  confidence and high scores.
+                  An art educator and MAH AAC CET mentor who brings formal BFA
+                  learning into practical Drawing Grade Exam preparation,
+                  helping students strengthen technique, presentation, and
+                  exam confidence.
                 </p>
               </div>
             </div>

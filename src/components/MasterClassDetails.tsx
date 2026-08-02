@@ -562,8 +562,23 @@ export default function MasterClassDetails() {
               <div>
                 <h3 className="font-bold text-white text-base">Vicky Sir</h3>
                 <p className="text-violet-300 text-sm mb-2">
-                  MAH AAC CET Expert & BFA Coach
+                  MAH AAC CET Mentor & Art Educator
                 </p>
+                <a
+                  href="https://gcadnagpur.in/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title="Government College of Art & Design, Nagpur"
+                  aria-label="View Government College of Art and Design Nagpur website"
+                  className="mb-3 inline-flex max-w-full items-center gap-2 rounded-lg border border-violet-400/20 bg-violet-400/10 px-3 py-2 text-xs text-violet-100 transition hover:border-violet-300/40 hover:bg-violet-400/15"
+                >
+                  <GraduationCap className="h-4 w-4 shrink-0 text-violet-300" />
+                  <span className="leading-snug">
+                    Pursuing <strong className="font-semibold text-white">BFA</strong> 
+                    at <span className="font-semibold">GCAD Nagpur</span>
+                  </span>
+                  <ExternalLink className="h-3.5 w-3.5 shrink-0 opacity-70" />
+                </a>
                 <div className="flex flex-wrap gap-3 text-xs text-gray-400 mb-3">
                   <span className="flex items-center gap-1">
                     <Star className="w-3.5 h-3.5 text-yellow-400" /> 5.0 Rating
@@ -574,9 +589,9 @@ export default function MasterClassDetails() {
                   </span>
                 </div>
                 <p className="text-gray-300 text-sm leading-relaxed">
-                  Expert MAH AAC CET coach helping students unlock their
-                  creative potential and secure BFA admissions across
-                  Maharashtra's top visual arts colleges.
+                  A practicing artist and MAH AAC CET mentor who combines
+                  formal art education with practical exam guidance to help
+                  students build strong fundamentals and prepare confidently.
                 </p>
               </div>
             </div>

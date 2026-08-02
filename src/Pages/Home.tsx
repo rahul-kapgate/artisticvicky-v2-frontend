@@ -1093,21 +1093,42 @@ function Home() {
               <h3 className="text-2xl font-semibold mb-4 text-purple-700">
                 Meet Vickey — The Artist Behind the Canvas
               </h3>
+
+              <div className="mb-5 rounded-xl border border-purple-200 bg-purple-50/80 px-4 py-3">
+                <p className="text-sm sm:text-base text-gray-700 leading-relaxed">
+                  🎓 Currently pursuing a <strong>Bachelor of Fine Arts (BFA)</strong>{" "}
+                  at{" "}
+                  <a
+                    href="https://gcadnagpur.in/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-semibold text-purple-700 underline decoration-purple-300 underline-offset-4 hover:text-purple-900"
+                  >
+                    Government College of Art &amp; Design, Nagpur (GCAD)
+                  </a>
+                  , a premier visual-arts institution in the Vidarbha region.
+                </p>
+              </div>
+
               <p className="text-gray-700 mb-4 leading-relaxed">
-                Vickey's artistic vision is rooted in curiosity and constant
-                exploration. Whether it's digital illustration, watercolor
-                realism, or abstract compositions, each artwork aims to connect
-                emotionally with its audience.
+                Vickey's artistic vision is rooted in curiosity, disciplined
+                learning, and constant exploration. His BFA education at GCAD
+                Nagpur is helping him strengthen his foundation in fine arts while
+                developing a deeper understanding of creative techniques and
+                visual expression.
               </p>
+
               <p className="text-gray-700 mb-6 leading-relaxed">
-                Through <strong>AV Art Academy</strong>, the goal is to inspire
-                others to see art as a language that transcends boundaries —
-                celebrating creativity, diversity, and imagination.
+                Through <strong>AV Art Academy</strong>, Vickey shares this growing
+                knowledge and practical experience to help aspiring artists build
+                confidence, improve their skills, and prepare for their own
+                creative journeys.
               </p>
+
               <div className="flex items-center gap-3 mt-4">
                 <span className="inline-block w-10 h-1 bg-purple-600 rounded-full" />
                 <p className="text-gray-800 font-medium">
-                  Creating art that connects hearts worldwide 🌍
+                  Learning, creating, and inspiring the next generation of artists 🎨
                 </p>
               </div>
             </div>
