@@ -495,7 +495,7 @@ function Home() {
     fetchFaqs();
   }, [fetchCourses, fetchStudentArtworks, fetchHomePageReviews, fetchFaqs]);
 
-  const ORDER = [1,27, 26, 16, 12, 13, 24, 25];
+  const ORDER = [1, 27, 26, 16, 12, 13, 24, 25];
   const sortedCourses = [...courses].sort((a, b) => {
     const aPos = ORDER.indexOf(a.id) === -1 ? 999 : ORDER.indexOf(a.id);
     const bPos = ORDER.indexOf(b.id) === -1 ? 999 : ORDER.indexOf(b.id);
@@ -818,33 +818,25 @@ function Home() {
         <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-black/50 to-transparent" />
       </section>
 
-     {/* ══════════════ STUDENT ARTWORKS ══════════════ */}
-<section className="py-12 sm:py-16 px-4 sm:px-6 bg-gradient-to-b from-[#020617] via-[#020617] to-[#0b1120] text-gray-100 overflow-hidden">
-  <div className="w-full max-w-7xl mx-auto">
-    <div className="text-center mb-8 sm:mb-10 px-2">
-      <h2 className="flex items-center justify-center gap-2 text-[28px] sm:text-4xl font-bold leading-tight mb-3">
-        <span
-          className="shrink-0"
-          role="img"
-          aria-label="Artwork"
-        >
-          🖼️
-        </span>
+      {/* ══════════════ STUDENT ARTWORKS ══════════════ */}
+      <section className="py-12 sm:py-16 px-4 sm:px-6 bg-gradient-to-b from-[#020617] via-[#020617] to-[#0b1120] text-gray-100 overflow-hidden">
+        <div className="w-full max-w-7xl mx-auto">
+          <div className="text-center mb-8 sm:mb-10 px-2">
+            <h2 className="flex items-center justify-center gap-2 text-[28px] sm:text-4xl font-bold leading-tight mb-3">
+              <span className="shrink-0" role="img" aria-label="Artwork">
+                🖼️
+              </span>
 
-        <span className="whitespace-nowrap">
-          Students{" "}
-          <span className="text-cyan-300">
-            Artworks
-          </span>
-        </span>
-      </h2>
+              <span className="whitespace-nowrap">
+                Students <span className="text-cyan-300">Artworks</span>
+              </span>
+            </h2>
 
-      <p className="text-sm sm:text-base text-gray-300 leading-relaxed max-w-2xl mx-auto">
-        Explore beautiful creations made by students of AV Art Academy
-        from different cities and backgrounds.
-      </p>
-    </div>
-
+            <p className="text-sm sm:text-base text-gray-300 leading-relaxed max-w-2xl mx-auto">
+              Explore beautiful creations made by students of AV Art Academy
+              from different cities and backgrounds.
+            </p>
+          </div>
 
           {artworkLoading ? (
             <div className="flex gap-6 overflow-hidden max-w-[90vw] mx-auto animate-pulse">
@@ -887,150 +879,143 @@ function Home() {
         </div>
       </section>
 
-    {/* ══════════════ COURSES ══════════════ */}
-<section
-  id="courses"
-  className="py-12 sm:py-16 px-4 sm:px-6 bg-gradient-to-b from-[#10194f] via-[#132060] to-[#1a237e] text-gray-100 overflow-hidden"
->
-  <div className="w-full max-w-7xl mx-auto">
-    <div className="text-center mb-8 sm:mb-12 px-2">
-      <h2 className="flex items-center justify-center gap-2 text-[28px] sm:text-4xl font-bold leading-tight mb-3">
-        <span
-          className="shrink-0"
-          role="img"
-          aria-label="Courses"
-        >
-          🎨
-        </span>
+      {/* ══════════════ COURSES ══════════════ */}
+      <section
+        id="courses"
+        className="py-12 sm:py-16 px-4 sm:px-6 bg-gradient-to-b from-[#10194f] via-[#132060] to-[#1a237e] text-gray-100 overflow-hidden"
+      >
+        <div className="w-full max-w-7xl mx-auto">
+          <div className="text-center mb-8 sm:mb-12 px-2">
+            <h2 className="flex items-center justify-center gap-2 text-[28px] sm:text-4xl font-bold leading-tight mb-3">
+              <span className="shrink-0" role="img" aria-label="Courses">
+                🎨
+              </span>
 
-        <span className="whitespace-nowrap">
-          Explore{" "}
-          <span className="text-cyan-300">
-            Courses
-          </span>
-        </span>
-      </h2>
+              <span className="whitespace-nowrap">
+                Explore <span className="text-cyan-300">Courses</span>
+              </span>
+            </h2>
 
-      <p className="text-sm sm:text-base text-gray-300 leading-relaxed max-w-2xl mx-auto">
-        Learn, create, and master your artistic skills through immersive
-        and guided lessons.
-      </p>
-    </div>
-
-        {loading ? (
-          <div className="flex gap-6 overflow-hidden max-w-6xl mx-auto animate-pulse">
-            {Array.from({ length: 3 }).map((_, i) => (
-              <div
-                key={i}
-                className="flex-shrink-0 w-[260px] sm:w-[320px] md:w-[360px] rounded-2xl bg-[#2b1a4a]/40 h-80 border border-white/10"
-              />
-            ))}
+            <p className="text-sm sm:text-base text-gray-300 leading-relaxed max-w-2xl mx-auto">
+              Learn, create, and master your artistic skills through immersive
+              and guided lessons.
+            </p>
           </div>
-        ) : error ? (
-          <p className="text-center text-red-400">
-            Failed to load courses: {error}
-          </p>
-        ) : courses.length === 0 ? (
-          <p className="text-center text-gray-300 mt-6">
-            No courses available yet.
-          </p>
-        ) : (
-          <div className="relative max-w-6xl mx-auto">
-            {(["left", "right"] as const).map((dir) => (
-              <button
-                key={dir}
-                type="button"
-                onClick={() => scrollCoursesByStep(dir)}
-                className={`hidden md:flex items-center justify-center absolute ${dir === "left" ? "-left-12" : "-right-12"} top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-black/30 border border-white/15 hover:bg-black/45 transition`}
-                aria-label={`Scroll courses ${dir}`}
-              >
-                {dir === "left" ? (
-                  <ChevronLeft className="w-5 h-5 text-white" />
-                ) : (
-                  <ChevronRight className="w-5 h-5 text-white" />
-                )}
-              </button>
-            ))}
 
-            <div
-              ref={courseScrollRef}
-              className="overflow-x-auto scroll-smooth pb-4 snap-x snap-mandatory [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-              onWheel={(e) => {
-                if (Math.abs(e.deltaY) > Math.abs(e.deltaX))
-                  e.currentTarget.scrollLeft += e.deltaY;
-              }}
-            >
-              <div className="flex gap-6">
-                {sortedCourses.map((course, index) => {
-                  const s = CARD_STYLES[index % 3];
-                  const isMasterclass = course.course_type === "masterclass";
-                  const isStudyMaterial = course.id === 16;
-                  return (
-                    <article
-                      key={course.id}
-                      ref={index === 0 ? courseFirstCardRef : undefined}
-                      className={`snap-center sm:snap-start flex-shrink-0 w-[calc(100vw-48px)] max-w-[340px] sm:w-[320px] md:w-[360px] rounded-2xl shadow-lg p-5 transition-all duration-300 hover:scale-[1.02] bg-gradient-to-br ${s.gradient} border ${s.border} group flex flex-col`}
-                    >
-                      <img
-                        src={course.image}
-                        alt={course.course_name}
-                        className="rounded-xl mb-4 lg:h-80 h-55 w-full object-cover border border-white/10 group-hover:border-white/30 transition-all duration-300"
-                        onError={(e) => {
-                          e.currentTarget.onerror = null;
-                        }}
-                      />
-                      <h3
-                        className={`text-xl font-semibold ${s.accent.split(" ")[0]} mb-2`}
+          {loading ? (
+            <div className="flex gap-6 overflow-hidden max-w-6xl mx-auto animate-pulse">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="flex-shrink-0 w-[260px] sm:w-[320px] md:w-[360px] rounded-2xl bg-[#2b1a4a]/40 h-80 border border-white/10"
+                />
+              ))}
+            </div>
+          ) : error ? (
+            <p className="text-center text-red-400">
+              Failed to load courses: {error}
+            </p>
+          ) : courses.length === 0 ? (
+            <p className="text-center text-gray-300 mt-6">
+              No courses available yet.
+            </p>
+          ) : (
+            <div className="relative max-w-6xl mx-auto">
+              {(["left", "right"] as const).map((dir) => (
+                <button
+                  key={dir}
+                  type="button"
+                  onClick={() => scrollCoursesByStep(dir)}
+                  className={`hidden md:flex items-center justify-center absolute ${dir === "left" ? "-left-12" : "-right-12"} top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-black/30 border border-white/15 hover:bg-black/45 transition`}
+                  aria-label={`Scroll courses ${dir}`}
+                >
+                  {dir === "left" ? (
+                    <ChevronLeft className="w-5 h-5 text-white" />
+                  ) : (
+                    <ChevronRight className="w-5 h-5 text-white" />
+                  )}
+                </button>
+              ))}
+
+              <div
+                ref={courseScrollRef}
+                className="overflow-x-auto scroll-smooth pb-4 snap-x snap-mandatory [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                onWheel={(e) => {
+                  if (Math.abs(e.deltaY) > Math.abs(e.deltaX))
+                    e.currentTarget.scrollLeft += e.deltaY;
+                }}
+              >
+                <div className="flex gap-6">
+                  {sortedCourses.map((course, index) => {
+                    const s = CARD_STYLES[index % 3];
+                    const isMasterclass = course.course_type === "masterclass";
+                    const isStudyMaterial = course.id === 16;
+                    return (
+                      <article
+                        key={course.id}
+                        ref={index === 0 ? courseFirstCardRef : undefined}
+                        className={`snap-center sm:snap-start flex-shrink-0 w-[calc(100vw-48px)] max-w-[340px] sm:w-[320px] md:w-[360px] rounded-2xl shadow-lg p-5 transition-all duration-300 hover:scale-[1.02] bg-gradient-to-br ${s.gradient} border ${s.border} group flex flex-col`}
                       >
-                        {course.course_name}
-                      </h3>
-                      <div className="flex justify-between text-sm text-gray-300 mb-3">
-                        <span>
-                          {isMasterclass
-                            ? "🎓 Masterclass"
-                            : course.category || "—"}
-                        </span>
-                        <span className="text-right">
-                          {course.price_without_discount &&
-                          course.price_without_discount > course.price ? (
-                            <span className="flex flex-col items-end leading-tight">
-                              <span className="text-xs text-red-500 line-through">
-                                ₹{course.price_without_discount}
+                        <img
+                          src={course.image}
+                          alt={course.course_name}
+                          className="rounded-xl mb-4 lg:h-80 h-55 w-full object-cover border border-white/10 group-hover:border-white/30 transition-all duration-300"
+                          onError={(e) => {
+                            e.currentTarget.onerror = null;
+                          }}
+                        />
+                        <h3
+                          className={`text-xl font-semibold ${s.accent.split(" ")[0]} mb-2`}
+                        >
+                          {course.course_name}
+                        </h3>
+                        <div className="flex justify-between text-sm text-gray-300 mb-3">
+                          <span>
+                            {isMasterclass
+                              ? "🎓 Masterclass"
+                              : course.category || "—"}
+                          </span>
+                          <span className="text-right">
+                            {course.price_without_discount &&
+                            course.price_without_discount > course.price ? (
+                              <span className="flex flex-col items-end leading-tight">
+                                <span className="text-xs text-red-500 line-through">
+                                  ₹{course.price_without_discount}
+                                </span>
+                                <span className="text-emerald-400 font-semibold">
+                                  ₹{course.price}
+                                </span>
                               </span>
+                            ) : (
                               <span className="text-emerald-400 font-semibold">
                                 ₹{course.price}
                               </span>
-                            </span>
-                          ) : (
-                            <span className="text-emerald-400 font-semibold">
-                              ₹{course.price}
-                            </span>
-                          )}
-                        </span>
-                      </div>
-                      <button
-                        onClick={() =>
-                          navigate(
-                            isMasterclass
-                              ? `/masterclass/${course.id}`
-                              : `/courses/${course.id}`,
-                          )
-                        }
-                        className={`mt-auto w-full py-2 rounded-lg font-semibold border ${s.accent} text-white/90 hover:text-white transition-all duration-300`}
-                      >
-                        {isMasterclass
-                          ? "View Masterclass ✨"
-                          : isStudyMaterial
-                            ? "Buy Now ✨"
-                            : "Enroll Now ✨"}
-                      </button>
-                    </article>
-                  );
-                })}
+                            )}
+                          </span>
+                        </div>
+                        <button
+                          onClick={() =>
+                            navigate(
+                              isMasterclass
+                                ? `/masterclass/${course.id}`
+                                : `/courses/${course.id}`,
+                            )
+                          }
+                          className={`mt-auto w-full py-2 rounded-lg font-semibold border ${s.accent} text-white/90 hover:text-white transition-all duration-300`}
+                        >
+                          {isMasterclass
+                            ? "View Masterclass ✨"
+                            : isStudyMaterial
+                              ? "Buy Now ✨"
+                              : "Enroll Now ✨"}
+                        </button>
+                      </article>
+                    );
+                  })}
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
         </div>
       </section>
 
@@ -1096,8 +1081,8 @@ function Home() {
 
               <div className="mb-5 rounded-xl border border-purple-200 bg-purple-50/80 px-4 py-3">
                 <p className="text-sm sm:text-base text-gray-700 leading-relaxed">
-                  🎓 Currently pursuing a <strong>Bachelor of Fine Arts (BFA)</strong>{" "}
-                  at{" "}
+                  🎓 Currently pursuing a{" "}
+                  <strong>Bachelor of Fine Arts (BFA)</strong> in Applied Art at{" "}
                   <a
                     href="https://gcadnagpur.in/"
                     target="_blank"
@@ -1106,29 +1091,31 @@ function Home() {
                   >
                     Government College of Art &amp; Design, Nagpur (GCAD)
                   </a>
-                  , a premier visual-arts institution in the Vidarbha region.
+                  , a premier visual-arts institution in the Maharashtra.
                 </p>
               </div>
 
               <p className="text-gray-700 mb-4 leading-relaxed">
-                Vickey's artistic vision is rooted in curiosity, disciplined
-                learning, and constant exploration. His BFA education at GCAD
-                Nagpur is helping him strengthen his foundation in fine arts while
-                developing a deeper understanding of creative techniques and
-                visual expression.
+                Vickey's creative journey is rooted in curiosity, disciplined
+                learning, and constant exploration. His BFA in Applied Art at
+                GCAD Nagpur is helping him develop a strong foundation in
+                drawing, design, visual communication, creative visualization,
+                typography, photography, and digital art.
               </p>
 
               <p className="text-gray-700 mb-6 leading-relaxed">
-                Through <strong>AV Art Academy</strong>, Vickey shares this growing
-                knowledge and practical experience to help aspiring artists build
-                confidence, improve their skills, and prepare for their own
-                creative journeys.
+                Through <strong>AV Art Academy</strong>, Vickey shares his
+                knowledge, practical experience, and learning journey to help
+                aspiring artists build confidence, improve their skills, and
+                prepare for competitive art entrance examinations and creative
+                careers.
               </p>
 
               <div className="flex items-center gap-3 mt-4">
                 <span className="inline-block w-10 h-1 bg-purple-600 rounded-full" />
                 <p className="text-gray-800 font-medium">
-                  Learning, creating, and inspiring the next generation of artists 🎨
+                  Learning, creating, and inspiring the next generation of
+                  artists 🎨
                 </p>
               </div>
             </div>

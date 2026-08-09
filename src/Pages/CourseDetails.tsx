@@ -654,7 +654,7 @@ function MockTestCoursePage({
                   <GraduationCap className="h-4 w-4 shrink-0 text-orange-300" />
                   <span className="leading-snug">
                     Pursuing <strong className="font-semibold text-white">BFA</strong> 
-                    at <span className="font-semibold">GCAD Nagpur</span>
+                    {" "}{" "}at <span className="font-semibold">GCAD Nagpur</span>
                   </span>
                   <ExternalLink className="h-3.5 w-3.5 shrink-0 opacity-70" />
                 </a>
@@ -1069,7 +1069,7 @@ function PYQMockCoursePage({
                   <GraduationCap className="h-4 w-4 shrink-0 text-violet-300" />
                   <span className="leading-snug">
                     Pursuing <strong className="font-semibold text-white">BFA</strong> 
-                    {" "}at <span className="font-semibold">GCAD Nagpur</span>
+                    {" "}{" "}at <span className="font-semibold">GCAD Nagpur</span>
                   </span>
                   <ExternalLink className="h-3.5 w-3.5 shrink-0 opacity-70" />
                 </a>
@@ -1610,7 +1610,7 @@ function ResourcesCoursePage({
                   <GraduationCap className="h-4 w-4 shrink-0 text-emerald-300" />
                   <span className="leading-snug">
                     Pursuing <strong className="font-semibold text-white">BFA</strong> 
-                    at <span className="font-semibold">GCAD Nagpur</span>
+                    {" "}at <span className="font-semibold">GCAD Nagpur</span>
                   </span>
                   <ExternalLink className="h-3.5 w-3.5 shrink-0 opacity-70" />
                 </a>
@@ -2413,7 +2413,7 @@ export default function CourseDetails() {
                   <GraduationCap className="h-4 w-4 shrink-0 text-cyan-300" />
                   <span className="leading-snug">
                     Pursuing <strong className="font-semibold text-white">BFA</strong> 
-                    at <span className="font-semibold">GCAD Nagpur</span>
+                    {" "}at <span className="font-semibold">GCAD Nagpur</span>
                   </span>
                   <ExternalLink className="h-3.5 w-3.5 shrink-0 opacity-70" />
                 </a>
