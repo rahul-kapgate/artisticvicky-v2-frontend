@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo, useCallback } from "react";
-import { useParams } from "react-router-dom"; 
+import { useParams } from "react-router-dom";
 import { apiClient } from "@/utils/axiosConfig";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -26,7 +26,7 @@ interface Resource {
   file_url: string;
   file_name: string;
   mime_type: string;
-  course_id: number; 
+  course_id: number;
   created_at: string;
 }
 
@@ -163,16 +163,31 @@ export default function Resources() {
     if (!courseId) return;
 
     let cancelled = false;
+
     (async () => {
       setLoading(true);
+
       try {
         const { data } = await apiClient.get<{
           success: boolean;
           data: Resource[];
-        }>("/api/resource/all-resources", {
-          // params: { course_id: courseId }, // ✅ pass as query param
-        });
-        if (!cancelled && data.success) setResources(data.data);
+        }>("/api/resource/all-resources");
+
+        if (!cancelled && data.success) {
+          const currentCourseId = Number(courseId);
+
+          const courseResources = data.data.filter((resource) => {
+            // Course 1 and 16 share the same resources
+            if (currentCourseId === 1 || currentCourseId === 16) {
+              return resource.course_id === 1 || resource.course_id === 16;
+            }
+
+            // Other courses only get their own resources
+            return resource.course_id === currentCourseId;
+          });
+
+          setResources(courseResources);
+        }
       } catch {
         toast.error("Failed to load resources");
       } finally {
@@ -183,7 +198,7 @@ export default function Resources() {
     return () => {
       cancelled = true;
     };
-  }, [courseId]); // ✅ re-fetch if courseId changes
+  }, [courseId]);
 
   /* Derived counts — memoised */
   const typeCounts = useMemo(() => {
@@ -194,18 +209,24 @@ export default function Resources() {
 
   /* Filtered list — memoised (type + search only, course filter is done server-side) */
   const filtered = useMemo(() => {
-    let list =
-      selectedType === "All"
-        ? resources
-        : resources.filter((r) => r.type === selectedType);
+    let list = resources;
+
+    // Filter by resource type
+    if (selectedType !== "All") {
+      list = list.filter((resource) => resource.type === selectedType);
+    }
+
+    // Filter by search
     if (search.trim()) {
-      const q = search.toLowerCase();
+      const q = search.toLowerCase().trim();
+
       list = list.filter(
-        (r) =>
-          r.title.toLowerCase().includes(q) ||
-          r.description?.toLowerCase().includes(q),
+        (resource) =>
+          resource.title.toLowerCase().includes(q) ||
+          resource.description?.toLowerCase().includes(q),
       );
     }
+
     return list;
   }, [resources, selectedType, search]);
 
