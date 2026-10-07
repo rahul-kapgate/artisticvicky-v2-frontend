@@ -7,6 +7,7 @@ import AttemptsList from "@/components/AttemptsList";
 import ArtAvatar from "@/components/avatar/ArtAvatar";
 import AvatarPicker from "@/components/avatar/AvatarPicker";
 import { AuthContext } from "@/context/AuthContext";
+import DeleteAccountSection from "@/components/profile/DeleteAccountSection";
 
 interface UserProfileData {
   id: number;
@@ -80,10 +81,10 @@ export default function UserProfile() {
     : 0;
 
   return (
-    <section className="min-h-screen pt-24 pb-16 px-4 bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white">
-      <div className="max-w-6xl mx-auto space-y-6">
+    <section className="min-h-screen bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 px-4 pb-16 pt-24 text-white">
+      <div className="mx-auto max-w-6xl space-y-6">
         {/* HEADER CARD */}
-        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-xl">
+        <div className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-xl backdrop-blur-xl">
           {loading ? (
             <div className="space-y-4">
               <Skeleton className="h-16 w-16 rounded-xl" />
@@ -94,15 +95,16 @@ export default function UserProfile() {
             <p className="text-red-400">{error}</p>
           ) : (
             profile && (
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-                {/* LEFT — avatar + info */}
+              <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+                {/* LEFT */}
                 <div className="flex items-center gap-4">
-                  {/* Avatar with edit button */}
-                  <div className="relative group">
+                  <div className="group relative">
                     <ArtAvatar avatarId={avatarId} size={80} />
+
                     <button
+                      type="button"
                       onClick={() => setPickerOpen(true)}
-                      className="absolute inset-0 flex items-center justify-center rounded-2xl bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity"
+                      className="absolute inset-0 flex items-center justify-center rounded-2xl bg-black/50 opacity-0 transition-opacity group-hover:opacity-100"
                       title="Change avatar"
                     >
                       <Pencil size={18} className="text-white" />
@@ -110,30 +112,34 @@ export default function UserProfile() {
                   </div>
 
                   <div>
-                    <h2 className="text-xl md:text-2xl font-semibold">
+                    <h2 className="text-xl font-semibold md:text-2xl">
                       {profile.user_name}
                     </h2>
+
                     <p className="text-sm text-gray-400">
                       Joined{" "}
                       {new Date(profile.created_at).toLocaleDateString("en-IN")}
                     </p>
+
                     <button
+                      type="button"
                       onClick={() => setPickerOpen(true)}
-                      className="mt-1 text-xs text-orange-400 hover:text-orange-300 transition"
+                      className="mt-1 text-xs text-orange-400 transition hover:text-orange-300"
                     >
                       Change avatar
                     </button>
                   </div>
                 </div>
 
-                {/* RIGHT — badges */}
+                {/* RIGHT */}
                 <div className="flex flex-wrap gap-2">
                   {profile.is_admin && (
-                    <span className="px-3 py-1 text-xs rounded-full bg-yellow-400 text-black font-semibold">
+                    <span className="rounded-full bg-yellow-400 px-3 py-1 text-xs font-semibold text-black">
                       Admin
                     </span>
                   )}
-                  <span className="px-3 py-1 text-xs rounded-full bg-indigo-500/20 border border-indigo-400">
+
+                  <span className="rounded-full border border-indigo-400 bg-indigo-500/20 px-3 py-1 text-xs">
                     {profileCompletion}% Complete
                   </span>
                 </div>
@@ -142,20 +148,22 @@ export default function UserProfile() {
           )}
         </div>
 
-        {/* DETAILS GRID */}
+        {/* CONTACT INFO */}
         {!loading && profile && (
-          <div className="grid md:grid-cols-1 gap-6">
-            <div className="bg-white/5 border border-white/10 rounded-2xl p-5 space-y-4">
+          <div className="grid gap-6 md:grid-cols-1">
+            <div className="space-y-4 rounded-2xl border border-white/10 bg-white/5 p-5">
               <h3 className="text-lg font-semibold">Contact Info</h3>
 
-              <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 transition">
+              <div className="flex items-center gap-3 rounded-xl bg-white/5 p-3 transition hover:bg-white/10">
                 <Mail size={18} />
+
                 <span className="truncate">{profile.email}</span>
               </div>
 
-              <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 transition">
+              <div className="flex items-center gap-3 rounded-xl bg-white/5 p-3 transition hover:bg-white/10">
                 <Phone size={18} />
-                <span>{profile.mobile}</span>
+
+                <span>{profile.mobile || "Not provided"}</span>
               </div>
             </div>
           </div>
@@ -165,12 +173,15 @@ export default function UserProfile() {
         {profile && (
           <div className="space-y-6">
             <AttemptsList studentId={profile.id} type="mock" />
+
             <AttemptsList studentId={profile.id} type="pyq" />
           </div>
         )}
+
+        {!loading && <DeleteAccountSection />}
       </div>
 
-      {/* AVATAR PICKER MODAL */}
+      {/* AVATAR PICKER */}
       {pickerOpen && (
         <AvatarPicker
           currentId={avatarId}

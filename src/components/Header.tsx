@@ -23,6 +23,9 @@ function Header() {
   const [loginOpen, setLoginOpen] = useState(false);
   const [registerOpen, setRegisterOpen] = useState(false);
   const [forgotOpen, setForgotOpen] = useState(false);
+  const [authReturnTo, setAuthReturnTo] = useState<string | undefined>(
+    undefined,
+  );
 
   // Hide/Show header on scroll
   useEffect(() => {
@@ -53,17 +56,28 @@ function Header() {
     const handleOpenAuthModal = (e: Event) => {
       const customEvent = e as CustomEvent<{
         mode?: "login" | "register" | "forgot";
+
+        returnTo?: string;
       }>;
+
       const mode = customEvent.detail?.mode || "login";
+
+      setAuthReturnTo(customEvent.detail?.returnTo);
+
       setIsOpen(false);
+
       setLoginOpen(mode === "login");
+
       setRegisterOpen(mode === "register");
+
       setForgotOpen(mode === "forgot");
     };
+
     window.addEventListener(
       "open-auth-modal",
       handleOpenAuthModal as EventListener,
     );
+
     return () => {
       window.removeEventListener(
         "open-auth-modal",
@@ -201,7 +215,14 @@ function Header() {
 
                 <Login
                   open={loginOpen}
-                  onOpenChange={setLoginOpen}
+                  onOpenChange={(open) => {
+                    setLoginOpen(open);
+
+                    if (!open) {
+                      setAuthReturnTo(undefined);
+                    }
+                  }}
+                  redirectTo={authReturnTo}
                   onOpenRegister={() => {
                     setLoginOpen(false);
                     setRegisterOpen(true);

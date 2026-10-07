@@ -8,23 +8,44 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Mail, Phone, User, Lock, LogIn, Eye, EyeOff } from "lucide-react";
+import {
+  Mail,
+  Phone,
+  User,
+  Lock,
+  LogIn,
+  Eye,
+  EyeOff,
+  AlertTriangle,
+} from "lucide-react";
 import { apiClient } from "@/utils/axiosConfig";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { AuthContext } from "@/context/AuthContext";
 import GoogleLoginButton from "@/components/auth/GoogleLoginButton";
 
+interface PendingDeletionData {
+  message: string;
+  deletionScheduledAt: string;
+  reactivationToken: string;
+}
+
 export default function Login({
   open,
   onOpenChange,
   onOpenRegister,
   onOpenForgotPassword,
+  redirectTo,
 }: {
   open?: boolean;
+
   onOpenChange?: (open: boolean) => void;
+
   onOpenRegister?: () => void;
+
   onOpenForgotPassword?: () => void;
+
+  redirectTo?: string;
 }) {
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -43,6 +64,11 @@ export default function Login({
     identifier: "",
     password: "",
   });
+
+  const [pendingDeletion, setPendingDeletion] =
+    useState<PendingDeletionData | null>(null);
+
+  const [reactivating, setReactivating] = useState(false);
 
   const completeLogin = useCallback(
     (data: {
@@ -69,9 +95,40 @@ export default function Login({
       });
 
       handleOpenChange(false);
-      navigate("/");
+
+      navigate(redirectTo || "/");
     },
-    [handleOpenChange, login, navigate],
+    [handleOpenChange, login, navigate, redirectTo],
+  );
+
+  const handleAuthResponse = useCallback(
+    (data: any) => {
+      // Account is currently scheduled for deletion
+      if (
+        data?.code === "ACCOUNT_PENDING_DELETION" &&
+        data?.canReactivate &&
+        data?.reactivationToken
+      ) {
+        setPendingDeletion({
+          message: data.message || "Your account is scheduled for deletion.",
+
+          deletionScheduledAt: data.deletionScheduledAt,
+
+          reactivationToken: data.reactivationToken,
+        });
+
+        return;
+      }
+
+      // Normal login
+      if (data?.accessToken && data?.refreshToken && data?.user) {
+        completeLogin(data);
+        return;
+      }
+
+      toast.error(data?.message || "Invalid login response.");
+    },
+    [completeLogin],
   );
 
   // ✅ Reset when dialog closes
@@ -81,6 +138,21 @@ export default function Login({
       setPassword("");
       setShowPassword(false);
       setFieldErrors({ identifier: "", password: "" });
+    }
+  }, [actualOpen]);
+
+  useEffect(() => {
+    if (!actualOpen) {
+      setIdentifier("");
+      setPassword("");
+      setShowPassword(false);
+
+      setFieldErrors({
+        identifier: "",
+        password: "",
+      });
+
+      setPendingDeletion(null);
     }
   }, [actualOpen]);
 
@@ -108,7 +180,9 @@ export default function Login({
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (!validateFields()) return;
+
     setLoading(true);
 
     try {
@@ -117,11 +191,7 @@ export default function Login({
         password,
       });
 
-      if (res.data.accessToken && res.data.refreshToken && res.data.user) {
-        completeLogin(res.data);
-      } else {
-        toast.error(res.data.message || "Invalid login response.");
-      }
+      handleAuthResponse(res.data);
     } catch (err: any) {
       toast.error(
         err.response?.data?.message || "Login failed. Please try again.",
@@ -133,9 +203,7 @@ export default function Login({
 
   const handleGoogleLogin = useCallback(
     async (credential: string) => {
-      if (googleLoading) {
-        return;
-      }
+      if (googleLoading) return;
 
       setGoogleLoading(true);
 
@@ -144,15 +212,7 @@ export default function Login({
           credential,
         });
 
-        if (
-          !res.data?.accessToken ||
-          !res.data?.refreshToken ||
-          !res.data?.user
-        ) {
-          throw new Error("Invalid Google login response");
-        }
-
-        completeLogin(res.data);
+        handleAuthResponse(res.data);
       } catch (err: any) {
         console.error("Google login failed:", err);
 
@@ -164,8 +224,42 @@ export default function Login({
         setGoogleLoading(false);
       }
     },
-    [completeLogin, googleLoading],
+    [googleLoading, handleAuthResponse],
   );
+
+  const handleReactivateAccount = async () => {
+    if (!pendingDeletion?.reactivationToken) {
+      return;
+    }
+
+    setReactivating(true);
+
+    try {
+      const res = await apiClient.post("/api/auth/reactivate", {
+        reactivationToken: pendingDeletion.reactivationToken,
+      });
+
+      if (
+        !res.data?.accessToken ||
+        !res.data?.refreshToken ||
+        !res.data?.user
+      ) {
+        throw new Error("Invalid reactivation response");
+      }
+
+      setPendingDeletion(null);
+
+      toast.success("Account reactivated successfully 🎉");
+
+      completeLogin(res.data);
+    } catch (err: any) {
+      toast.error(
+        err.response?.data?.message || "Failed to reactivate your account.",
+      );
+    } finally {
+      setReactivating(false);
+    }
+  };
 
   return (
     <Dialog open={actualOpen} onOpenChange={handleOpenChange}>
@@ -179,152 +273,232 @@ export default function Login({
       )}
 
       <DialogContent className="rounded-3xl border border-white/10 bg-gradient-to-b from-[#1A1446] via-[#22185A] to-[#2D1D70] text-gray-100 shadow-[0_0_25px_rgba(100,70,255,0.3)] max-w-md backdrop-blur-xl">
-        <DialogHeader className="text-center">
-          <DialogTitle className="text-3xl font-extrabold bg-gradient-to-r from-cyan-300 to-purple-400 bg-clip-text text-transparent tracking-wide">
-            Welcome Back ✨
-          </DialogTitle>
-          <DialogDescription className="text-gray-400 mt-2">
-            Log in with your email or mobile number
-          </DialogDescription>
-        </DialogHeader>
-
-        <form onSubmit={handleLogin} className="space-y-5 mt-6">
-          {/* Identifier */}
-          <div>
-            <label className="block mb-2 text-gray-200 font-medium">
-              Email or Mobile Number
-            </label>
-            <div
-              className={`flex items-center bg-white/5 border ${
-                fieldErrors.identifier ? "border-red-400" : "border-white/20"
-              } rounded-xl px-3 py-2 focus-within:border-cyan-400 focus-within:ring-2 focus-within:ring-cyan-400/40 transition-all duration-300`}
-            >
-              {identifier === "" ? (
-                <User className="text-cyan-300 mr-2" size={18} />
-              ) : identifier.includes("@") ? (
-                <Mail className="text-cyan-300 mr-2" size={18} />
-              ) : (
-                <Phone className="text-cyan-300 mr-2" size={18} />
-              )}
-              <input
-                type="text"
-                value={identifier}
-                onChange={(e) => {
-                  setIdentifier(e.target.value);
-                  setFieldErrors((prev) => ({ ...prev, identifier: "" }));
-                }}
-                placeholder="you@example.com or 9876543210"
-                className="w-full bg-transparent outline-none text-gray-100 placeholder-gray-400"
-              />
+        {pendingDeletion ? (
+          <div className="py-4">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-amber-400/30 bg-amber-400/10">
+              <AlertTriangle size={26} className="text-amber-300" />
             </div>
-            {fieldErrors.identifier && (
-              <p className="text-xs text-red-400 mt-1">
-                {fieldErrors.identifier}
-              </p>
-            )}
-          </div>
 
-          {/* Password */}
-          <div>
-            <label className="block mb-2 text-gray-200 font-medium">
-              Password
-            </label>
-            <div
-              className={`flex items-center bg-white/5 border ${
-                fieldErrors.password ? "border-red-400" : "border-white/20"
-              } rounded-xl px-3 py-2 focus-within:border-purple-400 focus-within:ring-2 focus-within:ring-purple-400/40 transition-all duration-300`}
-            >
-              <Lock className="text-purple-300 mr-2" size={18} />
-              <input
-                type={showPassword ? "text" : "password"}
-                value={password}
-                onChange={(e) => {
-                  setPassword(e.target.value);
-                  setFieldErrors((prev) => ({ ...prev, password: "" }));
-                }}
-                placeholder="••••••••"
-                className="w-full bg-transparent outline-none text-gray-100 placeholder-gray-400"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="text-gray-400 hover:text-purple-300 transition-colors ml-2"
-              >
-                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-              </button>
+            <div className="mt-5 text-center">
+              <h2 className="text-2xl font-bold text-white">
+                Account Scheduled for Deletion
+              </h2>
+
+              <p className="mt-3 text-sm leading-6 text-gray-300">
+                {pendingDeletion.message}
+              </p>
             </div>
-            {fieldErrors.password && (
-              <p className="text-xs text-red-400 mt-1">
-                {fieldErrors.password}
-              </p>
-            )}
-          </div>
 
-          {/*forgot password  */}
-          <div className="flex justify-end mt-1">
+            <div className="mt-6 rounded-xl border border-white/10 bg-white/5 p-4">
+              <p className="text-xs font-medium uppercase tracking-wider text-gray-400">
+                Scheduled deletion date
+              </p>
+
+              <p className="mt-2 text-lg font-semibold text-white">
+                {new Intl.DateTimeFormat("en-IN", {
+                  day: "2-digit",
+                  month: "long",
+                  year: "numeric",
+                  timeZone: "Asia/Kolkata",
+                }).format(new Date(pendingDeletion.deletionScheduledAt))}
+              </p>
+            </div>
+
+            <div className="mt-5 rounded-xl border border-cyan-400/20 bg-cyan-400/5 p-4">
+              <p className="text-sm leading-6 text-gray-300">
+                Reactivating will cancel your account deletion and restore
+                normal access to AV Art Academy.
+              </p>
+            </div>
+
             <button
               type="button"
-              onClick={() => {
-                onOpenForgotPassword?.();
-              }}
-              className="text-xs text-cyan-300 hover:text-cyan-200 underline-offset-2 hover:underline"
+              disabled={reactivating}
+              onClick={handleReactivateAccount}
+              className="
+        mt-6 flex w-full
+        items-center justify-center
+        rounded-full
+        bg-gradient-to-r
+        from-cyan-400
+        via-purple-500
+        to-fuchsia-500
+        px-4 py-3
+        font-semibold text-white
+        transition
+        hover:opacity-90
+        disabled:cursor-not-allowed
+        disabled:opacity-50
+      "
             >
-              Forgot password?
+              {reactivating ? "Reactivating..." : "Reactivate Account"}
+            </button>
+
+            <button
+              type="button"
+              disabled={reactivating}
+              onClick={() => {
+                setPendingDeletion(null);
+
+                handleOpenChange(false);
+              }}
+              className="mt-3 w-full py-2 text-sm text-gray-400 transition hover:text-white"
+            >
+              Cancel
             </button>
           </div>
+        ) : (
+          <>
+            <DialogHeader className="text-center">
+              <DialogTitle className="text-3xl font-extrabold bg-gradient-to-r from-cyan-300 to-purple-400 bg-clip-text text-transparent tracking-wide">
+                Welcome Back ✨
+              </DialogTitle>
+              <DialogDescription className="text-gray-400 mt-2">
+                Log in with your email or mobile number
+              </DialogDescription>
+            </DialogHeader>
 
-          {/* Submit */}
-          <Button
-            type="submit"
-            disabled={loading}
-            className="w-full py-2.5 rounded-full font-semibold text-lg bg-gradient-to-r from-cyan-400 via-purple-500 to-fuchsia-500 hover:opacity-90 shadow-lg hover:shadow-fuchsia-500/30 transition-all duration-300 flex justify-center items-center gap-2"
-          >
-            {loading ? (
-              "Logging in..."
-            ) : (
-              <>
-                <LogIn size={18} /> Login
-              </>
+            <form onSubmit={handleLogin} className="space-y-5 mt-6">
+              {/* Identifier */}
+              <div>
+                <label className="block mb-2 text-gray-200 font-medium">
+                  Email or Mobile Number
+                </label>
+                <div
+                  className={`flex items-center bg-white/5 border ${
+                    fieldErrors.identifier
+                      ? "border-red-400"
+                      : "border-white/20"
+                  } rounded-xl px-3 py-2 focus-within:border-cyan-400 focus-within:ring-2 focus-within:ring-cyan-400/40 transition-all duration-300`}
+                >
+                  {identifier === "" ? (
+                    <User className="text-cyan-300 mr-2" size={18} />
+                  ) : identifier.includes("@") ? (
+                    <Mail className="text-cyan-300 mr-2" size={18} />
+                  ) : (
+                    <Phone className="text-cyan-300 mr-2" size={18} />
+                  )}
+                  <input
+                    type="text"
+                    value={identifier}
+                    onChange={(e) => {
+                      setIdentifier(e.target.value);
+                      setFieldErrors((prev) => ({ ...prev, identifier: "" }));
+                    }}
+                    placeholder="you@example.com or 9876543210"
+                    className="w-full bg-transparent outline-none text-gray-100 placeholder-gray-400"
+                  />
+                </div>
+                {fieldErrors.identifier && (
+                  <p className="text-xs text-red-400 mt-1">
+                    {fieldErrors.identifier}
+                  </p>
+                )}
+              </div>
+
+              {/* Password */}
+              <div>
+                <label className="block mb-2 text-gray-200 font-medium">
+                  Password
+                </label>
+                <div
+                  className={`flex items-center bg-white/5 border ${
+                    fieldErrors.password ? "border-red-400" : "border-white/20"
+                  } rounded-xl px-3 py-2 focus-within:border-purple-400 focus-within:ring-2 focus-within:ring-purple-400/40 transition-all duration-300`}
+                >
+                  <Lock className="text-purple-300 mr-2" size={18} />
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => {
+                      setPassword(e.target.value);
+                      setFieldErrors((prev) => ({ ...prev, password: "" }));
+                    }}
+                    placeholder="••••••••"
+                    className="w-full bg-transparent outline-none text-gray-100 placeholder-gray-400"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="text-gray-400 hover:text-purple-300 transition-colors ml-2"
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
+                {fieldErrors.password && (
+                  <p className="text-xs text-red-400 mt-1">
+                    {fieldErrors.password}
+                  </p>
+                )}
+              </div>
+
+              {/*forgot password  */}
+              <div className="flex justify-end mt-1">
+                <button
+                  type="button"
+                  onClick={() => {
+                    onOpenForgotPassword?.();
+                  }}
+                  className="text-xs text-cyan-300 hover:text-cyan-200 underline-offset-2 hover:underline"
+                >
+                  Forgot password?
+                </button>
+              </div>
+
+              {/* Submit */}
+              <Button
+                type="submit"
+                disabled={loading}
+                className="w-full py-2.5 rounded-full font-semibold text-lg bg-gradient-to-r from-cyan-400 via-purple-500 to-fuchsia-500 hover:opacity-90 shadow-lg hover:shadow-fuchsia-500/30 transition-all duration-300 flex justify-center items-center gap-2"
+              >
+                {loading ? (
+                  "Logging in..."
+                ) : (
+                  <>
+                    <LogIn size={18} /> Login
+                  </>
+                )}
+              </Button>
+            </form>
+
+            <div className="my-6 flex items-center gap-3">
+              <div className="h-px flex-1 bg-white/15" />
+
+              <span className="text-xs uppercase tracking-wider text-gray-400">
+                or
+              </span>
+
+              <div className="h-px flex-1 bg-white/15" />
+            </div>
+
+            <GoogleLoginButton
+              onCredential={handleGoogleLogin}
+              disabled={loading || googleLoading}
+            />
+
+            {googleLoading && (
+              <p className="mt-2 text-center text-sm text-gray-400">
+                Signing in with Google...
+              </p>
             )}
-          </Button>
-        </form>
 
-        <div className="my-6 flex items-center gap-3">
-          <div className="h-px flex-1 bg-white/15" />
-
-          <span className="text-xs uppercase tracking-wider text-gray-400">
-            or
-          </span>
-
-          <div className="h-px flex-1 bg-white/15" />
-        </div>
-
-        <GoogleLoginButton
-          onCredential={handleGoogleLogin}
-          disabled={loading || googleLoading}
-        />
-
-        {googleLoading && (
-          <p className="mt-2 text-center text-sm text-gray-400">
-            Signing in with Google...
-          </p>
+            <p className="text-center text-gray-400 mt-6 text-sm">
+              Don’t have an account?{" "}
+              <button
+                type="button"
+                onClick={() => {
+                  // ✅ Close login
+                  handleOpenChange(false);
+                  // ✅ Ask parent (Header) to open Register
+                  onOpenRegister?.();
+                }}
+                className="text-cyan-300 hover:text-cyan-200 font-semibold underline-offset-2 hover:underline"
+              >
+                Register
+              </button>
+            </p>
+          </>
         )}
-
-        <p className="text-center text-gray-400 mt-6 text-sm">
-          Don’t have an account?{" "}
-          <button
-            type="button"
-            onClick={() => {
-              // ✅ Close login
-              handleOpenChange(false);
-              // ✅ Ask parent (Header) to open Register
-              onOpenRegister?.();
-            }}
-            className="text-cyan-300 hover:text-cyan-200 font-semibold underline-offset-2 hover:underline"
-          >
-            Register
-          </button>
-        </p>
       </DialogContent>
     </Dialog>
   );
