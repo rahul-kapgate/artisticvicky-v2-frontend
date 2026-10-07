@@ -20,11 +20,17 @@ export default function Login({
   onOpenChange,
   onOpenRegister,
   onOpenForgotPassword,
+  redirectTo,
 }: {
   open?: boolean;
+
   onOpenChange?: (open: boolean) => void;
+
   onOpenRegister?: () => void;
+
   onOpenForgotPassword?: () => void;
+
+  redirectTo?: string;
 }) {
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -69,9 +75,10 @@ export default function Login({
       });
 
       handleOpenChange(false);
-      navigate("/");
+
+      navigate(redirectTo || "/");
     },
-    [handleOpenChange, login, navigate],
+    [handleOpenChange, login, navigate, redirectTo],
   );
 
   // ✅ Reset when dialog closes

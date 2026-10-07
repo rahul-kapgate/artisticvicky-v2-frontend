@@ -35,6 +35,8 @@ import CourseLiveTestsPage from "./Pages/CourseLiveTestsPage";
 import WhatsAppWidgetGate from "@/layouts/WhatsAppWidgetGate";
 import MasterClassDetails from "./components/MasterClassDetails";
 
+import DeleteAccountPage from "./Pages/DeleteAccountPage";
+
 function App() {
   return (
     <Router>
@@ -91,6 +93,8 @@ function App() {
 
           {/* 🧑‍🎓 User */}
           <Route path="profile" element={<UserProfile />} />
+
+          <Route path="delete-account" element={<DeleteAccountPage />} />
 
           {/* ❌ Fallback */}
           <Route path="*" element={<NotFound />} />
