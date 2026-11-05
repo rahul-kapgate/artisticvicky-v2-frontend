@@ -22,6 +22,7 @@ import NotificationsSection from "@/components/NotificationsSection";
 import Vicky from "/vicky.jpg";
 import FreeMockPopup from "@/components/FreeMockPopup";
 import ReviewsSection from "@/components/ReviewsSection";
+import { Smartphone } from "lucide-react";
 
 // ─── Constants (outside component — no re-creation on render) ───────────────
 
@@ -759,12 +760,14 @@ function Home() {
 
             {/* CTAs */}
             <motion.div
-              className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start mb-10"
+              className="flex flex-col sm:flex-row sm:flex-wrap gap-3 justify-center lg:justify-start mb-10"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
             >
+              {/* Explore Courses */}
               <motion.button
+                type="button"
                 onClick={() =>
                   document
                     .getElementById("courses")
@@ -776,7 +779,10 @@ function Home() {
               >
                 🎨 Explore Courses
               </motion.button>
+
+              {/* About Vickey */}
               <motion.button
+                type="button"
                 onClick={() =>
                   document
                     .getElementById("about")
@@ -788,6 +794,20 @@ function Home() {
               >
                 About Vickey →
               </motion.button>
+
+              {/* Download Android App */}
+              <motion.a
+                href="https://play.google.com/store/apps/details?id=com.rahulkapgatesteam.artisticvickey"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Download AV Art Academy on Google Play"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full font-semibold text-white bg-gradient-to-r from-emerald-500 to-green-600 border border-green-400/30 shadow-lg shadow-green-500/20 hover:from-emerald-400 hover:to-green-500 transition-all"
+                whileHover={{ scale: 1.04 }}
+                whileTap={{ scale: 0.97 }}
+              >
+                <Smartphone className="w-5 h-5" />
+                Download Android App
+              </motion.a>
             </motion.div>
 
             {/* Stats */}
