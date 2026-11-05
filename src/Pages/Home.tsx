@@ -22,7 +22,6 @@ import NotificationsSection from "@/components/NotificationsSection";
 import Vicky from "/vicky.jpg";
 import FreeMockPopup from "@/components/FreeMockPopup";
 import ReviewsSection from "@/components/ReviewsSection";
-import { Smartphone } from "lucide-react";
 
 // ─── Constants (outside component — no re-creation on render) ───────────────
 
