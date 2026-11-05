@@ -795,18 +795,22 @@ function Home() {
                 About Vickey →
               </motion.button>
 
-              {/* Download Android App */}
+              {/* Google Play Download */}
               <motion.a
                 href="https://play.google.com/store/apps/details?id=com.rahulkapgatesteam.artisticvickey"
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label="Download AV Art Academy on Google Play"
-                className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full font-semibold text-white bg-gradient-to-r from-emerald-500 to-green-600 border border-green-400/30 shadow-lg shadow-green-500/20 hover:from-emerald-400 hover:to-green-500 transition-all"
-                whileHover={{ scale: 1.04 }}
+                aria-label="Get AV Art Academy on Google Play"
+                className="inline-flex items-center justify-center"
+                whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.97 }}
               >
-                <Smartphone className="w-5 h-5" />
-                Download Android App
+                <img
+                  src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png"
+                  alt="Get it on Google Play"
+                  className="w-[190px] h-auto"
+                  loading="eager"
+                />
               </motion.a>
             </motion.div>
 
